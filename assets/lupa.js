@@ -41,7 +41,7 @@
     if (busy) return;
     var url = ($("#site").value || "").trim();
     if (!url) { note(J.empty, true); return; }
-    lastUrl = url; start(url);
+    lastUrl = url; emit("reading_requested"); start(url);
   });
 
   // Turnstile (opcional): si la configuración trae una clave pública, la persona se verifica antes de pedir la lectura.
@@ -150,13 +150,15 @@
     }
     if (f.agency) {
       var ag = el("div", "fagency"); ag.appendChild(el("span", "t-label", J.agency)); ag.appendChild(el("p", null, f.agency));
-      var b = el("button", "m-btn m-btn--text", J.copy_reading === "" ? "" : (cfg.lang === "he" ? "העתקה" : "Copy")); b.type = "button";
-      b.addEventListener("click", function () { window.medidoCopy(f.agency, b, J.copied); }); ag.appendChild(b); c.appendChild(ag);
+      var b = el("button", "m-btn m-btn--text", J.copy_reading === "" ? "" : (cfg.lang === "he" ? "העתקה" : cfg.lang === "es" ? "Copiar" : "Copy")); b.type = "button";
+      b.addEventListener("click", function () { window.medidoCopy(f.agency, b, J.copied); emit("questions_copied", { what: "one" }); }); ag.appendChild(b); c.appendChild(ag);
     }
     return c;
   }
 
+  var lastResult = null;
   function render(r) {
+    lastResult = r;
     window.__readId = r.read_id || null;
     var root = $("#result-in"); root.textContent = "";
     var host = ""; try { host = new URL(r.final_url || r.url).hostname; } catch (e) {}
@@ -224,11 +226,12 @@
     var row = el("div", "cta-row");
     var a1 = el("a", "m-btn m-btn--filled", J.next_btn); a1.href = mailto(cfg.subject_reread, mailBody(r.url || lastUrl, "")); row.appendChild(a1);
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en la tarjeta de lo que no veo
-    var b1 = el("button", "m-btn m-btn--outlined", J.copy_agency); b1.type = "button"; b1.addEventListener("click", function () { window.medidoCopy(agencyText(r), b1, J.copied); }); row.appendChild(b1);
+    var b1 = el("button", "m-btn m-btn--outlined", J.copy_agency); b1.type = "button"; b1.addEventListener("click", function () { window.medidoCopy(agencyText(r), b1, J.copied); emit("questions_copied", { what: "all" }); }); row.appendChild(b1);
     var b2 = el("button", "m-btn m-btn--outlined", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); }); row.appendChild(b2);
     var b3 = el("button", "m-btn m-btn--text", J.read_again); b3.type = "button"; b3.addEventListener("click", function () { start(lastUrl); }); row.appendChild(b3);
     nx.appendChild(row); nx.appendChild(el("p", "t-note", J.next_note)); root.appendChild(nx);
   }
 
-  function reveal() { d.body.classList.add("has-result"); show("result", true); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
+  function emit(name, extra) { try { d.dispatchEvent(new CustomEvent("medido:" + name, { detail: Object.assign({ page_lang: cfg.lang }, extra || {}) })); } catch (e) {} }
+  function reveal() { d.body.classList.add("has-result"); show("result", true); emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
 })();

@@ -118,7 +118,7 @@
       if (!j || j.configurado !== true) { S.phase = "off"; paint(); return; }
       S.st = j;
       var focus = null;
-      if (j.conectado) { S.phase = "connected"; if (back) focus = "ok"; if (j.sitio) store("medido_gsite", j.sitio); }
+      if (j.conectado) { S.phase = "connected"; if (back) { focus = "ok"; try { d.dispatchEvent(new CustomEvent("medido:analytics_connected", { detail: { page_lang: cfg.lang } })); } catch (e) {} } if (j.sitio) store("medido_gsite", j.sitio); }
       else if (back === "error") { S.phase = "error"; S.msg = motivoText(motivo); focus = "err"; }
       else if (back === "ok") { S.phase = "error"; S.msg = g.e_fail; focus = "err"; }
       else S.phase = "idle";

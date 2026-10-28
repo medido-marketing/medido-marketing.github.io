@@ -26,6 +26,7 @@
   var ck = $("#copykit"); if (ck && cfg) ck.addEventListener("click", function () {
     var lines = cfg.kit.map(function (q, i) { return (i + 1) + ". " + q; }).join("\n");
     copyText(lines, ck, cfg.js.copied);
+    try { d.dispatchEvent(new CustomEvent("medido:questions_copied", { detail: { page_lang: cfg.lang, what: "kit" } })); } catch (e) {}
   });
 
   // calculadora de ajuste al gasto
