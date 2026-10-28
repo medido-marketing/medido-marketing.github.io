@@ -5,6 +5,14 @@
   var GA4_ID = "G-T14ZL11D2C"; // ej. "G-ABC123DEF4"
   var pm = document.querySelector('meta[name="medido-meta-pixel"]'), PIXEL = pm ? (pm.getAttribute("content") || "") : "";
   if (!GA4_ID && !PIXEL) return;
+  // Interruptor para las visitas propias: abrir el sitio con ?interno=1 guarda una marca en ese navegador y desde entonces no se carga ni se manda nada
+  // (ni Google Analytics ni Meta). ?interno=0 la quita. No depende de la dirección IP y no guarda ningún dato personal.
+  try {
+    var q = location.search;
+    if (/[?&]interno=1(&|$)/.test(q)) localStorage.setItem("medido_interno", "1");
+    else if (/[?&]interno=0(&|$)/.test(q)) localStorage.removeItem("medido_interno");
+    if (localStorage.getItem("medido_interno") === "1") return;
+  } catch (e) {}
   var T = {
     en: { t: "We use cookies to measure visits and contact requests.", yes: "Accept", no: "Decline", privacy: "Privacy", privacyHref: "/privacy/", label: "Cookies" },
     he: { t: "אנחנו משתמשים בעוגיות כדי למדוד ביקורים ופניות.", yes: "אישור", no: "דחייה", privacy: "פרטיות", privacyHref: "/he/privacy/", label: "עוגיות" },
