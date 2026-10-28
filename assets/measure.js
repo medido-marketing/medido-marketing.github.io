@@ -28,7 +28,7 @@
     // Evento clave: envío del formulario de contacto (lo dispara contact.js).
     document.addEventListener("medido:lead", function (e) { gtag("event", "generate_lead", { page_lang: (e.detail && e.detail.page_lang) || lang }); });
     // Eventos propios del embudo: lectura completada (quien puso su sitio), preguntas copiadas, Analytics conectado.
-    ["reading_requested", "reading_completed", "questions_copied", "analytics_connected"].forEach(function (name) {
+    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected"].forEach(function (name) {
       document.addEventListener("medido:" + name, function (e) { gtag("event", name, Object.assign({ page_lang: lang }, (e && e.detail) || {})); });
     });
     // Clic en un mail de contacto (solo existe si el sitio está en modo mailto).
@@ -47,7 +47,7 @@
     var s = document.createElement("script"); s.async = true; s.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(s);
     window.fbq("init", PIXEL); window.fbq("track", "PageView");
     document.addEventListener("medido:lead", function () { window.fbq("track", "Lead"); });
-    ["reading_requested", "reading_completed", "questions_copied", "analytics_connected"].forEach(function (name) {
+    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected"].forEach(function (name) {
       document.addEventListener("medido:" + name, function (e) { window.fbq("trackCustom", name, (e && e.detail) || {}); });
     });
   }

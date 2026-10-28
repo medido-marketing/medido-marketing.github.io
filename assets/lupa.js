@@ -41,7 +41,7 @@
     if (busy) return;
     var url = ($("#site").value || "").trim();
     if (!url) { note(J.empty, true); return; }
-    lastUrl = url; emit("reading_requested"); start(url);
+    lastUrl = url; emit("pql_reading_requested"); start(url);
   });
 
   // Turnstile (opcional): si la configuración trae una clave pública, la persona se verifica antes de pedir la lectura.
