@@ -1,0 +1,19 @@
+# Medido
+
+> Independent second opinion on what small and medium businesses pay for marketing, in English, Hebrew and Spanish. Medido does not run ads and does not charge by ad spend, so it does not gain if the client spends more. A free automatic reading of a website shows what can be verified from outside, what cannot, and how to check each thing yourself.
+
+The reading opens a site in a real browser, twice, and records what fires (analytics, Tag Manager, Meta pixel), whether an event is counted twice, whether WhatsApp, phone and mail clicks send an event, who holds the domain, robots, sitemap and structured data. Every finding carries a seal: verified (seen in this run, with a record, repeatable in two minutes), inferred, reported, or not seen (never the same as "does not exist").
+
+## Steps and public prices
+
+- Reading: free, no signup, automatic, no human review. A 7-day re-read is free (by hand for the first 15 sites).
+- Diagnosis: US$1,200, 10 business days, written report and a 45-minute call. Page 1 is a verdict about the agency or provider (Keep, Change or Stop) with a figure in money. Makes sense from about US$5,000 of monthly ad spend.
+- Watch: from US$450 per month, a starting price under test. Weekly re-read, writes only when something really changes.
+- Quarter: US$2,500 per month, month to month. Written recommendations for the client's team and verification that each was done. Makes sense from about US$15,000 of monthly ad spend.
+- Flat fee, never a percentage of ad spend. Accounts stay in the client's name. No subcontracting.
+
+## Pages
+
+- [English](https://medido-marketing.github.io/)
+- [Hebrew](https://medido-marketing.github.io/he/)
+- [Method](https://medido-marketing.github.io/method/) and [Hebrew method](https://medido-marketing.github.io/he/method/)
