@@ -282,6 +282,8 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .cform{display:grid;gap:var(--s-16,16px);margin-top:var(--s-16,16px)}
 .cform textarea{width:100%;resize:vertical}
 .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
-.cc{position:fixed;inset-inline:16px;bottom:16px;z-index:50;max-width:560px;margin-inline:auto;display:grid;gap:12px;padding:16px;border-radius:12px;background:#0E0F12;color:#fff;border:2px solid #fff}
-.cc .t-body{margin:0;color:#fff}
-.cc .m-btn--outlined{color:#fff;border-color:#fff}
+.cc{position:fixed;inset-inline:12px;bottom:12px;z-index:50;max-width:520px;margin-inline:auto;display:grid;gap:10px;padding:12px 14px;border-radius:10px;background:#0E0F12;color:#fff;border:1px solid #fff;font-size:14px}
+.cc .t-body{margin:0;color:#fff;font-size:14px;line-height:1.4}
+.cc .t-body a{color:#fff;text-decoration:underline}
+.cc-row{display:flex;gap:8px;justify-content:flex-end}
+.cc-row .m-btn{min-height:36px;padding:6px 16px;color:#fff;border-color:#fff}

@@ -1,4 +1,4 @@
-// Medido · medición del propio sitio. Google Analytics 4 y el píxel de Meta se cargan SOLO si hay un ID configurado Y la persona lo aceptó.
+// Medido · medición del propio sitio. Google Analytics 4 y el píxel de Meta se cargan SOLO si hay un ID configurado Y la persona acepta.
 // GA4: el ID va abajo. Píxel de Meta: lo agrega el generador del sitio (tools/site_config.json -> meta_pixel_id) como <meta name="medido-meta-pixel">.
 // Sin ningún ID no hay aviso, no se carga nada y no se guarda nada.
 (function () {
@@ -6,9 +6,9 @@
   var pm = document.querySelector('meta[name="medido-meta-pixel"]'), PIXEL = pm ? (pm.getAttribute("content") || "") : "";
   if (!GA4_ID && !PIXEL) return;
   var T = {
-    en: { t: "I would like to measure visits and contact requests with Google Analytics. It loads only if you accept.", yes: "Accept", no: "Decline", label: "Measurement", both: "I would like to measure visits and contact requests with Google Analytics and the Meta pixel (to measure my own ads). They load only if you accept." },
-    he: { t: "אני רוצה למדוד ביקורים ופניות באמצעות Google Analytics. הוא נטען רק אם תאשרו.", yes: "אישור", no: "דחייה", label: "מדידה", both: "אני רוצה למדוד ביקורים ופניות באמצעות Google Analytics ופיקסל של Meta (כדי למדוד את המודעות שלי). הם נטענים רק אם תאשרו." },
-    es: { t: "Quiero medir visitas y pedidos de contacto con Google Analytics. Se carga solo si aceptás.", yes: "Aceptar", no: "Rechazar", label: "Medición", both: "Quiero medir visitas y pedidos de contacto con Google Analytics y el píxel de Meta (para medir mis propios anuncios). Se cargan solo si aceptás." }
+    en: { t: "We use cookies to measure visits and contact requests.", yes: "Accept", no: "Decline", privacy: "Privacy", privacyHref: "/privacy/", label: "Cookies" },
+    he: { t: "אנחנו משתמשים בעוגיות כדי למדוד ביקורים ופניות.", yes: "אישור", no: "דחייה", privacy: "פרטיות", privacyHref: "/he/privacy/", label: "עוגיות" },
+    es: { t: "Usamos cookies para medir visitas y pedidos de contacto.", yes: "Aceptar", no: "Rechazar", privacy: "Privacidad", privacyHref: "/es/privacy/", label: "Cookies" }
   };
   var lang = (document.documentElement.lang || "en").slice(0, 2), L = T[lang] || T.en, KEY = "medido_ga";
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -49,14 +49,16 @@
   function banner() {
     var b = document.createElement("div");
     b.className = "cc"; b.setAttribute("role", "region"); b.setAttribute("aria-label", L.label);
-    var p = document.createElement("p"); p.className = "t-body"; p.textContent = PIXEL ? L.both : L.t; b.appendChild(p);
-    var row = document.createElement("div"); row.className = "cta-row";
-    function btn(txt, cls, v) {
-      var x = document.createElement("button"); x.type = "button"; x.className = "m-btn " + cls; x.textContent = txt;
+    var p = document.createElement("p"); p.className = "t-body"; p.textContent = L.t;
+    var a = document.createElement("a"); a.href = L.privacyHref; a.textContent = " " + L.privacy; p.appendChild(a);
+    b.appendChild(p);
+    var row = document.createElement("div"); row.className = "cc-row";
+    function btn(txt, v) {
+      var x = document.createElement("button"); x.type = "button"; x.className = "m-btn m-btn--outlined"; x.textContent = txt;
       x.addEventListener("click", function () { set(v); b.remove(); if (v === "yes") load(); });
       return x;
     }
-    row.appendChild(btn(L.yes, "m-btn--filled", "yes")); row.appendChild(btn(L.no, "m-btn--outlined", "no"));
+    row.appendChild(btn(L.no, "no")); row.appendChild(btn(L.yes, "yes"));
     b.appendChild(row); document.body.appendChild(b);
   }
 
