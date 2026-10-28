@@ -1,0 +1,38 @@
+name: Euros al tipo de cambio del BCE
+
+on:
+  schedule:
+    - cron: "30 15 * * 1-5"   # días hábiles, después de que el BCE publica su tipo de cambio
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  eur:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Actualizar euros
+        run: |
+          python3 - <<'PY'
+          import re, glob, urllib.request
+          xml = urllib.request.urlopen("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", timeout=30).read().decode()
+          rate = float(re.search(r"currency='USD' rate='([\d.]+)'", xml).group(1))
+          def eur(usd):
+              return f"{int(usd / rate) // 10 * 10:,}"
+          pat = re.compile(r'(<span class="eur" data-usd="(\d+)">)[^<]*(</span>)')
+          for f in glob.glob("**/*.html", recursive=True):
+              s = open(f, encoding="utf-8").read()
+              n = pat.sub(lambda m: m.group(1) + eur(int(m.group(2))) + m.group(3), s)
+              if n != s:
+                  open(f, "w", encoding="utf-8").write(n)
+                  print("actualizado", f)
+          PY
+      - name: Guardar cambios
+        run: |
+          git config user.name "medido-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Euros al tipo de cambio del BCE"
+          git push
