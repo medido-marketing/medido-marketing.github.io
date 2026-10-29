@@ -264,12 +264,16 @@
 .m-table tr.total td.n{font-size:20px}
 
 /* ---------- divulgación (FAQ) · stepper de semanas · date strip ---------- */
-.m-disclosure{border-bottom:1px solid var(--md-outline-var)}
-.m-disclosure summary{list-style:none;cursor:pointer;min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:var(--s-16);font:800 17px/1.3 var(--font-ui);padding:var(--s-8) 0}
+.m-disclosure{border:1px solid var(--md-outline-var);border-radius:var(--r-content);background:var(--md-surface);margin-bottom:var(--s-8);transition:border-color var(--dur-m) var(--ease),background-color var(--dur-m) var(--ease)}
+.m-disclosure:hover{border-color:var(--md-outline)}
+.m-disclosure[open]{border-color:var(--md-on-bg)}
+.m-disclosure summary{list-style:none;cursor:pointer;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:var(--s-16);font:800 17px/1.3 var(--font-ui);padding:var(--s-12) var(--s-20,20px);border-radius:var(--r-content)}
+.m-disclosure summary:hover{background:var(--md-surface-hi)}
 .m-disclosure summary::-webkit-details-marker{display:none}
-.m-disclosure summary::after{content:"+";font:500 28px/1 var(--font-ui);flex:none}
-.m-disclosure[open] summary::after{content:"–"}
-.m-disclosure .body{padding:0 0 var(--s-16);color:var(--md-on-var);max-width:64ch}
+.m-disclosure summary::after{content:"+";flex:none;display:grid;place-items:center;width:32px;height:32px;border:1.5px solid var(--md-outline);border-radius:50%;font:500 22px/1 var(--font-ui);transition:background-color var(--dur-s) var(--ease),color var(--dur-s) var(--ease),border-color var(--dur-s) var(--ease)}
+.m-disclosure[open] summary::after{content:"\2013";background:var(--md-primary);border-color:var(--md-primary);color:var(--md-on-primary)}
+.m-disclosure .body{padding:0 var(--s-20,20px) var(--s-20,20px);color:var(--md-on-var);max-width:64ch}
+@media (prefers-reduced-motion:reduce){.m-disclosure,.m-disclosure summary::after{transition:none}}
 .m-weeks{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;max-width:520px}
 .m-weeks i{height:28px;border-radius:var(--r-min);background:color-mix(in srgb,var(--md-on-bg) 28%,transparent);position:relative}
 .m-weeks i.done{background:var(--md-primary)}
