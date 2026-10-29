@@ -139,7 +139,7 @@
   var ex = d.getElementById("explay");
   if (ex && cfg.demo) ex.addEventListener("click", function () {
     if (busy) return; busy = true; $("#go").disabled = true; note("", false);
-    show("idle", false); show("progress", true); show("result", false); beginLog();
+    show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading"); beginLog();
     var D = cfg.demo, last = D.timeline[D.timeline.length - 1].t;
     D.timeline.forEach(function (s, i) { logTimers.push(setTimeout(function () { addStep(s.step, i + 1, s.t); }, s.t * 1000)); });
     logTimers.push(setTimeout(function () {
