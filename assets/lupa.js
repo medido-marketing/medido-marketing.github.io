@@ -347,14 +347,14 @@
     root.appendChild(b4);
 
     // qué cambió (segunda lectura comparada)
-    var chg = el("div", "changes m-card"); chg.appendChild(el("h3", "t-title", J.changes_h));
+    var chg = el("div", "changes m-card"); chg.appendChild(el("h3", "t-title", J.changes_h + (r.previous && r.previous.date ? " (" + iso(r.previous.date) + ")" : "")));
     if (!r.previous) chg.appendChild(el("p", "t-support", J.first));
     else if (!r.previous.changes.length) chg.appendChild(el("p", "t-support", J.changes_none));
     else {
       var cl = el("ul"); r.previous.changes.forEach(function (c) {
-        var t = c.what + ": ";
+        var t = c.what + ": ", raw = function (v) { return typeof v === "string" ? v : JSON.stringify(v); };
         if (c.added || c.removed) t += (c.added && c.added.length ? "+ " + c.added.join(", ") + " " : "") + (c.removed && c.removed.length ? "− " + c.removed.join(", ") : "");
-        else t += JSON.stringify(c.from) + " → " + JSON.stringify(c.to);
+        else t += raw(c.from) + " → " + raw(c.to);
         cl.appendChild(el("li", "t-mono", t));
       }); chg.appendChild(cl);
     }
