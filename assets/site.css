@@ -336,3 +336,15 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .clearq{display:grid;gap:var(--s-8);border-top:1px dashed var(--md-outline-var);padding-top:var(--s-12)}
 .clearq .t-body{font-weight:700}
 @media (prefers-reduced-motion:reduce){.loglines .ln{transition:none;opacity:1;transform:none}.has-result .finding,.has-result .finding .m-tag{animation:none}}
+
+/* Precios como listado fino con relato (29/10): una fila por escalón, precio a la derecha; en RTL, a la izquierda. */
+.pstory{max-width:62ch;display:grid;gap:var(--s-12);margin-bottom:var(--s-32)}
+.plist{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.18)}
+.plist-row{display:grid;grid-template-columns:1fr auto;gap:var(--s-16) var(--s-32);align-items:start;padding:var(--s-28) 0;border-bottom:1px solid rgba(255,255,255,.18)}
+.plist-main{display:grid;gap:6px;max-width:60ch}
+.plist-main .t-title{margin:0;font-size:20px}
+.plist-main .t-support{margin:0}
+.plist-main .t-note{margin:6px 0 0}
+.plist-price{margin:0;font:600 20px/1.2 var(--font-ui);white-space:nowrap;text-align:end}
+@media (max-width:600px){.plist-row{grid-template-columns:1fr}.plist-price{text-align:start}}
+#prices .t-note{margin-top:var(--s-16)}
