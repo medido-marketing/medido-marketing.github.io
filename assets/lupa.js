@@ -73,7 +73,7 @@
   function start(url) {
     busy = true; $("#go").disabled = true; note("", false);
     show("idle", false); show("progress", true); show("result", false);
-    $("#steps").textContent = "";
+    beginLog();
     getToken().then(function (token) {
       return fetch(API + "/api/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, lang: cfg.lang, token: token }) });
     })
@@ -86,9 +86,9 @@
       .catch(function () { offline(url); });
   }
 
-  function fail(msg) { busy = false; $("#go").disabled = false; show("progress", false); show("idle", true); note(msg, true); }
+  function fail(msg) { busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true); note(msg, true); }
   function offline(url) {
-    busy = false; $("#go").disabled = false; show("progress", false); show("idle", true);
+    busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true);
     var n = $("#formnote"); n.textContent = J.offline + " ";
     var a = el("a", null, J.offline_btn); a.href = mailto(cfg.subject, mailBody(url)); n.appendChild(a);
   }
@@ -96,18 +96,58 @@
   function poll(id, shown) {
     fetch(API + "/api/status?id=" + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(function (s) {
       var q = d.getElementById("queue"); if (q) { q.textContent = (s.queue && s.queue.text) || ""; q.hidden = !(s.queue && s.queue.text); }
-      var ul = $("#steps");
-      while (shown < s.steps.length) {
-        var li = el("li", "step-done"); li.appendChild(el("span", "tick", "✓")); li.appendChild(el("span", null, s.steps[shown])); ul.appendChild(li); shown++;
-      }
+      while (shown < s.steps.length) { addStep(s.steps[shown], shown + 1); shown++; }
       if (s.done) {
         if (s.error) return fail(s.error);
-        busy = false; $("#go").disabled = false; show("progress", false); show("idle", true);
-        render(s.result); return;
+        finishLog(s.result);
+        busy = false; $("#go").disabled = false;
+        setTimeout(function () { show("progress", false); show("log", false); show("idle", true); render(s.result); }, 500); return;
       }
       setTimeout(function () { poll(id, shown); }, 800);
     }).catch(function () { setTimeout(function () { poll(id, shown); }, 1500); });
   }
+
+  // ---------- el proceso: registro a la izquierda, anillo a la derecha ----------
+  var STEPS_TOTAL = 7, t0 = 0, logTimers = [];
+  function beginLog() {
+    logTimers.forEach(clearTimeout); logTimers = [];
+    t0 = Date.now(); $("#steps").textContent = ""; show("log", true);
+    var ring = $("#ring"); if (ring) ring.style.setProperty("--p", 0);
+    var pct = $("#ringpct"); if (pct) pct.textContent = "0 %";
+    var st = $("#step"); if (st) st.textContent = "";
+  }
+  function logLine(cls, txt, t) {
+    var ln = el("div", "ln" + (cls ? " " + cls : "")); ln.appendChild(el("span", "t", (t == null ? (Date.now() - t0) / 1000 : t).toFixed(1) + "s")); ln.appendChild(el("span", null, txt));
+    var box = $("#steps"); box.appendChild(ln); requestAnimationFrame(function () { ln.classList.add("on"); }); box.scrollTop = box.scrollHeight;
+  }
+  function addStep(text, n, t) {
+    logLine("", text, t);
+    var p = Math.min(100, Math.round(n / STEPS_TOTAL * 100));
+    var ring = $("#ring"); if (ring) ring.style.setProperty("--p", p);
+    var pct = $("#ringpct"); if (pct) pct.textContent = p + " %";
+    var st = $("#step"); if (st) st.textContent = text;
+  }
+  function finishLog(r) {
+    if (r && r.main) r.main.forEach(function (f) {
+      if (f.evidence && f.evidence.length) f.evidence.slice(0, 3).forEach(function (e) { logLine("ev", e); });
+      else logLine("no", f.title);
+    });
+    var ring = $("#ring"); if (ring) ring.style.setProperty("--p", 100);
+    var pct = $("#ringpct"); if (pct) pct.textContent = "100 %";
+  }
+  // Reproducción de la lectura grabada del sitio demo: los mismos pasos y tiempos que devolvió el motor, al tiempo real.
+  var ex = d.getElementById("explay");
+  if (ex && cfg.demo) ex.addEventListener("click", function () {
+    if (busy) return; busy = true; $("#go").disabled = true; note("", false);
+    show("idle", false); show("progress", true); show("result", false); beginLog();
+    var D = cfg.demo, last = D.timeline[D.timeline.length - 1].t;
+    D.timeline.forEach(function (s, i) { logTimers.push(setTimeout(function () { addStep(s.step, i + 1, s.t); }, s.t * 1000)); });
+    logTimers.push(setTimeout(function () {
+      finishLog(D.result); busy = false; $("#go").disabled = false;
+      setTimeout(function () { show("progress", false); show("log", false); show("idle", true); render(D.result); }, 500);
+    }, (last + 0.4) * 1000));
+    emit("example_played");
+  });
 
   // ---------- resultado ----------
   function agencyText(r) {
@@ -167,7 +207,8 @@
     var head = el("div", "rhead");
     head.appendChild(el("p", "t-label", J.reading_of + " " + host));
     head.appendChild(el("p", "t-mono rmeta", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + J.loads_label + " · " + iso(r.elapsed + " s")));
-    if (r.cached) head.appendChild(el("p", "t-note", J.cached));
+    if (r.recorded) head.appendChild(el("p", "t-note", J.ex_recorded.replace("{date}", r.date)));
+    else if (r.cached) head.appendChild(el("p", "t-note", J.cached));
     root.appendChild(head);
 
     if (r.unreadable) {
@@ -239,13 +280,30 @@
       else { window.medidoCopy(text + " " + link, b4, J.copied); emit("reading_shared", { how: "copy" }); }
     }); row.appendChild(b4);
     // Reunión de 45 minutos: va al formulario de contacto con el pedido armado.
-    var a3 = el("a", "m-btn m-btn--filled", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl));
-    a3.addEventListener("click", function () { emit("meeting_requested", { host_known: true }); }); row.appendChild(a3);
+    // Reunión de 45 minutos. Con Cal.com configurado (cfg.booking por idioma), dos botones que eligen, pagan y agendan;
+    // si no, el botón de siempre al formulario de contacto con el pedido armado.
+    var bk = cfg.booking || {};
+    if (bk.talk && bk.note) {
+      [["talk", J.meet_btn_talk, "m-btn m-btn--filled"], ["note", J.meet_btn_note, "m-btn m-btn--outlined"]].forEach(function (o) {
+        var a = el("a", o[2], o[1]); a.href = bk[o[0]] + "?site=" + encodeURIComponent(r.url || lastUrl); a.target = "_blank"; a.rel = "noopener";
+        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "cal" }); }); row.appendChild(a);
+      });
+    } else {
+      var a3 = el("a", "m-btn m-btn--filled", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl));
+      a3.addEventListener("click", function () { emit("meeting_requested", { host_known: true, via: "form" }); }); row.appendChild(a3);
+    }
     var b3 = el("button", "m-btn m-btn--text", J.read_again); b3.type = "button"; b3.addEventListener("click", function () { start(lastUrl); }); row.appendChild(b3);
+    var cq = el("div", "clearq"); cq.appendChild(el("p", "t-body", J.clear_q)); var cr = el("div", "chips");
+    [["yes", J.clear_yes], ["partly", J.clear_partly], ["no", J.clear_no]].forEach(function (p) {
+      var cb = el("button", "m-chip", p[1]); cb.type = "button";
+      cb.addEventListener("click", function () { emit("reading_feedback", { value: p[0] }); cq.textContent = ""; cq.appendChild(el("p", "t-note", J.clear_thanks)); });
+      cr.appendChild(cb);
+    });
+    cq.appendChild(cr); nx.appendChild(cq);
     nx.appendChild(row); nx.appendChild(el("p", "t-note", J.next_note)); root.appendChild(nx);
   }
 
   function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
   function emit(name, extra) { try { d.dispatchEvent(new CustomEvent("medido:" + name, { detail: Object.assign({ page_lang: cfg.lang }, extra || {}) })); } catch (e) {} }
-  function reveal() { d.body.classList.add("has-result"); show("result", true); emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
+  function reveal() { d.body.classList.add("has-result"); show("result", true); if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
 })();

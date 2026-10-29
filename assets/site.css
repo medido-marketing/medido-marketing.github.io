@@ -297,3 +297,42 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .cc .t-body a{color:#fff;text-decoration:underline}
 .cc-row{display:flex;gap:8px;flex:none}
 .cc-row .m-btn{min-height:32px;padding:4px 12px;font-size:13px;color:#fff;border-color:#fff}
+
+/* ---------- capa creativa (29/10): la marca en el título, la lectura en reposo, el proceso A4 ---------- */
+.hero h1 .w{white-space:nowrap}
+.hero h1 .oring{display:inline-grid;place-items:center;width:.56em;height:.56em;vertical-align:-.02em;margin:0 .02em}
+.hero h1 .oring .m-ring{--d:100%;width:100%;height:100%}
+.hero h1 .fill{display:inline-block;line-height:1;background:linear-gradient(to top,var(--md-primary) 62%,var(--md-on-bg) 62%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.exrest .rmeta{color:var(--md-on-var);font-size:13px}
+.exrest .t-title{max-width:none}
+.exrows{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-12)}
+.exrows li{display:grid;grid-template-columns:auto 1fr;gap:var(--s-12);align-items:start;font-size:15px;line-height:1.45}
+.exrows li .m-tag{margin-top:2px}
+.exrows li b{font-weight:800}
+.exrows li.st-problem b{text-decoration:underline;text-decoration-color:var(--md-primary);text-underline-offset:3px}
+.exrest .cta-row{gap:var(--s-8)}
+.log{display:grid;gap:var(--s-8);margin-top:var(--s-16)}
+.loglines{font:500 13px/1.6 var(--font-mono);background:var(--md-surface);border-radius:var(--r-content);padding:14px 16px;max-height:260px;overflow:auto;display:grid;align-content:start;gap:2px}
+.loglines .ln{display:grid;grid-template-columns:48px 1fr;gap:12px;opacity:0;transform:translateY(6px);transition:opacity .25s var(--ease),transform .25s var(--ease);min-width:0}
+.loglines .ln.on{opacity:1;transform:none}
+.loglines .ln>span{overflow-wrap:anywhere}
+.loglines .t{color:var(--md-on-var);text-align:right;font-variant-numeric:tabular-nums}
+.loglines .ev{color:var(--md-primary)}.loglines .ev::before{content:"✓ "}
+.loglines .no{color:var(--md-on-var)}.loglines .no::before{content:"— "}
+.a4{display:grid;gap:var(--s-16);justify-items:start;align-content:start}
+.a4 .ringwrap{display:grid;place-items:center;position:relative}
+.a4 .bigring{--d:min(220px,55vw)}
+.a4 .ringwrap b{position:absolute;font:800 clamp(26px,3vw,38px)/1 var(--font-ui);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.a4 .step{font:800 clamp(20px,2.4vw,26px)/1.15 var(--font-ui);letter-spacing:-.02em;max-width:20ch;text-wrap:balance;min-height:2.3em}
+:lang(he) .a4 .step{font-family:var(--font-he);letter-spacing:0}
+/* los sellos al final: cada tarjeta entra y su sello cae como un golpe */
+@keyframes m-card-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes m-seal-in{from{opacity:0;transform:scale(1.8) rotate(-8deg)}to{opacity:1;transform:none}}
+.has-result .finding{animation:m-card-in .45s var(--ease) both}
+.has-result .finding .m-tag{animation:m-seal-in .4s cubic-bezier(.2,1.4,.4,1) both;animation-delay:.25s;transform-origin:left center}
+.has-result .finding:nth-child(2){animation-delay:.3s}.has-result .finding:nth-child(2) .m-tag{animation-delay:.55s}
+.has-result .finding:nth-child(3){animation-delay:.6s}.has-result .finding:nth-child(3) .m-tag{animation-delay:.85s}
+.has-result .finding:nth-child(4){animation-delay:.9s}.has-result .finding:nth-child(4) .m-tag{animation-delay:1.15s}
+.clearq{display:grid;gap:var(--s-8);border-top:1px dashed var(--md-outline-var);padding-top:var(--s-12)}
+.clearq .t-body{font-weight:700}
+@media (prefers-reduced-motion:reduce){.loglines .ln{transition:none;opacity:1;transform:none}.has-result .finding,.has-result .finding .m-tag{animation:none}}
