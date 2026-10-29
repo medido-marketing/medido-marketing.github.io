@@ -4,6 +4,7 @@
 (function () {
   var GA4_ID = "G-T14ZL11D2C"; // ej. "G-ABC123DEF4"
   var pm = document.querySelector('meta[name="medido-meta-pixel"]'), PIXEL = pm ? (pm.getAttribute("content") || "") : "";
+  var cm = document.querySelector('meta[name="medido-clarity"]'), CLARITY = cm ? (cm.getAttribute("content") || "") : "";
   if (!GA4_ID && !PIXEL) return;
   // Interruptor para las visitas propias: abrir el sitio con ?interno=1 guarda una marca en ese navegador y desde entonces no se carga ni se manda nada
   // (ni Google Analytics ni Meta). ?interno=0 la quita. No depende de la dirección IP y no guarda ningún dato personal.
@@ -59,7 +60,16 @@
       document.addEventListener("medido:" + name, function (e) { window.fbq("trackCustom", name, (e && e.detail) || {}); });
     });
   }
-  function load() { loadGa(); loadMeta(); }
+  // Microsoft Clarity (mapas de calor y grabaciones de sesión): carga estándar, solo con consentimiento, y se le avisa el consentimiento para sus cookies.
+  function loadClarity() {
+    if (!CLARITY || window.clarity) return;
+    window.clarity = window.clarity || function () { (window.clarity.q = window.clarity.q || []).push(arguments); };
+    var s = document.createElement("script"); s.async = true; s.src = "https://www.clarity.ms/tag/" + CLARITY; document.head.appendChild(s);
+    window.clarity("consent");
+    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected", "reading_shared", "meeting_requested", "reread_requested", "reading_feedback", "example_played"].forEach(function (name) { document.addEventListener("medido:" + name, function () { window.clarity("event", name); }); });
+    document.addEventListener("medido:lead", function () { window.clarity("event", "lead"); });
+  }
+  function load() { loadGa(); loadMeta(); loadClarity(); }
 
   function banner() {
     var b = document.createElement("div");
