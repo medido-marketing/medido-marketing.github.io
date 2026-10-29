@@ -557,3 +557,5 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .skip{position:absolute;inset-inline-start:var(--s-16);top:-100px;z-index:200;background:var(--md-primary);color:#0E0F12;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none}
 .skip:focus{top:var(--s-8)}
 .m-test .t-note a,.fdo .t-note a,.sx>.t-note a{display:inline-block;padding:4px 0}
+
+.plist-main .t-note a{display:inline-block;padding:4px 0}
