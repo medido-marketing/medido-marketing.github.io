@@ -5,7 +5,8 @@
   var all = function (s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); };
   var cfgEl = $("#cfg"), cfg = cfgEl ? JSON.parse(cfgEl.textContent) : null;
 
-  all("[data-go]").forEach(function (b) { b.addEventListener("click", function () { location.href = b.getAttribute("data-go"); }); });
+  // Cambiar de idioma conserva la lectura en curso o terminada: lupa.js deja el sitio leído en data-site y la otra versión la retoma con ?site= (misma caché del Worker).
+  all("[data-go]").forEach(function (b) { b.addEventListener("click", function () { var s = b.getAttribute("data-site"); location.href = b.getAttribute("data-go") + (s ? "?site=" + encodeURIComponent(s) + "&re=1" : ""); }); });
 
   // menú en celular: el botón abre y cierra la lista de secciones; un enlace o Escape la cierran
   var bar = $(".bar"), mb = $(".menu-btn");

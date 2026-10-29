@@ -37,7 +37,7 @@
   function show(id, on) { var n = d.getElementById(id); if (n) n.hidden = !on; }
 
   // Enlace compartido: ?site=... arranca la lectura al abrir la página (misma caché del Worker: no gasta una lectura nueva dentro de las 6 horas).
-  try { var qs = new URLSearchParams(location.search).get("site"); if (qs) { $("#site").value = qs; setTimeout(function () { lastUrl = qs; emit("pql_reading_requested", { via: "shared_link" }); start(qs); }, 50); } } catch (e) {}
+  try { var sp = new URLSearchParams(location.search), qs = sp.get("site"); if (qs) { $("#site").value = qs; setTimeout(function () { lastUrl = qs; if (!sp.get("re")) emit("pql_reading_requested", { via: "shared_link" }); start(qs); }, 50); } } catch (e) {}
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (busy) return;
@@ -72,6 +72,7 @@
 
   function start(url) {
     busy = true; $("#go").disabled = true; note("", false);
+    d.querySelectorAll(".m-seg [data-go]").forEach(function (b) { b.setAttribute("data-site", url); });
     show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading");
     beginLog();
     getToken().then(function (token) {
@@ -282,11 +283,15 @@
     // Reunión de 45 minutos: va al formulario de contacto con el pedido armado.
     // Reunión de 45 minutos. Con Cal.com configurado (cfg.booking por idioma), dos botones que eligen, pagan y agendan;
     // si no, el botón de siempre al formulario de contacto con el pedido armado.
-    var bk = cfg.booking || {};
+    var bk = cfg.booking || {}, sess = null;
     if (bk.talk && bk.note) {
-      [["talk", J.meet_btn_talk, "m-btn m-btn--filled"], ["note", J.meet_btn_note, "m-btn m-btn--outlined"]].forEach(function (o) {
-        var a = el("a", o[2], o[1]); a.href = bk[o[0]] + "?site=" + encodeURIComponent(r.url || lastUrl); a.target = "_blank"; a.rel = "noopener";
-        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "cal" }); }); row.appendChild(a);
+      // Una nota chica, no dos botones: las dos variantes de la sesión, una al lado de la otra, con lo que incluye cada una y su precio.
+      sess = el("div", "sess"); sess.appendChild(el("p", "t-label", J.sess_h));
+      [["talk", J.sess_talk_n, J.sess_talk_d, J.sess_talk_p], ["note", J.sess_note_n, J.sess_note_d, J.sess_note_p]].forEach(function (o) {
+        var rw = el("div", "sess-row"), tx = el("div", "sess-tx"); tx.appendChild(el("b", null, o[1])); tx.appendChild(el("span", "t-support", o[2])); rw.appendChild(tx);
+        rw.appendChild(el("b", "sess-p", o[3]));
+        var a = el("a", "m-btn m-btn--outlined", J.sess_book); a.href = bk[o[0]] + "?site=" + encodeURIComponent(r.url || lastUrl); a.target = "_blank"; a.rel = "noopener";
+        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "cal" }); }); rw.appendChild(a); sess.appendChild(rw);
       });
     } else {
       var a3 = el("a", "m-btn m-btn--filled", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl));
@@ -300,7 +305,7 @@
       cr.appendChild(cb);
     });
     cq.appendChild(cr); nx.appendChild(cq);
-    nx.appendChild(row); nx.appendChild(el("p", "t-note", J.next_note)); root.appendChild(nx);
+    nx.appendChild(row); if (sess) nx.appendChild(sess); nx.appendChild(el("p", "t-note", J.next_note)); root.appendChild(nx);
   }
 
   function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
