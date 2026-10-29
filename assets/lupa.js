@@ -226,7 +226,7 @@
   function actions(root, r) {
     var nx = el("div", "nextbox"); nx.appendChild(el("h3", "t-title", J.next_h)); nx.appendChild(el("p", "t-body", J.next_text));
     var row = el("div", "cta-row");
-    var a1 = el("a", "m-btn m-btn--filled", J.next_btn); a1.href = mailto(cfg.subject_reread, mailBody(r.url || lastUrl, "")); row.appendChild(a1);
+    var a1 = el("a", "m-btn m-btn--filled", J.next_btn); a1.href = mailto(cfg.subject_reread, (cfg.body_reread || cfg.body).replace("{url}", r.url || lastUrl).replace("{spend}", J.spend_labels[spend])); a1.addEventListener("click", function () { emit("reread_requested"); }); row.appendChild(a1);
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en la tarjeta de lo que no veo
     var b1 = el("button", "m-btn m-btn--outlined", J.copy_agency); b1.type = "button"; b1.addEventListener("click", function () { window.medidoCopy(agencyText(r), b1, J.copied); emit("questions_copied", { what: "all" }); }); row.appendChild(b1);
     var b2 = el("button", "m-btn m-btn--outlined", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); }); row.appendChild(b2);
