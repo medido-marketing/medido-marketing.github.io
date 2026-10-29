@@ -355,7 +355,9 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .exrest .rmeta{font-size:12px}
 .exrows li{font-size:13px;line-height:1.4;gap:var(--s-8)}
 .exrows li .m-tag{font-size:11px;padding:1px 6px}
-.exrest .cant .t-support{font-size:13px}
+.exrest .excant{padding:0;gap:var(--s-4);border-top:1px solid color-mix(in srgb,var(--md-on-bg) 14%,transparent);padding-top:var(--s-12)}
+.exrest .excant p{margin:0}
+.exrest .excant .t-support{font-size:13px;color:var(--md-on-var)}
 .exrest .t-note{font-size:12px}
 .exrest .cta-row .m-btn{min-height:34px;padding:4px 12px;font-size:13px}
 .is-reading .hero-copy{display:none}
