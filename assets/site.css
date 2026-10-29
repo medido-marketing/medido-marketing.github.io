@@ -525,3 +525,16 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
   :lang(he) .hero h1 .hl{max-width:none}
   .hero h1 .kick{margin-bottom:var(--s-20,20px);font-size:clamp(17px,1.5vw,22px)}
 }
+.plist-main .plist-sub{margin:var(--s-4) 0 0;max-width:none}
+/* ventana emergente (Diagnóstico) */
+.m-modal{border:0;padding:0;width:min(640px,calc(100vw - 2*var(--s-16)));max-height:calc(100vh - 2*var(--s-24));max-height:calc(100dvh - 2*var(--s-24));border-radius:var(--r-content);background:var(--md-bg);color:var(--md-on-bg);box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:auto;overscroll-behavior:contain}
+.m-modal::backdrop{background:var(--md-scrim)}
+.m-modal-in{position:relative;display:grid;gap:var(--s-16);padding:var(--s-32) var(--s-32) var(--s-24)}
+.m-modal-in .t-headline{margin:0;font-size:clamp(24px,3vw,30px);padding-inline-end:var(--s-48)}
+.m-modal-in p{margin:0}
+.m-modal-x{position:absolute;inset-block-start:var(--s-16);inset-inline-end:var(--s-16);width:44px;height:44px;border-radius:50%;border:1.5px solid var(--md-outline-var);background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer}
+.m-modal-x:hover{background:var(--md-surface)}
+.m-modal-x .i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.m-modal-in .cta-row{margin-top:var(--s-8)}
+@media (max-width:600px){.m-modal-in{padding:var(--s-24) var(--s-16) var(--s-16)}}
+@media (prefers-reduced-motion:no-preference){.m-modal[open]{animation:mdlg .18s ease-out}@keyframes mdlg{from{opacity:0;transform:translateY(8px)}}}

@@ -50,6 +50,16 @@
     out.textContent = cfg.calc[tier].replace("{s}", fmt(v)).replace("{p}", p).replace("{q}", q);
   });
 
+  // ventanas (dialog nativo): el enlace abre la ventana; sin JS sigue llevando a la página. Cierra con la X, el botón, Escape o un toque afuera.
+  all("[data-dialog]").forEach(function (a) {
+    var dlg = $("#" + a.getAttribute("data-dialog"));
+    if (!dlg || typeof dlg.showModal !== "function") return;
+    a.addEventListener("click", function (e) { e.preventDefault(); dlg.showModal(); a.setAttribute("aria-expanded", "true"); });
+    dlg.addEventListener("close", function () { a.removeAttribute("aria-expanded"); a.focus(); });
+    all("[data-close]", dlg).forEach(function (b) { b.addEventListener("click", function () { dlg.close(); }); });
+    dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+  });
+
   // botón fijo del celular: aparece al pasar la portada y se va en el cierre
   var fab = $("#fab"), hero = $("#read"), end = $("#contact");
   if (fab && hero && end && "IntersectionObserver" in window) {
