@@ -8,7 +8,7 @@ The reading opens a site in a real browser, twice, and records what fires (analy
 
 - Reading: free, no signup, automatic, no human review. A 7-day re-read is free (by hand for the first 15 sites).
 - Diagnosis: US$1,200, 10 business days, written report and a 45-minute call. Page 1 is a verdict about the agency or provider (Keep, Change or Stop) with a figure in money. Makes sense from about US$5,000 of monthly ad spend.
-- Watch: from US$450 per month, a starting price under test. Weekly re-read, writes only when something really changes.
+- Watch: from US$450 per month. Weekly re-read, writes only when something really changes.
 - Quarter: US$2,500 per month, month to month. Written recommendations for the client's team and verification that each was done. Makes sense from about US$15,000 of monthly ad spend.
 - Flat fee, never a percentage of ad spend. Accounts stay in the client's name. No subcontracting.
 
