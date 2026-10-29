@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /es/
 
 # AI crawlers are welcome; the site is meant to be read by assistants too.
 User-agent: GPTBot

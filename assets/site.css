@@ -366,7 +366,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .exrest .t-title{font-size:20px;line-height:1.25}
 .exrest .rmeta{font-size:12px}
 .exrows li{font-size:13px;line-height:1.4;gap:var(--s-8)}
-.exrows li .m-tag{font-size:11px;padding:1px 6px}
+.exrows li .m-tag{font-size:12px;padding:1px 6px}
 .exrows li.st-cant{color:var(--md-on-var)}
 .exrows li.st-cant b{color:var(--md-on-bg);font-weight:700}
 .exrest .t-note{font-size:12px}
@@ -439,7 +439,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .b4never{margin:0;max-width:72ch}
 .nextbox{background:var(--md-surface)}
 /* sellos y etiquetas del informe: cuerpo mínimo legible (11 px, 12 en hebreo), alineados con el título */
-.reading-out .m-tag{min-height:24px;font-size:11px;padding:0 10px}
+.reading-out .m-tag{min-height:24px;font-size:12px;padding:0 10px}
 :lang(he) .reading-out .m-tag{font-size:12px}
 /* lo que se toca: objetivo de 48 (zona invisible alrededor) y capa de estado */
 .reading-out .m-chip{position:relative;min-height:36px}
@@ -510,7 +510,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .exrest{padding:var(--s-24) var(--s-32);gap:var(--s-12)}
 .exrows{gap:var(--s-12)}
 .exrows li{font-size:14px;line-height:1.4;gap:var(--s-12)}
-.exrows li .m-tag{font-size:11px;padding:2px 8px}
+.exrows li .m-tag{font-size:12px;padding:2px 8px}
 .exrest .rmeta{font-size:12px}
 .exrest .t-note{font-size:12px}
 .hero .m-search{min-height:64px}
@@ -552,3 +552,8 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 :lang(he) .t-label{font-size:13px}
 .exrows li .m-tag,.reading-out .m-tag{font-size:12px}
 .m-seg>button{min-width:44px}
+
+/* auditoría 30/10 (3): enlace «saltar al contenido» para teclado y enlaces de una línea con alto táctil mínimo de 24 px */
+.skip{position:absolute;inset-inline-start:var(--s-16);top:-100px;z-index:200;background:var(--md-primary);color:#0E0F12;padding:10px 16px;border-radius:8px;font-weight:700;text-decoration:none}
+.skip:focus{top:var(--s-8)}
+.m-test .t-note a,.fdo .t-note a,.sx>.t-note a{display:inline-block;padding:4px 0}
