@@ -40,14 +40,14 @@ section[id]{scroll-margin-top:72px}
 @media (max-width:560px){.bar .sx>.m-btn{display:none}.bar .m-ring{display:none}.bar .m-seg{flex:none}.bar .m-seg button{padding:0 12px}}  /* tres idiomas y el menú entran en 375 px sin recortar */
 
 /* portada */
-.hero{padding-block:clamp(40px,7vw,88px)}
+.hero{padding-block:clamp(28px,4vw,48px)}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(32px,5vw,64px);align-items:start}
-.hero-copy{display:grid;gap:var(--s-24);align-content:start}
-.hero h1{font-size:clamp(36px,5.4vw,64px);max-width:15ch}
+.hero-copy{display:grid;gap:var(--s-16);align-content:start}
+.hero h1{font-size:clamp(32px,4.2vw,50px);max-width:16ch}
 :lang(he) .hero h1{max-width:13ch}
-.hero .lead{font-size:clamp(17px,1.6vw,20px);max-width:52ch}
-.hero .m-test{background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-24);gap:var(--s-16)}
-.hero .m-test h2{font:800 clamp(20px,2.2vw,26px)/1.2 var(--font-ui);letter-spacing:-.01em;max-width:none}
+.hero .lead{font-size:clamp(16px,1.3vw,18px);max-width:52ch}
+.hero .m-test{background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-20);gap:var(--s-12)}
+.hero .m-test h2{font:800 clamp(18px,1.8vw,22px)/1.2 var(--font-ui);letter-spacing:-.01em;max-width:none}
 .hero .m-search{max-width:none;background:var(--md-bg)}
 .sample{display:grid;gap:var(--s-16);background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-24);min-width:0}
 .sample .hd{display:flex;justify-content:space-between;align-items:center;gap:var(--s-12);flex-wrap:wrap}
@@ -148,7 +148,7 @@ section[id]{scroll-margin-top:72px}
 .bar .m-ring{margin-inline-start:var(--s-4)}
 .trust>div:first-child{position:sticky;top:96px;align-self:start}
 @media (max-width:860px){.trust>div:first-child{position:static}}
-@media (max-width:600px){.demo .m-tab{padding:0 12px;font-size:14px}.price .t-data{font-size:38px}.hero h1{font-size:clamp(34px,10vw,44px)}}
+@media (max-width:600px){.demo .m-tab{padding:0 12px;font-size:14px}.price .t-data{font-size:38px}.hero h1{font-size:clamp(30px,8.5vw,38px)}.hero .lead{font-size:15px}.hero{padding-block:20px}}
 @media (max-width:640px){
   .demo .m-tab{padding:0 10px}
   .paper .m-table{min-width:0}
