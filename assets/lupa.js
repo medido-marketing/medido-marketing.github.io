@@ -36,6 +36,8 @@
 
   function show(id, on) { var n = d.getElementById(id); if (n) n.hidden = !on; }
 
+  // Enlace compartido: ?site=... arranca la lectura al abrir la página (misma caché del Worker: no gasta una lectura nueva dentro de las 6 horas).
+  try { var qs = new URLSearchParams(location.search).get("site"); if (qs) { $("#site").value = qs; setTimeout(function () { lastUrl = qs; emit("pql_reading_requested", { via: "shared_link" }); start(qs); }, 50); } } catch (e) {}
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (busy) return;
@@ -228,10 +230,22 @@
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en la tarjeta de lo que no veo
     var b1 = el("button", "m-btn m-btn--outlined", J.copy_agency); b1.type = "button"; b1.addEventListener("click", function () { window.medidoCopy(agencyText(r), b1, J.copied); emit("questions_copied", { what: "all" }); }); row.appendChild(b1);
     var b2 = el("button", "m-btn m-btn--outlined", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); }); row.appendChild(b2);
+    // Compartir: el enlace permanente abre esta misma lectura (?site=). En el celular usa la hoja de compartir del sistema; si no, copia el enlace.
+    var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + "?site=" + encodeURIComponent(r.url || lastUrl);
+    var b4 = el("button", "m-btn m-btn--outlined", J.share); b4.type = "button";
+    b4.addEventListener("click", function () {
+      var text = J.share_text.replace("{host}", host);
+      if (navigator.share) { navigator.share({ title: J.share_subject.replace("{host}", host), text: text, url: link }).then(function () { emit("reading_shared", { how: "native" }); }).catch(function () {}); }
+      else { window.medidoCopy(text + " " + link, b4, J.copied); emit("reading_shared", { how: "copy" }); }
+    }); row.appendChild(b4);
+    // Reunión de 45 minutos: va al formulario de contacto con el pedido armado.
+    var a3 = el("a", "m-btn m-btn--filled", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl));
+    a3.addEventListener("click", function () { emit("meeting_requested", { host_known: true }); }); row.appendChild(a3);
     var b3 = el("button", "m-btn m-btn--text", J.read_again); b3.type = "button"; b3.addEventListener("click", function () { start(lastUrl); }); row.appendChild(b3);
     nx.appendChild(row); nx.appendChild(el("p", "t-note", J.next_note)); root.appendChild(nx);
   }
 
+  function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
   function emit(name, extra) { try { d.dispatchEvent(new CustomEvent("medido:" + name, { detail: Object.assign({ page_lang: cfg.lang }, extra || {}) })); } catch (e) {} }
   function reveal() { d.body.classList.add("has-result"); show("result", true); emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
 })();
