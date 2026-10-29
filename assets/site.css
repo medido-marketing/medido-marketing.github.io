@@ -481,3 +481,13 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .qterms-list b{display:block;margin-bottom:2px;color:var(--md-on-bg)}
 @media (max-width:720px){.qcard{grid-template-columns:1fr;gap:var(--s-24);padding:var(--s-16)}}
 .qterms .body{max-width:none;color:inherit}
+
+/* Tarjetas "Ya probaste otros": card con borde, sombra suave y separador antes de lo diferente */
+.tried-grid{gap:var(--s-24)}
+.tried-grid .tcard{display:flex;flex-direction:column;background:var(--md-bg);border:1px solid var(--md-outline-var);border-radius:16px;padding:var(--s-32);gap:0;box-shadow:0 1px 2px rgba(14,15,18,.06),0 8px 24px rgba(14,15,18,.06);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.tried-grid .tcard .t-title{margin:0 0 var(--s-12)}
+.tried-grid .tcard .t-support{margin:0 0 var(--s-24)}
+.tried-grid .tcard .tdiff{margin:auto 0 0;padding-top:var(--s-24);border-top:1px solid var(--md-outline-var);position:relative}
+.tried-grid .tcard .tdiff::before{content:"";position:absolute;top:-1px;inset-inline-start:0;width:40px;height:3px;background:var(--md-primary)}
+@media (hover:hover){.tried-grid .tcard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(14,15,18,.08),0 16px 36px rgba(14,15,18,.10)}}
+@media (prefers-reduced-motion:reduce){.tried-grid .tcard{transition:none}.tried-grid .tcard:hover{transform:none}}
