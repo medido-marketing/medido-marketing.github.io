@@ -43,10 +43,14 @@ section[id]{scroll-margin-top:72px}
 .hero{padding-block:clamp(28px,4vw,48px)}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(32px,5vw,64px);align-items:start}
 .hero-copy{display:grid;gap:var(--s-16);align-content:start}
-.hero h1{font-size:clamp(32px,4.2vw,50px);max-width:16ch}
-:lang(he) .hero h1{max-width:13ch}
+.hero h1{font-size:clamp(32px,4.2vw,50px);max-width:none}
+.hero h1 .hl{display:block;max-width:16ch}
+.hero h1 .kick{display:block;margin-bottom:var(--s-12);font:600 clamp(16px,1.5vw,20px)/1.3 var(--font-ui);letter-spacing:-.005em;color:var(--md-on-var);text-wrap:balance}
+:lang(he) .hero h1 .kick{font-family:var(--font-he);letter-spacing:0}
+.hero h1 .sro{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:lang(he) .hero h1 .hl{max-width:13ch}
 .hero .lead{font-size:clamp(16px,1.3vw,18px);max-width:52ch}
-.hero .m-test{background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-20);gap:var(--s-12)}
+.hero .m-test{margin-top:var(--s-16);background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-20);gap:var(--s-12)}
 .hero .m-test h2{font:800 20px/1.2 var(--font-ui);letter-spacing:-.01em;max-width:none}
 .hero .m-search{max-width:none;background:var(--md-bg)}
 .sample{display:grid;gap:var(--s-16);background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-24);min-width:0}
@@ -490,3 +494,12 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .tried-grid .tcard .tdiff::before{content:"";position:absolute;top:-1px;inset-inline-start:0;width:40px;height:3px;background:var(--md-primary)}
 @media (hover:hover){.tried-grid .tcard:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(14,15,18,.08),0 16px 36px rgba(14,15,18,.10)}}
 @media (prefers-reduced-motion:reduce){.tried-grid .tcard{transition:none}.tried-grid .tcard:hover{transform:none}}
+
+/* Celular: el campo de lectura ocupa todo el ancho y el botón va abajo, para que el texto del campo se lea entero */
+@media (max-width:480px){
+  .hero .m-search{flex-wrap:wrap;padding:6px;row-gap:6px}
+  .hero .m-search svg{margin-inline-start:10px}
+  .hero .m-search input{flex:1 1 0;min-width:0;padding-inline-end:6px}
+  .hero .m-search input::placeholder{font-size:14px}
+  .hero .m-search .m-btn{flex:1 1 100%;width:100%}
+}
