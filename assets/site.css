@@ -47,7 +47,7 @@ section[id]{scroll-margin-top:72px}
 :lang(he) .hero h1{max-width:13ch}
 .hero .lead{font-size:clamp(16px,1.3vw,18px);max-width:52ch}
 .hero .m-test{background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-20);gap:var(--s-12)}
-.hero .m-test h2{font:800 clamp(18px,1.8vw,22px)/1.2 var(--font-ui);letter-spacing:-.01em;max-width:none}
+.hero .m-test h2{font:800 20px/1.2 var(--font-ui);letter-spacing:-.01em;max-width:none}
 .hero .m-search{max-width:none;background:var(--md-bg)}
 .sample{display:grid;gap:var(--s-16);background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-24);min-width:0}
 .sample .hd{display:flex;justify-content:space-between;align-items:center;gap:var(--s-12);flex-wrap:wrap}
@@ -344,12 +344,11 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 @media (prefers-reduced-motion:reduce){.loglines .ln{transition:none;opacity:1;transform:none}.has-result .finding,.has-result .finding .m-tag{animation:none}}
 
 /* Precios como listado fino con relato (29/10): una fila por escalón, precio a la derecha; en RTL, a la izquierda. */
-.pstory{max-width:62ch;display:grid;gap:var(--s-16);margin-bottom:var(--s-48)}
 .plist{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.18)}
 .plist-row{display:grid;grid-template-columns:1fr auto;gap:var(--s-16) var(--s-48);align-items:start;padding:var(--s-32) 0;border-bottom:1px solid var(--md-outline-var)}
 .plist{border-top-color:var(--md-outline-var)}
 .plist-main{display:grid;gap:var(--s-8);max-width:58ch}
-.plist-main .t-title{margin:0;font-size:22px}
+.plist-main .t-title{margin:0}
 .plist-main .t-support{line-height:1.55}
 .route-line{max-width:62ch;margin:var(--s-32) 0 0}
 .plist-main .t-support{margin:0}
@@ -360,7 +359,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 
 /* 29/10: lectura de ejemplo más chica; al pegar la web queda solo la "o" (modo lectura) y después la lectura al lado. */
 .exrest{gap:var(--s-12);padding:var(--s-20)}
-.exrest .t-title{font-size:clamp(17px,1.6vw,20px);line-height:1.25}
+.exrest .t-title{font-size:20px;line-height:1.25}
 .exrest .rmeta{font-size:12px}
 .exrows li{font-size:13px;line-height:1.4;gap:var(--s-8)}
 .exrows li .m-tag{font-size:11px;padding:1px 6px}
@@ -404,8 +403,8 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .finding.st-problem{border-color:var(--md-on-bg)}
 .finding--lite{gap:var(--s-8)}
 .ftop{align-items:center}
-.ftitle{margin:0;font-size:19px;line-height:1.25}
-.hint .ftitle{font-size:17px}
+.ftitle{margin:0;font-size:17px;line-height:1.25}
+.hint .ftitle{font-size:16px}
 .fsent{max-width:65ch}
 .fmeta{display:grid;gap:4px;border-top:1px dashed var(--md-outline-var);padding-top:var(--s-12)}
 .fmeta p{margin:0;max-width:65ch}
@@ -462,7 +461,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
   .findings{gap:0}.hints{gap:0}
   .is-reading .a4{padding:var(--s-16)}
   .nextbox .cta-row .m-btn{width:100%}
-  .ftitle{font-size:17px}
+  .ftitle{font-size:16px}
 }
 
 /* 29/10 (noche): condiciones del Trimestre en acordeón, con el diseño de la semana 6 de vuelta, a escala de la fila */
@@ -470,7 +469,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .qcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:var(--s-32);padding:var(--s-24);border-radius:var(--r-content);align-items:start}
 .qleft{display:grid;gap:var(--s-16);align-content:start}
 .qleft .t-label{margin:0}
-.qh{margin:0;font:800 clamp(20px,2vw,26px)/1.15 var(--font-ui);letter-spacing:-.02em;max-width:22ch;text-wrap:balance}
+.qh{margin:0;font:800 17px/1.25 var(--font-ui);letter-spacing:-.02em;max-width:22ch;text-wrap:balance}
 :lang(he) .qh{font-family:var(--font-he);letter-spacing:0}
 .qcard .m-weeks{max-width:420px}
 .qcard .m-weeks i{height:22px}

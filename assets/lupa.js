@@ -96,6 +96,8 @@
       .then(function (o) {
         if (o.status === 404 || o.status === 405 || o.status === 501) return offline(url);
         if (o.j.error) return fail(o.j.error);
+        // La lectura corre dentro de este pedido, que queda abierto hasta que termina (un trabajo en segundo plano se cancelaría a los 30 s).
+        fetch(API + "/api/run?id=" + encodeURIComponent(o.j.id), { method: "POST" }).catch(function () {});
         poll(o.j.id, 0);
       })
       .catch(function () { offline(url); });
