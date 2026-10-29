@@ -4,7 +4,7 @@
  * Qué hace: una función PURA, build({lang, domain, now}), que devuelve el texto de un archivo .ics con UN evento,
  * a los 7 días de «now», a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
  * abre; no hay zona horaria escrita en el archivo). Título en EN/HE/ES; el dominio va en la descripción, con el enlace a
- * https://medido.marketing/. No lleva ningún dato personal: ni nombre, ni mail, ni teléfono, ni ciudad. No usa red,
+ * https://marketingmedido.com/. No lleva ningún dato personal: ni nombre, ni mail, ni teléfono, ni ciudad. No usa red,
  * no guarda nada, no toca el DOM.
  *
  * Cómo se conectaría con un botón «Guardar recordatorio» (cuando la otra sesión termine con lupa.js; NADA de esto está hecho):
@@ -36,7 +36,7 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  var SITE_URL = "https://medido.marketing/";
+  var SITE_URL = "https://marketingmedido.com/";
   var DAYS = 7, HOUR = 10, MINUTES = 30;      // 7 días, a las 10:00, de 30 minutos
   var CRLF = "\r\n";
 
@@ -126,7 +126,7 @@
     var t = TEXT[lang];
     var title = t.title;
     var desc = t.desc.replace("{d}", domain).replace("{u}", SITE_URL);
-    var uid = "lupa-" + hash(domain + "|" + localStamp(start)) + "@medido.marketing";
+    var uid = "lupa-" + hash(domain + "|" + localStamp(start)) + "@marketingmedido.com";
 
     var lines = [
       "BEGIN:VCALENDAR",

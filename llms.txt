@@ -14,6 +14,6 @@ The reading opens a site in a real browser, twice, and records what fires (analy
 
 ## Pages
 
-- [English](https://medido-marketing.github.io/)
-- [Hebrew](https://medido-marketing.github.io/he/) and [Spanish](https://medido-marketing.github.io/es/)
-- [Method](https://medido-marketing.github.io/method/), [Hebrew method](https://medido-marketing.github.io/he/method/) and [Spanish method](https://medido-marketing.github.io/es/method/)
+- [English](https://marketingmedido.com/)
+- [Hebrew](https://marketingmedido.com/he/) and [Spanish](https://marketingmedido.com/es/)
+- [Method](https://marketingmedido.com/method/), [Hebrew method](https://marketingmedido.com/he/method/) and [Spanish method](https://marketingmedido.com/es/method/)

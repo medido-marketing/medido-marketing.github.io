@@ -1,2 +1,15 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /es/
+
+# AI crawlers are welcome; the site is meant to be read by assistants too.
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://marketingmedido.com/sitemap.xml
