@@ -301,7 +301,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .cpage{max-width:640px}
 .cform{display:grid;gap:var(--s-16,16px);margin-top:var(--s-16,16px)}
 .cform textarea{width:100%;resize:vertical}
-.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.hp{position:absolute!important;inset-inline-start:0;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%);pointer-events:none}
 .cc{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 16px;background:#0E0F12;color:#fff;border-top:1px solid #fff;font-size:13px}
 .cc .t-body{margin:0;color:#fff;font-size:13px;line-height:1.35;flex:1 1 280px}
 .cc .t-body a{color:#fff;text-decoration:underline}
@@ -538,3 +538,17 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .m-modal-in .cta-row{margin-top:var(--s-8)}
 @media (max-width:600px){.m-modal-in{padding:var(--s-24) var(--s-16) var(--s-16)}}
 @media (prefers-reduced-motion:no-preference){.m-modal[open]{animation:mdlg .18s ease-out}@keyframes mdlg{from{opacity:0;transform:translateY(8px)}}}
+
+/* auditoría 30/10: celular. Área táctil de 44 px o más sin cambiar el tamaño visible, y etiquetas de formulario legibles */
+.brand,.m-seg>button,.row>a,.cc-row .m-btn,.m-chip{position:relative}
+.brand::after,.row>a::after{content:"";position:absolute;inset:-12px -4px}
+.m-seg>button{min-height:44px}
+.cc-row .m-btn::before{content:"";position:absolute;inset:-8px -2px}
+.m-chip::after{content:"";position:absolute;inset:-8px -2px}
+.m-field label{font-size:12px}
+/* auditoría 30/10 (2): chips con alto táctil en pantallas chicas y etiquetas mínimas de 12 px */
+@media (max-width:768px),(pointer:coarse){.m-chip{min-height:44px}}
+.t-label,.m-tag{font-size:12px}
+:lang(he) .t-label{font-size:13px}
+.exrows li .m-tag,.reading-out .m-tag{font-size:12px}
+.m-seg>button{min-width:44px}
