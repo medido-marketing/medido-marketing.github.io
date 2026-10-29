@@ -65,7 +65,7 @@
     var b = document.createElement("div");
     b.className = "cc"; b.setAttribute("role", "region"); b.setAttribute("aria-label", L.label);
     var p = document.createElement("p"); p.className = "t-body"; p.textContent = L.t;
-    var a = document.createElement("a"); a.href = L.privacyHref; a.textContent = " " + L.privacy; p.appendChild(a);
+    var a = document.createElement("a"); a.href = L.privacyHref; a.textContent = "\u00a0" + L.privacy; p.appendChild(a);
     b.appendChild(p);
     var row = document.createElement("div"); row.className = "cc-row";
     function btn(txt, v) {
