@@ -34,6 +34,9 @@
   --ring-hole:46%;
 }
 
+/* El atributo hidden gana siempre, aunque el componente tenga display propio (grid, flex). */
+[hidden]{display:none!important}
+
 /* ---------- superficies ---------- */
 :root,[data-surface="blanco"]{
   --md-bg:#FFFFFF;--md-surface:#F5F5F2;--md-surface-hi:#ECECE7;

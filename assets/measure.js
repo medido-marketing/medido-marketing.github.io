@@ -70,11 +70,14 @@
     var row = document.createElement("div"); row.className = "cc-row";
     function btn(txt, v) {
       var x = document.createElement("button"); x.type = "button"; x.className = "m-btn m-btn--outlined"; x.textContent = txt;
-      x.addEventListener("click", function () { set(v); b.remove(); if (v === "yes") load(); });
+      x.addEventListener("click", function () { set(v); b.remove(); document.body.classList.remove("has-cc"); removeEventListener("resize", fit); if (v === "yes") load(); });
       return x;
     }
     row.appendChild(btn(L.no, "no")); row.appendChild(btn(L.yes, "yes"));
     b.appendChild(row); document.body.appendChild(b);
+    // El botón flotante del celular sube por encima del aviso mientras esté abierto (site.css: .has-cc .site-fab).
+    function fit() { document.documentElement.style.setProperty("--cc-h", b.offsetHeight + "px"); }
+    document.body.classList.add("has-cc"); fit(); addEventListener("resize", fit);
   }
 
   var c = get();

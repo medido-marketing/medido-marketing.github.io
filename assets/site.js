@@ -7,6 +7,15 @@
 
   all("[data-go]").forEach(function (b) { b.addEventListener("click", function () { location.href = b.getAttribute("data-go"); }); });
 
+  // menú en celular: el botón abre y cierra la lista de secciones; un enlace o Escape la cierran
+  var bar = $(".bar"), mb = $(".menu-btn");
+  if (bar && mb) {
+    var setMenu = function (on) { bar.classList.toggle("menu-open", on); mb.setAttribute("aria-expanded", on ? "true" : "false"); };
+    mb.addEventListener("click", function () { setMenu(!bar.classList.contains("menu-open")); });
+    all("#sitenav a").forEach(function (a) { a.addEventListener("click", function () { setMenu(false); }); });
+    d.addEventListener("keydown", function (e) { if (e.key === "Escape" && bar.classList.contains("menu-open")) { setMenu(false); mb.focus(); } });
+  }
+
   var ring = $("#read-ring");
   function readMeter() {
     var h = d.documentElement, max = h.scrollHeight - h.clientHeight;

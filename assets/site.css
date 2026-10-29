@@ -27,8 +27,17 @@ section[id]{scroll-margin-top:72px}
 .bar nav a:hover{color:var(--md-on-bg);background:color-mix(in srgb,var(--md-on-bg) 10%,transparent)}
 .bar .grow{flex:1}
 .bar .m-btn{min-height:44px}
-@media (max-width:860px){.bar nav{display:none}}
-@media (max-width:560px){.bar .m-btn{display:none}.bar .m-seg button{padding:0 14px}}
+.bar .menu-btn{display:none;width:44px;height:44px;flex:none}
+.bar .menu-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.bar .only-menu{display:none}
+@media (max-width:860px){
+  .bar nav{display:none}
+  .bar .menu-btn{display:inline-flex}
+  .bar.menu-open nav{display:grid;position:absolute;inset-inline:0;top:100%;margin:0;gap:var(--s-4);padding:var(--s-8) max(16px,env(safe-area-inset-left,0px)) var(--s-16) max(16px,env(safe-area-inset-right,0px));background:var(--md-bg);border-bottom:1px solid var(--md-outline-var);box-shadow:0 12px 24px rgba(0,0,0,.35)}
+  .bar.menu-open nav a{min-height:48px;font-size:16px;color:var(--md-on-bg)}
+  .bar.menu-open .only-menu{display:inline-flex;justify-content:center;margin-top:var(--s-8)}
+}
+@media (max-width:560px){.bar .sx>.m-btn{display:none}.bar .m-ring{display:none}.bar .m-seg{flex:none}.bar .m-seg button{padding:0 12px}}  /* tres idiomas y el menú entran en 375 px sin recortar */
 
 /* portada */
 .hero{padding-block:clamp(40px,7vw,88px)}
@@ -131,6 +140,7 @@ section[id]{scroll-margin-top:72px}
 /* botón fijo del celular: el único llamado fijo */
 .site-fab{position:fixed;inset-inline-end:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;display:none;box-shadow:0 6px 20px rgba(0,0,0,.35);text-decoration:none}
 @media (max-width:720px){.site-fab.on{display:inline-flex}}
+.has-cc .site-fab{bottom:calc(16px + var(--cc-h,0px))}  /* mientras el aviso de cookies está abajo, el botón sube por encima */
 .m-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .site-snack{position:fixed;inset-inline:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;max-width:520px;margin-inline:auto}
 .site-snack[hidden]{display:none}
