@@ -225,7 +225,7 @@ section[id]{scroll-margin-top:72px}
 .tier .price{margin:0}
 .tier .t-data{font-size:30px}
 .calc{display:grid;gap:var(--s-12);padding:var(--s-24);max-width:680px}
-.notme{margin:0;padding-inline-start:1.2em;display:grid;gap:var(--s-12);max-width:70ch}
+.notme{margin:0;padding-inline-start:1.2em;display:grid;gap:var(--s-24);max-width:62ch;font-size:17px;line-height:1.6}
 .diaglist{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-12);max-width:70ch}
 .diaglist li{padding-inline-start:var(--s-24);position:relative}
 .diaglist li::before{content:"";position:absolute;inset-inline-start:0;top:.55em;width:10px;height:10px;border-radius:50%;border:3px solid var(--md-primary)}
@@ -344,11 +344,14 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 @media (prefers-reduced-motion:reduce){.loglines .ln{transition:none;opacity:1;transform:none}.has-result .finding,.has-result .finding .m-tag{animation:none}}
 
 /* Precios como listado fino con relato (29/10): una fila por escalón, precio a la derecha; en RTL, a la izquierda. */
-.pstory{max-width:62ch;display:grid;gap:var(--s-12);margin-bottom:var(--s-32)}
+.pstory{max-width:62ch;display:grid;gap:var(--s-16);margin-bottom:var(--s-48)}
 .plist{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.18)}
-.plist-row{display:grid;grid-template-columns:1fr auto;gap:var(--s-16) var(--s-32);align-items:start;padding:var(--s-28) 0;border-bottom:1px solid rgba(255,255,255,.18)}
-.plist-main{display:grid;gap:6px;max-width:60ch}
-.plist-main .t-title{margin:0;font-size:20px}
+.plist-row{display:grid;grid-template-columns:1fr auto;gap:var(--s-16) var(--s-48);align-items:start;padding:var(--s-32) 0;border-bottom:1px solid var(--md-outline-var)}
+.plist{border-top-color:var(--md-outline-var)}
+.plist-main{display:grid;gap:var(--s-8);max-width:58ch}
+.plist-main .t-title{margin:0;font-size:22px}
+.plist-main .t-support{line-height:1.55}
+.route-line{max-width:62ch;margin:var(--s-32) 0 0}
 .plist-main .t-support{margin:0}
 .plist-main .t-note{margin:6px 0 0}
 .plist-price{margin:0;font:600 20px/1.2 var(--font-ui);white-space:nowrap;text-align:end}
@@ -384,3 +387,97 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .a4-log .loglines{min-height:240px;max-height:min(440px,56vh)}
 .has-result .reading-out{max-width:1100px;width:100%;padding:var(--s-32);margin-top:var(--s-8)}
 @media (max-width:900px){.is-reading .a4{grid-template-columns:1fr}.is-reading .a4 .a4-ring{order:-1}.is-reading .a4 .bigring{--d:min(200px,55vw)}.a4-log .loglines{min-height:160px;max-height:40vh}}
+
+/* ---------- 29/10 · el informe por bloques (lo que el dueño hace con cada cosa), con la UI de la auditoría M3 ----------
+   Contenedor sin tarjeta (fondo de página); cada bloque es una superficie con borde; adentro, los hechos en tono alto con radio
+   menor (radio externo − padding ≈ radio interno). Un solo acento amarillo: el bloque 4 (el Diagnóstico). */
+.has-result .reading-out{background:transparent;padding:0;border-radius:0;margin-top:var(--s-8)}
+.reading-out #result-in{gap:var(--s-24)}
+.rhl:focus{outline:none}   /* recibe el foco al terminar (para lectores de pantalla); no es un control, no lleva anillo */
+.rblock{display:grid;gap:var(--s-16);align-content:start;background:var(--md-surface);border:1px solid var(--md-outline-var);border-radius:var(--r-content);padding:var(--s-24);min-width:0}
+.rblock.m-card--accent{border:2px solid var(--md-primary)}
+.rblock-k{margin:0}
+.rblock-h{margin:0;max-width:34ch}
+.rblock > .t-body,.rblock > .t-support{max-width:65ch;margin:0}
+.findings{grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr))}
+.finding{background:var(--md-surface-hi);border-radius:var(--r-ctl);padding:var(--s-24);gap:var(--s-12);border:1px solid transparent}
+.finding.st-problem{border-color:var(--md-on-bg)}
+.finding--lite{gap:var(--s-8)}
+.ftop{align-items:center}
+.ftitle{margin:0;font-size:19px;line-height:1.25}
+.hint .ftitle{font-size:17px}
+.fsent{max-width:65ch}
+.fmeta{display:grid;gap:4px;border-top:1px dashed var(--md-outline-var);padding-top:var(--s-12)}
+.fmeta p{margin:0;max-width:65ch}
+.fmeta .t-label{color:var(--md-on-var)}
+.fdo p+.t-note{color:var(--md-on-var);margin-top:2px}
+.fagency-line{margin:0;max-width:65ch}
+.fagency-line b{font-weight:800}
+.okrows{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-8)}
+.okrow{display:grid;grid-template-columns:auto 1fr;gap:var(--s-12);align-items:start;font-size:15px;color:var(--md-on-var);padding:var(--s-8) 0;border-top:1px dashed var(--md-outline-var)}
+.okrow b{color:var(--md-on-bg)}
+.okrow .stlabel{margin-top:2px}
+.agq{margin:0;padding-inline-start:1.4em;display:grid;gap:var(--s-12);max-width:70ch}
+.agq li{display:grid;gap:2px;font-weight:600}
+.agq small{font-weight:500;color:var(--md-on-var)}
+.b2note{font-weight:700}
+.hints{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s-16)}
+.hint{background:var(--md-surface-hi);border-radius:var(--r-ctl);padding:var(--s-24);display:grid;gap:var(--s-12);align-content:start;min-width:0}
+.paths{display:grid;gap:var(--s-8);border-top:1px dashed var(--md-outline-var);padding-top:var(--s-16)}
+.paths .t-label{margin:0}
+.paths-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:var(--s-12);counter-reset:pa}
+.paths-list li{counter-increment:pa;display:grid;gap:4px;padding-inline-start:36px;position:relative;font-size:15px;color:var(--md-on-var)}
+.paths-list li::before{content:counter(pa);position:absolute;inset-inline-start:0;top:0;width:26px;height:26px;border-radius:50%;background:var(--md-on-bg);color:var(--md-bg);font:800 13px/26px var(--font-ui);text-align:center}
+.paths-list b{color:var(--md-on-bg);font-size:16px}
+.cantlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:var(--s-12)}
+.cantlist li{display:grid;gap:2px}
+.cantlist .t-support{margin:0}
+.b4diag{margin:0}
+.b4never{margin:0;max-width:72ch}
+.nextbox{background:var(--md-surface)}
+/* sellos y etiquetas del informe: cuerpo mínimo legible (11 px, 12 en hebreo), alineados con el título */
+.reading-out .m-tag{min-height:24px;font-size:11px;padding:0 10px}
+:lang(he) .reading-out .m-tag{font-size:12px}
+/* lo que se toca: objetivo de 48 (zona invisible alrededor) y capa de estado */
+.reading-out .m-chip{position:relative;min-height:36px}
+.reading-out .m-chip::after{content:"";position:absolute;inset:-6px 0;border-radius:inherit}
+.reading-out .m-chip:not([aria-pressed="true"]):hover{background:color-mix(in srgb,var(--md-on-bg) 8%,transparent)}
+.sess .m-btn{min-height:48px}
+.fdet summary{list-style:none;justify-content:space-between;gap:var(--s-12);padding:0 var(--s-8);margin:0 calc(var(--s-8) * -1);border-radius:var(--r-min);min-height:48px}
+.fdet summary::-webkit-details-marker{display:none}
+.fdet summary::after{content:"+";font:500 24px/1 var(--font-ui);flex:none}
+.fdet[open] summary::after{content:"–"}
+/* entrada escalonada corta y desacelerada (M3 emphasized-decelerate), recién cuando la vista llegó */
+.has-result .finding{animation:m-card-in .4s cubic-bezier(.05,.7,.1,1) both;animation-delay:calc(var(--i,0) * 80ms)}
+.has-result .finding .m-tag{animation:m-seal-in .4s cubic-bezier(.2,1.4,.4,1) both;animation-delay:calc(var(--i,0) * 80ms + 220ms)}
+.has-result .finding:nth-child(2),.has-result .finding:nth-child(3),.has-result .finding:nth-child(4){animation-delay:calc(var(--i,0) * 80ms)}
+.has-result .finding:nth-child(2) .m-tag,.has-result .finding:nth-child(3) .m-tag,.has-result .finding:nth-child(4) .m-tag{animation-delay:calc(var(--i,0) * 80ms + 220ms)}
+[dir="rtl"] .has-result .finding .m-tag{transform-origin:right center}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* compacto: padding 16, botones a ancho completo */
+@media (max-width:600px){
+  .rblock,.nextbox,.changes{padding:var(--s-16)}
+  .findings .finding,.hints .hint{padding:var(--s-12) 0 var(--s-16);background:transparent;border-radius:0;border:0;border-top:1px dashed var(--md-outline-var)}
+  .findings .finding.st-problem{border-top:2px solid var(--md-on-bg)}
+  .findings{gap:0}.hints{gap:0}
+  .is-reading .a4{padding:var(--s-16)}
+  .nextbox .cta-row .m-btn{width:100%}
+  .ftitle{font-size:17px}
+}
+
+/* 29/10 (noche): condiciones del Trimestre en acordeón, con el diseño de la semana 6 de vuelta, a escala de la fila */
+.plist-row .qterms{grid-column:1/-1;margin-top:var(--s-8)}
+.qcard{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:var(--s-32);padding:var(--s-24);border-radius:var(--r-content);align-items:start}
+.qleft{display:grid;gap:var(--s-16);align-content:start}
+.qleft .t-label{margin:0}
+.qh{margin:0;font:800 clamp(20px,2vw,26px)/1.15 var(--font-ui);letter-spacing:-.02em;max-width:22ch;text-wrap:balance}
+:lang(he) .qh{font-family:var(--font-he);letter-spacing:0}
+.qcard .m-weeks{max-width:420px}
+.qcard .m-weeks i{height:22px}
+.qcard .m-weeks i.stop::after{color:var(--md-on-primary)}
+.qcard .t-note{margin:0;max-width:44ch}
+.qterms-list{display:grid;gap:var(--s-16);max-width:56ch}
+.qterms-list p{margin:0;line-height:1.55}
+.qterms-list b{display:block;margin-bottom:2px;color:var(--md-on-bg)}
+@media (max-width:720px){.qcard{grid-template-columns:1fr;gap:var(--s-24);padding:var(--s-16)}}
+.qterms .body{max-width:none;color:inherit}
