@@ -363,7 +363,17 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .is-reading .a4{justify-items:center;text-align:center;padding:var(--s-32)}
 .is-reading .a4 .bigring{--d:min(300px,70vw)}
 .is-reading .a4 .step{max-width:28ch}
-.reading-out{background:transparent;padding:0;overflow:visible}
+.reading-out{overflow:visible}
+.is-reading #progress::after{display:none}
 .reading-out #result-in{display:grid;gap:var(--s-24)}
-.has-result .hero-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
-@media (max-width:900px){.has-result .hero-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* 29/10: durante la lectura, la "o" a un lado y la lista prometida al otro (lo que se pidió desde el principio). */
+/* A4: registro a la izquierda (lo que va leyendo, línea por línea), anillo a la derecha; el informe se despliega debajo */
+.a4{grid-template-columns:1fr;gap:var(--s-24)}
+.is-reading .a4{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,4vw,56px);align-items:start;justify-items:stretch;text-align:start;padding:var(--s-32);max-width:1100px;width:100%}
+.is-reading .a4 .a4-ring{display:grid;gap:var(--s-16);justify-items:center;text-align:center;align-self:center}
+.is-reading .a4 .bigring{--d:min(260px,60vw)}
+.a4-log{display:grid;gap:var(--s-8);min-width:0}
+.a4-log .loglines{min-height:240px;max-height:min(440px,56vh)}
+.has-result .reading-out{max-width:1100px;width:100%;padding:var(--s-32);margin-top:var(--s-8)}
+@media (max-width:900px){.is-reading .a4{grid-template-columns:1fr}.is-reading .a4 .a4-ring{order:-1}.is-reading .a4 .bigring{--d:min(200px,55vw)}.a4-log .loglines{min-height:160px;max-height:40vh}}

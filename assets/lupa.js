@@ -101,7 +101,7 @@
         if (s.error) return fail(s.error);
         finishLog(s.result);
         busy = false; $("#go").disabled = false;
-        setTimeout(function () { show("progress", false); show("log", false); render(s.result); }, 500); return;
+        setTimeout(function () { render(s.result); }, 900); return;
       }
       setTimeout(function () { poll(id, shown); }, 800);
     }).catch(function () { setTimeout(function () { poll(id, shown); }, 1500); });
@@ -144,7 +144,7 @@
     D.timeline.forEach(function (s, i) { logTimers.push(setTimeout(function () { addStep(s.step, i + 1, s.t); }, s.t * 1000)); });
     logTimers.push(setTimeout(function () {
       finishLog(D.result); busy = false; $("#go").disabled = false;
-      setTimeout(function () { show("progress", false); show("log", false); render(D.result); }, 500);
+      setTimeout(function () { render(D.result); }, 900);
     }, (last + 0.4) * 1000));
     emit("example_played");
   });
@@ -305,5 +305,5 @@
 
   function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
   function emit(name, extra) { try { d.dispatchEvent(new CustomEvent("medido:" + name, { detail: Object.assign({ page_lang: cfg.lang }, extra || {}) })); } catch (e) {} }
-  function reveal() { d.body.classList.add("has-result"); d.body.classList.remove("is-reading"); show("result", true); if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
+  function reveal() { d.body.classList.add("has-result"); show("result", true); if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
 })();
