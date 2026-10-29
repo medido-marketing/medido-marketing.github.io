@@ -72,7 +72,7 @@
 
   function start(url) {
     busy = true; $("#go").disabled = true; note("", false);
-    show("idle", false); show("progress", true); show("result", false);
+    show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading");
     beginLog();
     getToken().then(function (token) {
       return fetch(API + "/api/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, lang: cfg.lang, token: token }) });
@@ -86,7 +86,7 @@
       .catch(function () { offline(url); });
   }
 
-  function fail(msg) { busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true); note(msg, true); }
+  function fail(msg) { busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true); d.body.classList.remove("is-reading"); note(msg, true); }
   function offline(url) {
     busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true);
     var n = $("#formnote"); n.textContent = J.offline + " ";
@@ -101,7 +101,7 @@
         if (s.error) return fail(s.error);
         finishLog(s.result);
         busy = false; $("#go").disabled = false;
-        setTimeout(function () { show("progress", false); show("log", false); show("idle", true); render(s.result); }, 500); return;
+        setTimeout(function () { show("progress", false); show("log", false); render(s.result); }, 500); return;
       }
       setTimeout(function () { poll(id, shown); }, 800);
     }).catch(function () { setTimeout(function () { poll(id, shown); }, 1500); });
@@ -144,7 +144,7 @@
     D.timeline.forEach(function (s, i) { logTimers.push(setTimeout(function () { addStep(s.step, i + 1, s.t); }, s.t * 1000)); });
     logTimers.push(setTimeout(function () {
       finishLog(D.result); busy = false; $("#go").disabled = false;
-      setTimeout(function () { show("progress", false); show("log", false); show("idle", true); render(D.result); }, 500);
+      setTimeout(function () { show("progress", false); show("log", false); render(D.result); }, 500);
     }, (last + 0.4) * 1000));
     emit("example_played");
   });
@@ -305,5 +305,5 @@
 
   function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
   function emit(name, extra) { try { d.dispatchEvent(new CustomEvent("medido:" + name, { detail: Object.assign({ page_lang: cfg.lang }, extra || {}) })); } catch (e) {} }
-  function reveal() { d.body.classList.add("has-result"); show("result", true); if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
+  function reveal() { d.body.classList.add("has-result"); d.body.classList.remove("is-reading"); show("result", true); if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" }); var s = d.getElementById("result"); setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); }
 })();

@@ -348,3 +348,22 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .plist-price{margin:0;font:600 20px/1.2 var(--font-ui);white-space:nowrap;text-align:end}
 @media (max-width:600px){.plist-row{grid-template-columns:1fr}.plist-price{text-align:start}}
 #prices .t-note{margin-top:var(--s-16)}
+
+/* 29/10: lectura de ejemplo más chica; al pegar la web queda solo la "o" (modo lectura) y después la lectura al lado. */
+.exrest{gap:var(--s-12);padding:var(--s-20)}
+.exrest .t-title{font-size:clamp(17px,1.6vw,20px);line-height:1.25}
+.exrest .rmeta{font-size:12px}
+.exrows li{font-size:13px;line-height:1.4;gap:var(--s-8)}
+.exrows li .m-tag{font-size:11px;padding:1px 6px}
+.exrest .cant .t-support{font-size:13px}
+.exrest .t-note{font-size:12px}
+.exrest .cta-row .m-btn{min-height:34px;padding:4px 12px;font-size:13px}
+.is-reading .hero-copy{display:none}
+.is-reading .hero-grid{grid-template-columns:minmax(0,1fr);justify-items:center}
+.is-reading .a4{justify-items:center;text-align:center;padding:var(--s-32)}
+.is-reading .a4 .bigring{--d:min(300px,70vw)}
+.is-reading .a4 .step{max-width:28ch}
+.reading-out{background:transparent;padding:0;overflow:visible}
+.reading-out #result-in{display:grid;gap:var(--s-24)}
+.has-result .hero-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+@media (max-width:900px){.has-result .hero-grid{grid-template-columns:minmax(0,1fr)}}
