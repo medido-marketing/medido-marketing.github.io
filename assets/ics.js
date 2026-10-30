@@ -1,8 +1,8 @@
 /*!
  * ics.js · recordatorio de calendario de «Vuelve a leer tu sitio · Medido» (archivo nuevo, no cargado en ninguna página todavía).
  *
- * Qué hace: una función PURA, build({lang, domain, now}), que devuelve el texto de un archivo .ics con UN evento,
- * a los 7 días de «now», a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
+ * Qué hace: una función PURA, build({lang, domain, now, code, days}), que devuelve el texto de un archivo .ics con UN evento,
+ * a los 25 días de «now» (antes de que venza el cupón de 30 días), a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
  * abre; no hay zona horaria escrita en el archivo). Título en EN/HE/ES; el dominio va en la descripción, con el enlace a
  * https://marketingmedido.com/. No lleva ningún dato personal: ni nombre, ni mail, ni teléfono, ni ciudad. No usa red,
  * no guarda nada, no toca el DOM.
@@ -37,16 +37,19 @@
   "use strict";
 
   var SITE_URL = "https://marketingmedido.com/";
-  var DAYS = 7, HOUR = 10, MINUTES = 30;      // 7 días, a las 10:00, de 30 minutos
+  var DAYS = 25, HOUR = 10, MINUTES = 30;     // 25 días (el cupón vale 30), a las 10:00, de 30 minutos
   var CRLF = "\r\n";
 
   var TEXT = {
     en: { title: "Read your site again · Medido",
-          desc: "Second reading of {d}: US$5 with the coupon from your first reading. Read it again at {u} and see what changed." },
+          desc: "Second reading of {d}: US$5 with the coupon from your first reading. Read it again at {u} and see what changed.",
+          code: "Your coupon: {c}. It is valid for 30 days from your first reading." },
     he: { title: "קראו שוב את האתר שלכם · Medido",
-          desc: "קריאה שנייה של {d}: 15 ₪ עם הקופון מהקריאה הראשונה. קראו שוב בכתובת {u} וראו מה השתנה." },
+          desc: "קריאה שנייה של {d}: 15 ₪ עם הקופון מהקריאה הראשונה. קראו שוב בכתובת {u} וראו מה השתנה.",
+          code: "הקופון שלכם: {c}. הוא בתוקף 30 יום מהקריאה הראשונה." },
     es: { title: "Vuelve a leer tu sitio · Medido",
-          desc: "Segunda lectura de {d}: US$5 con el cupón de tu primera lectura. Vuelve a leerlo en {u} y mira qué cambió." }
+          desc: "Segunda lectura de {d}: US$5 con el cupón de tu primera lectura. Vuelve a leerlo en {u} y mira qué cambió.",
+          code: "Tu cupón: {c}. Vale 30 días desde tu primera lectura." }
   };
 
   function pad(n, w) { n = String(n); while (n.length < (w || 2)) n = "0" + n; return n; }
@@ -69,7 +72,7 @@
     return String(s)
       .replace(/\r\n|\r|\n/g, "\u2028")                    // marca temporal de salto, se convierte al final
       .replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, "")  // controles (no deben llegar a un archivo .ics)
-      .replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,")
+      .replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,")
       .replace(/\u2028/g, "\\n");
   }
 
@@ -109,8 +112,10 @@
   }
 
   /**
-   * @param {{lang?: "en"|"he"|"es", domain: string, now?: Date}} opts
+   * @param {{lang?: "en"|"he"|"es", domain: string, now?: Date, code?: string, days?: number}} opts
    *   now: el momento de la lectura (por defecto, ahora; pasarlo explícito vuelve la función determinista).
+   *   code: el cupón de Segunda lectura, «XXXX-XXXX» (letras y números); si viene, va en la descripción.
+   *   days: a cuántos días de «now» cae el recordatorio (por defecto 25, de 1 a 30: el cupón vale 30).
    * @returns {string} el contenido del .ics, con CRLF en todas las líneas y al final.
    */
   function build(opts) {
@@ -119,13 +124,17 @@
     var domain = normalizeDomain(opts.domain);
     var now = opts.now instanceof Date ? opts.now : new Date();
     if (isNaN(now.getTime())) throw new Error("ics: fecha inválida");
+    var days = opts.days == null ? DAYS : opts.days;
+    if (!(days === Math.floor(days) && days >= 1 && days <= 30)) throw new Error("ics: días inválidos");
+    var code = opts.code == null ? "" : String(opts.code).trim().toUpperCase();
+    if (code && !/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) throw new Error("ics: cupón inválido");
 
-    // 7 días después, a las 10:00 locales. new Date(a, m, d + 7, ...) respeta los cambios de horario de verano.
-    var start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + DAYS, HOUR, 0, 0);
+    // «days» días después, a las 10:00 locales. new Date(a, m, d + 7, ...) respeta los cambios de horario de verano.
+    var start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, HOUR, 0, 0);
     var end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), HOUR, MINUTES, 0);
     var t = TEXT[lang];
     var title = t.title;
-    var desc = t.desc.replace("{d}", domain).replace("{u}", SITE_URL);
+    var desc = t.desc.replace("{d}", domain).replace("{u}", SITE_URL) + (code ? " " + t.code.replace("{c}", code) : "");
     var uid = "lupa-" + hash(domain + "|" + localStamp(start)) + "@marketingmedido.com";
 
     var lines = [

@@ -95,13 +95,71 @@
       .then(function (r) { return r.json().catch(function () { return { error: "?" }; }).then(function (j) { return { status: r.status, j: j }; }); })
       .then(function (o) {
         if (o.status === 404 || o.status === 405 || o.status === 501) return offline(url);
-        if (o.j.error) return fail(o.j.error);
-        // La lectura corre dentro de este pedido, que queda abierto hasta que termina (un trabajo en segundo plano se cancelaría a los 30 s).
-        fetch(API + "/api/run?id=" + encodeURIComponent(o.j.id), { method: "POST" }).catch(function () {});
-        poll(o.j.id, 0);
+        if (o.j.needs_coupon) return askCoupon(o.j);
+        if (o.j.error) return o.j.contact ? failContact(o.j.error) : fail(o.j.error);
+        follow(o.j.id);
       })
       .catch(function () { offline(url); });
   }
+  // La lectura corre dentro de este pedido, que queda abierto hasta que termina (un trabajo en segundo plano se cancelaría a los 30 s).
+  function follow(id) {
+    fetch(API + "/api/run?id=" + encodeURIComponent(id), { method: "POST" }).catch(function () {});
+    poll(id, 0);
+  }
+  // Lo que pasa con la lectura (copiarla, compartirla, guardar el cupón) se suma al registro del sitio, sin datos de quien lo hace.
+  function siteEvent(name, url) {
+    try { fetch(API + "/api/event", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url || lastUrl, name: name, lang: cfg.lang }) }).catch(function () {}); } catch (e) {}
+  }
+  function contactLink(p) { if (cfg.contact) { p.appendChild(d.createTextNode(" ")); var a = el("a", null, J.offline_btn); a.href = cfg.contact; p.appendChild(a); } return p; }
+  function failContact(msg) { back(); note(msg, true); contactLink($("#formnote")); }
+
+  // ---------- Segunda lectura: el cupón y el pago (PayPal, por redirección) ----------
+  // Un sitio ya leído, pasadas las 6 horas y con el cupón vigente: se pide el cupón y el pago de US$5.
+  function askCoupon(j) {
+    busy = false; $("#go").disabled = false; show("progress", false); show("idle", false); d.body.classList.add("is-reading");
+    var root = $("#result-in"); root.textContent = "";
+    var box = el("div", "m-card askcp"); box.appendChild(el("h2", "t-headline", j.t.h)); box.appendChild(el("p", "t-body", j.t.p));
+    var f = el("form", "askform"), lab = el("label", "t-label", j.t.label), inp = el("input"); inp.type = "text"; inp.id = "cpcode"; inp.autocomplete = "off"; inp.spellcheck = false; inp.dir = "ltr"; inp.maxLength = 12; inp.placeholder = "XXXX-XXXX";
+    lab.htmlFor = "cpcode"; var go = el("button", "m-btn m-btn--filled", j.t.btn); go.type = "submit";
+    var msg = el("p", "t-note"); msg.setAttribute("role", "status");
+    var bar = el("div", "m-search"); bar.appendChild(inp); bar.appendChild(go);
+    f.appendChild(lab); f.appendChild(bar);
+    f.addEventListener("submit", function (e) { e.preventDefault(); var code = (inp.value || "").trim(); if (!code) { inp.focus(); return; } msg.textContent = j.t.check; msg.classList.remove("err"); go.disabled = true; payStart(j.url, code, msg, function () { go.disabled = false; }); });
+    box.appendChild(f); box.appendChild(msg);
+    var lost = el("p", "t-support"); var la = el("a", null, j.t.lost); la.href = cfg.contact || ("mailto:" + cfg.email); lost.appendChild(la); box.appendChild(lost);
+    root.appendChild(box); show("result", true);
+    try { inp.focus({ preventScroll: true }); } catch (e) {}
+    emit("coupon_asked");
+  }
+  // Valida el cupón en el servidor y manda a pagar a PayPal; PayPal devuelve a esta portada con ?pp=1&token=<orden>.
+  function payStart(url, code, msg, done) {
+    fetch(API + "/api/pay/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, code: code, lang: cfg.lang, back: location.origin + location.pathname }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j.approve) { emit("coupon_payment_started"); location.href = j.approve; return; }
+        msg.textContent = j.error || "?"; msg.classList.add("err"); done();   // el enlace al formulario ya está debajo
+      })
+      .catch(function () { msg.textContent = J.offline; msg.classList.add("err"); done(); });
+  }
+  // De vuelta de PayPal: el servidor cobra la orden, comprueba el pago y arranca la Segunda lectura.
+  // (Con setTimeout, como el enlace compartido: el registro de pasos se arma más abajo en este archivo.)
+  setTimeout(function () {
+    var q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    var pp = q.get("pp"), order = q.get("token");
+    if (!pp) return;
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
+    if (pp !== "1" || !order) return;
+    busy = true; $("#go").disabled = true;
+    show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading"); beginLog();
+    fetch(API + "/api/pay/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: order, lang: cfg.lang }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (!j.id) return j.contact ? failContact(j.error || "?") : fail(j.error || "?");
+        lastUrl = j.url || ""; $("#site").value = lastUrl; if (j.note) logLine("ev", j.note);
+        emit("coupon_paid"); follow(j.id);
+      })
+      .catch(function () { fail(J.offline); });
+  }, 0);
 
   // Al volver de un error, la caja de pegar vuelve a verse (is-reading la esconde): se puede reintentar.
   function back() { busy = false; $("#go").disabled = false; show("progress", false); show("log", false); show("idle", true); d.body.classList.remove("is-reading"); }
@@ -280,7 +338,7 @@
     head.appendChild(el("p", "t-label", J.reading_of + " " + host));
     head.appendChild(el("p", "t-mono rmeta", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + J.loads_label + " · " + iso(r.elapsed + " s")));
     if (r.recorded) head.appendChild(el("p", "t-note", J.ex_recorded.replace("{date}", r.date)));
-    else if (r.cached) head.appendChild(el("p", "t-note", J.cached));
+    else if (r.cached) head.appendChild(el("p", "t-note", r.cached_note || J.cached));
     root.appendChild(head);
 
     if (r.unreadable) {
@@ -303,7 +361,7 @@
       var b2 = block("b2", J.b2_k, J.b2_h);
       var ol = el("ol", "agq"); qs.forEach(function (q) { var li = el("li"); li.appendChild(el("span", null, q.q)); li.appendChild(el("small", "t-note", q.from)); ol.appendChild(li); }); b2.appendChild(ol);
       var row2 = el("div", "cta-row");
-      var cb = el("button", "m-btn m-btn--outlined", J.b2_copy); cb.type = "button"; cb.addEventListener("click", function () { window.medidoCopy(agencyText(r), cb, J.copied); emit("questions_copied", { what: "all" }); }); row2.appendChild(cb);
+      var cb = el("button", "m-btn m-btn--outlined", J.b2_copy); cb.type = "button"; cb.addEventListener("click", function () { window.medidoCopy(agencyText(r), cb, J.copied); emit("questions_copied", { what: "all" }); siteEvent("copied_agency", r.url); }); row2.appendChild(cb);
       b2.appendChild(row2);
       b2.appendChild(el("p", "t-support", J.b2_more));
       b2.appendChild(el("p", "t-body b2note", J.b2_note));
@@ -359,6 +417,12 @@
       }); chg.appendChild(cl);
     }
     root.appendChild(chg);
+    if (r.second) {
+      var un = el("div", "m-card m-card--accent unlocks"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
+      if (r.second.unlocked.length) { var ul5 = el("ul", "cantlist"); r.second.unlocked.forEach(function (x) { ul5.appendChild(el("li", null, "✓ " + x)); }); un.appendChild(ul5); }
+      un.appendChild(el("p", "t-body", r.second.t.next));
+      root.appendChild(un);
+    }
 
     // 5 · Después
     actions(root, r); reveal();
@@ -375,7 +439,7 @@
     cq.appendChild(cr); nx.appendChild(cq);
     nx.appendChild(el("p", "t-body", J.next_text));
     var row = el("div", "cta-row");
-    var a1 = el("a", "m-btn m-btn--filled", J.next_btn); a1.href = mailto(cfg.subject_reread, (cfg.body_reread || cfg.body).replace("{url}", r.url || lastUrl).replace("{spend}", J.spend_labels[spend])); a1.addEventListener("click", function () { emit("reread_requested"); }); row.appendChild(a1);
+    if (r.coupon && r.coupon.open) nx.appendChild(couponCard(r));
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
     // Compartir: el enlace permanente abre esta misma lectura (?site=). En el celular usa la hoja de compartir del sistema; si no, copia el enlace.
     var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + "?site=" + encodeURIComponent(r.url || lastUrl);
@@ -384,10 +448,11 @@
       var text = J.share_text.replace("{host}", host);
       if (navigator.share) { navigator.share({ title: J.share_subject.replace("{host}", host), text: text, url: link }).then(function () { emit("reading_shared", { how: "native" }); }).catch(function () {}); }
       else { window.medidoCopy(text + " " + link, b4, J.copied); emit("reading_shared", { how: "copy" }); }
+      siteEvent("shared", r.url);
     }); row.appendChild(b4);
-    var b2 = el("button", "m-btn m-btn--text", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); }); row.appendChild(b2);
-    var b3 = el("button", "m-btn m-btn--text", J.read_again); b3.type = "button"; b3.addEventListener("click", function () { start(lastUrl); }); row.appendChild(b3);
+    var b2 = el("button", "m-btn m-btn--text", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); siteEvent("saved", r.url); }); row.appendChild(b2);
     nx.appendChild(row);
+    if (r.keep_note && !r.recorded) { var kp = el("p", "t-note keepnote m-card m-card--outlined"); kp.textContent = r.keep_note; nx.appendChild(kp); }
     nx.appendChild(el("p", "t-note", J.next_note));
     // Reunión de 45 minutos. Con Cal.com configurado (cfg.booking por idioma), la nota comparativa que elige, paga y agenda;
     // si no, el botón al formulario de contacto con el pedido armado.
@@ -408,6 +473,39 @@
     // qué te conviene según el gasto: vive en los precios, debajo de la lista (no en medio de la lectura)
     var rl = el("p", "t-support"); var ra = el("a", null, J.route_link); ra.href = "#prices"; rl.appendChild(ra); nx.appendChild(rl);
     root.appendChild(nx);
+  }
+
+  // El cupón de la Segunda lectura: código, vencimiento, guardarlo en el calendario (aviso a los 25 días, con el código), copiarlo o usarlo ya.
+  function couponCard(r) {
+    var c = r.coupon, t = c.t, url = r.url || lastUrl, host = hostOf(url);
+    var card = el("div", "m-card m-card--accent coupon");
+    card.appendChild(el("p", "t-label", t.h + " · " + t.price));
+    card.appendChild(el("p", "t-support", t.code));
+    var code = el("p", "t-headline", c.code); code.dir = "ltr"; card.appendChild(code);
+    card.appendChild(el("p", "t-support", t.valid));
+    card.appendChild(el("p", "t-body", t.validate));
+    var row = el("div", "cta-row");
+    if (window.MedidoIcs) {
+      var bc = el("button", "m-btn m-btn--outlined", t.cal); bc.type = "button";
+      bc.addEventListener("click", function () {
+        var text = window.MedidoIcs.build({ lang: cfg.lang, domain: host, now: new Date(), code: c.code, days: 25 });
+        var href = URL.createObjectURL(new Blob([text], { type: "text/calendar;charset=utf-8" }));
+        var a = d.createElement("a"); a.href = href; a.download = window.MedidoIcs.filename(host); d.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
+        siteEvent("coupon_calendar", url); emit("coupon_calendar");
+      });
+      row.appendChild(bc);
+    }
+    var bk = el("button", "m-btn m-btn--text", t.copy); bk.type = "button";
+    bk.addEventListener("click", function () { window.medidoCopy(c.code, bk, J.copied); siteEvent("coupon_copied", url); });
+    row.appendChild(bk);
+    var bu = el("button", "m-btn m-btn--text", t.use); bu.type = "button";
+    var msg = el("p", "t-note"); msg.setAttribute("role", "status");
+    bu.addEventListener("click", function () { bu.disabled = true; payStart(url, c.code, msg, function () { bu.disabled = false; }); });
+    row.appendChild(bu);
+    card.appendChild(row); card.appendChild(msg);
+    card.appendChild(el("p", "t-note", t.cal_note));
+    return card;
   }
 
   function hostOf(u) { try { return new URL(u).hostname; } catch (e) { return u; } }
