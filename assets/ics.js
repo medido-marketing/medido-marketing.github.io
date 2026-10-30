@@ -1,5 +1,5 @@
 /*!
- * ics.js · recordatorio de calendario de «Volvé a leer tu sitio · Medido» (archivo nuevo, no cargado en ninguna página todavía).
+ * ics.js · recordatorio de calendario de «Vuelve a leer tu sitio · Medido» (archivo nuevo, no cargado en ninguna página todavía).
  *
  * Qué hace: una función PURA, build({lang, domain, now}), que devuelve el texto de un archivo .ics con UN evento,
  * a los 7 días de «now», a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
@@ -42,11 +42,11 @@
 
   var TEXT = {
     en: { title: "Read your site again · Medido",
-          desc: "Free re-read of {d}. Read it again at {u} and see what changed." },
+          desc: "Second reading of {d}: US$5 with the coupon from your first reading. Read it again at {u} and see what changed." },
     he: { title: "קראו שוב את האתר שלכם · Medido",
-          desc: "קריאה חוזרת חינם של {d}. קראו שוב ב-{u} וראו מה השתנה." },
-    es: { title: "Volvé a leer tu sitio · Medido",
-          desc: "Relectura gratis de {d}. Volvé a leerlo en {u} y mirá qué cambió." }
+          desc: "קריאה שנייה של {d}: 15 ₪ עם הקופון מהקריאה הראשונה. קראו שוב בכתובת {u} וראו מה השתנה." },
+    es: { title: "Vuelve a leer tu sitio · Medido",
+          desc: "Segunda lectura de {d}: US$5 con el cupón de tu primera lectura. Vuelve a leerlo en {u} y mira qué cambió." }
   };
 
   function pad(n, w) { n = String(n); while (n.length < (w || 2)) n = "0" + n; return n; }

@@ -327,8 +327,8 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .loglines .ln.on{opacity:1;transform:none}
 .loglines .ln>span{overflow-wrap:anywhere}
 .loglines .t{color:var(--md-on-var);text-align:right;font-variant-numeric:tabular-nums}
-.loglines .ev{color:var(--md-primary)}.loglines .ev::before{content:"✓ "}
-.loglines .no{color:var(--md-on-var)}.loglines .no::before{content:"— "}
+.loglines .ev{color:var(--md-primary)}.loglines .ev>span:last-child::before{content:"✓ "}
+.loglines .no{color:var(--md-on-var)}.loglines .no>span:last-child::before{content:"— "}
 .a4{display:grid;gap:var(--s-16);justify-items:start;align-content:start}
 .a4 .ringwrap{display:grid;place-items:center;position:relative}
 .a4 .bigring{--d:min(220px,55vw)}
