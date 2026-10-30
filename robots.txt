@@ -4,7 +4,13 @@ Allow: /
 # AI crawlers are welcome; the site is meant to be read by assistants too.
 User-agent: GPTBot
 Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: OAI-AdsBot
+Allow: /
 User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
 Allow: /
 User-agent: PerplexityBot
 Allow: /
