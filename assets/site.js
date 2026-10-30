@@ -60,6 +60,13 @@
     dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
   });
 
+  // botón de leer del encabezado: en la portada se muestra solo cuando la caja de lectura salió de la vista
+  var barCta = $(".bar-cta"), box = $("#reader");
+  if (barCta && box) {
+    if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { barCta.classList.toggle("is-on", !es[0].isIntersecting); }).observe(box);
+    else barCta.classList.add("is-on");
+  }
+
   // botón fijo del celular: aparece al pasar la portada y se va en el cierre
   var fab = $("#fab"), hero = $("#read"), end = $("#contact");
   if (fab && hero && end && "IntersectionObserver" in window) {

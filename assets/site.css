@@ -30,6 +30,10 @@ section[id]{scroll-margin-top:72px}
 .bar .menu-btn{display:none;width:44px;height:44px;flex:none}
 .bar .menu-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .bar .only-menu{display:none}
+/* portada: el botón de leer del encabezado aparece solo cuando la caja de lectura ya no se ve (Débora, 30/10) */
+body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
+.bar-cta{transition:opacity .2s var(--ease),visibility .2s}
+@media (prefers-reduced-motion:reduce){.bar-cta{transition:none}}
 @media (max-width:860px){
   .bar nav{display:none}
   .bar .menu-btn{display:inline-flex}
