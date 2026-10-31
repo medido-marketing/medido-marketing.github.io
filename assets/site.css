@@ -233,6 +233,8 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
 .tier .price{margin:0}
 .tier .t-data{font-size:30px}
 .calc{display:grid;gap:var(--s-12);padding:var(--s-24);max-width:680px}
+.calc-out{display:grid;gap:var(--s-12)}.calc-out p{margin:0}
+.calc-list{margin:0;padding-inline-start:1.2em;display:grid;gap:var(--s-8)}.calc-list li{line-height:1.5}
 .notme{margin:0;padding-inline-start:1.2em;display:grid;gap:var(--s-24);max-width:62ch;font-size:17px;line-height:1.6}
 .diaglist{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-12);max-width:70ch}
 .diaglist li{padding-inline-start:var(--s-24);position:relative}

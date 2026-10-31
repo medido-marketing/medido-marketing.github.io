@@ -89,7 +89,9 @@
     d.querySelectorAll(".m-seg [data-go]").forEach(function (b) { b.setAttribute("data-site", url); });
     show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading"); d.body.classList.remove("has-result");
     beginLog();
-    getToken().then(function (token) {
+    // si Turnstile no carga o no verifica, se pregunta igual sin la ficha: el servidor contesta «no pude confirmar que eres
+    // una persona» en el idioma de la página (antes salía «la lectura en vivo todavía no funciona en este servidor», que no era cierto)
+    getToken().catch(function () { return ""; }).then(function (token) {
       return fetch(API + "/api/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, lang: cfg.lang, token: token }) });
     })
       .then(function (r) { return r.json().catch(function () { return { error: "?" }; }).then(function (j) { return { status: r.status, j: j }; }); })

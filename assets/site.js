@@ -41,13 +41,29 @@
 
   // calculadora de ajuste al gasto
   var sp = $("#spend"), out = $("#calc-out");
-  function fmt(n) { return n.toLocaleString(cfg.lang === "he" ? "he-IL" : "en-US"); }
+  function fmt(n) { return n.toLocaleString({ he: "he-IL", es: "es" }[cfg.lang] || "en-US"); }
+  // un texto del tramo: reemplaza las cifras y pasa **así** a negrita, sin usar innerHTML
+  function rich(el, s) {
+    s.split("**").forEach(function (part, i) {
+      if (!part) return;
+      if (i % 2) { var b = d.createElement("b"); b.textContent = part; el.appendChild(b); } else el.appendChild(d.createTextNode(part));
+    });
+    return el;
+  }
+  function para(s) { var p = d.createElement("p"); p.className = "t-body"; return rich(p, s); }
   if (sp && out && cfg) sp.addEventListener("input", function () {
     var v = parseInt((sp.value || "").replace(/[^0-9]/g, ""), 10);
-    if (!v) { out.textContent = cfg.calc.none; return; }
-    var f = cfg.fee, tier = v < f.low ? "low" : (v < f.high ? "mid" : "high");
-    var p = Math.round(f.diag / v * 100), q = Math.round(f.quarter / v * 100);
-    out.textContent = cfg.calc[tier].replace("{s}", fmt(v)).replace("{p}", p).replace("{q}", q);
+    out.textContent = "";
+    if (!v) { out.appendChild(para(cfg.calc.none)); return; }
+    var f = cfg.fee, n = 1;
+    while (n <= f.cuts.length && v >= f.cuts[n - 1]) n++;        // cinco tramos: t1 … t5
+    var t = cfg.calc["t" + n], nums = { s: fmt(v), p: Math.round(f.diag / v * 100), q: Math.round(f.quarter / v * 100), g: Math.round(f.watch / v * 100) };
+    var fill = function (s) { return s.replace(/\{([spqg])\}/g, function (m, k) { return nums[k]; }); };
+    out.appendChild(para(fill(t.lead)));
+    var ul = d.createElement("ul"); ul.className = "calc-list";
+    t.items.forEach(function (it) { var li = d.createElement("li"); ul.appendChild(rich(li, fill(it))); });
+    out.appendChild(ul);
+    if (t.tail) out.appendChild(para(fill(t.tail)));
   });
 
   // ventanas (dialog nativo): el enlace abre la ventana; sin JS sigue llevando a la página. Cierra con la X, el botón, Escape o un toque afuera.
