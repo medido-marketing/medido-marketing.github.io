@@ -114,6 +114,32 @@
   function contactLink(p) { if (cfg.contact) { p.appendChild(d.createTextNode(" ")); var a = el("a", null, J.offline_btn); a.href = cfg.contact; p.appendChild(a); } return p; }
   function failContact(msg) { back(); note(msg, true); contactLink($("#formnote")); }
 
+  // La misma lectura otra vez (dentro de las 6 horas): la rueda llega enseguida al 100 % y, donde va el registro de pasos,
+  // se dice cuánto hace que se hizo, cuánto queda guardada, que la Segunda lectura es con el cupón, y la sesión de 45 minutos.
+  function repeatPanel(r) {
+    var ring = $("#ring"); if (ring) ring.style.setProperty("--p", 100);
+    var pct = $("#ringpct"); if (pct) pct.textContent = "100 %";
+    var st = $("#step"); if (st) st.textContent = "";
+    var log = $("#log"); if (!log) return; log.hidden = false;
+    var lk = $("#logk"), sp = $("#steps"); if (lk) lk.hidden = true; if (sp) sp.hidden = true;   // el registro de pasos queda, oculto, para la próxima lectura
+    var wn = $("#waitnote"); if (wn) wn.hidden = true;                                       // «un navegador real…» no aplica: no se leyó de nuevo
+    var t = r.repeat.t, box = el("div", "repeat"); box.style.display = "grid"; box.style.gap = "16px"; box.style.alignContent = "start";
+    box.appendChild(el("p", "t-title", t.ago));
+    if (r.coupon && r.coupon.open) box.appendChild(el("p", "t-body", t.next));
+    var bk = cfg.booking || {}, url = r.url || lastUrl;
+    if (bk.talk && bk.note) {
+      box.appendChild(el("p", "t-label", t.hard));
+      var row = el("div", "cta-row");
+      [["talk", J.meet_btn_talk, "m-btn m-btn--filled"], ["note", J.meet_btn_note, "m-btn m-btn--outlined"]].forEach(function (o) {
+        var a = el("a", o[2], o[1]); a.href = bk[o[0]] + "?site=" + encodeURIComponent(url); a.target = "_blank"; a.rel = "noopener";
+        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "repeat" }); }); row.appendChild(a);
+      });
+      box.appendChild(row);
+    }
+    log.appendChild(box);
+    emit("reading_repeated");
+  }
+
   // ---------- Segunda lectura: el cupón y el pago (PayPal, por redirección) ----------
   // Un sitio ya leído, pasadas las 6 horas y con el cupón vigente: se pide el cupón y el pago de US$5.
   function askCoupon(j) {
@@ -177,6 +203,7 @@
       while (shown < s.steps.length) { addStep(s.steps[shown], shown + 1); shown++; }
       if (s.done) {
         if (s.error) return fail(s.error);
+        if (s.result && s.result.repeat) { repeatPanel(s.result); busy = false; $("#go").disabled = false; setTimeout(function () { render(s.result); }, 600); return; }
         finishLog(s.result);
         busy = false; $("#go").disabled = false;
         setTimeout(function () { render(s.result); }, 900); return;
@@ -190,6 +217,7 @@
   function beginLog() {
     logTimers.forEach(clearTimeout); logTimers = [];
     t0 = Date.now(); $("#steps").textContent = ""; show("log", true);
+    var rp = $("#log .repeat"); if (rp) rp.remove(); show("logk", true); show("steps", true); show("waitnote", true);
     var ring = $("#ring"); if (ring) ring.style.setProperty("--p", 0);
     var pct = $("#ringpct"); if (pct) pct.textContent = "0 %";
     var st = $("#step"); if (st) st.textContent = "";
