@@ -392,7 +392,15 @@
     if (r.unreadable) {
       var u = el("div", "unread m-card"); u.appendChild(el("h2", "t-headline", J.unreadable_h));
       [[J.unreadable_cause, r.unreadable.cause], [J.unreadable_tried, r.unreadable.tried], [J.unreadable_needs, r.unreadable.needs]].forEach(function (p) { u.appendChild(el("p", "t-label", p[0])); u.appendChild(el("p", "t-body", p[1])); });
-      root.appendChild(u); actions(root, r); reveal(); return;
+      root.appendChild(u);
+      if (r.manual) {                                                                // el sitio frena a Lupa: la lectura a mano, en 48 horas
+        var mt = r.manual.t, mc = el("div", "m-card m-card--accent manual");
+        mc.appendChild(el("h3", "t-title", mt.h)); mc.appendChild(el("p", "t-body", mt.p));
+        var ma = el("a", "m-btn m-btn--filled", mt.btn); ma.href = mailto(mt.subject, mt.body);
+        ma.addEventListener("click", function () { siteEvent("manual_requested", r.url); emit("manual_requested"); });
+        var mr = el("div", "cta-row"); mr.appendChild(ma); mc.appendChild(mr); root.appendChild(mc);
+      }
+      actions(root, r); reveal(); return;
     }
     var hl = el("h2", "t-headline rhl", r.headline); hl.tabIndex = -1; root.appendChild(hl);
 
