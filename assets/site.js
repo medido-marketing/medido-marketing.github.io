@@ -75,6 +75,40 @@
     }, 1500);
   });
 
+  // lectura de ejemplo: se reproduce UNA vez cuando entra en la vista (como el informe, que espera a que la vista llegue):
+  // el registro cae con la línea de tiempo real comprimida, el anillo se llena y después aparece el resultado.
+  // Nada se mueve con el scroll; con movimiento reducido o sin JS se ve quieta. Solo cambia la opacidad: no mueve el diseño.
+  var ex = $(".exrest[data-tl]"), reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (ex && !reduce && "IntersectionObserver" in window) {
+    var tl = []; try { tl = JSON.parse(ex.getAttribute("data-tl")); } catch (e) {}
+    var exlog = $(".exlog", ex), exring = $(".exring", ex), exbig = $(".exbig", ex), expct = $(".expct", ex), rows = all(".exrows > li", ex);
+    if (tl.length && exlog && exring) {
+      ex.classList.add("is-armed"); exring.style.setProperty("--p", "0");
+      var io = new IntersectionObserver(function (es) {
+        if (!es[0].isIntersecting) return; io.disconnect();
+        var DUR = 4200, t0 = performance.now(), shown = 0;
+        ex.classList.add("is-playing");
+        (function tick(now) {
+          var k = Math.min(1, (now - t0) / DUR);
+          var pct = Math.round(k * 100);
+          exring.style.setProperty("--p", String(pct)); if (exbig) exbig.style.setProperty("--p", String(pct)); if (expct) expct.textContent = pct + " %";
+          while (shown < tl.length && shown / tl.length <= k) {   // pasos repartidos parejo: la línea real amontona varios al final
+            var li = d.createElement("li"); li.className = "ln on";
+            var tm = d.createElement("span"); tm.className = "t"; tm.dir = "ltr"; tm.textContent = tl[shown][0].toFixed(1) + "s";
+            var tx = d.createElement("span"); tx.textContent = tl[shown][1];
+            li.appendChild(tm); li.appendChild(tx); exlog.appendChild(li); shown++;
+          }
+          if (k < 1) return requestAnimationFrame(tick);
+          setTimeout(function () {
+            ex.classList.remove("is-playing"); ex.classList.add("is-done");
+            rows.forEach(function (r, i) { setTimeout(function () { r.classList.add("on"); }, 120 + i * 80); });
+          }, 350);
+        })(t0);
+      }, { threshold: 0.5 });
+      io.observe(ex);
+    }
+  }
+
   // ventanas (dialog nativo): el enlace abre la ventana; sin JS sigue llevando a la página. Cierra con la X, el botón, Escape o un toque afuera.
   all("[data-dialog]").forEach(function (a) {
     var dlg = $("#" + a.getAttribute("data-dialog"));
