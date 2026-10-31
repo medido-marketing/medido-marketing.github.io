@@ -107,8 +107,9 @@
     poll(id, 0);
   }
   // Lo que pasa con la lectura (copiarla, compartirla, guardar el cupón) se suma al registro del sitio, sin datos de quien lo hace.
+  // Va como texto simple (sin consulta previa del navegador), para que llegue aunque la página se cierre enseguida.
   function siteEvent(name, url) {
-    try { fetch(API + "/api/event", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url || lastUrl, name: name, lang: cfg.lang }) }).catch(function () {}); } catch (e) {}
+    try { fetch(API + "/api/event", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ url: url || lastUrl, name: name, lang: cfg.lang }) }).catch(function () {}); } catch (e) {}
   }
   function contactLink(p) { if (cfg.contact) { p.appendChild(d.createTextNode(" ")); var a = el("a", null, J.offline_btn); a.href = cfg.contact; p.appendChild(a); } return p; }
   function failContact(msg) { back(); note(msg, true); contactLink($("#formnote")); }
@@ -420,7 +421,7 @@
     if (r.second) {
       var un = el("div", "m-card m-card--accent unlocks"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
       if (r.second.unlocked.length) { var ul5 = el("ul", "cantlist"); r.second.unlocked.forEach(function (x) { ul5.appendChild(el("li", null, "✓ " + x)); }); un.appendChild(ul5); }
-      un.appendChild(el("p", "t-body", r.second.t.next));
+      var nxp = el("p", "t-body"); nxp.appendChild(el("b", null, r.second.t.next)); un.appendChild(nxp);
       root.appendChild(un);
     }
 
@@ -437,7 +438,8 @@
       cr.appendChild(cb);
     });
     cq.appendChild(cr); nx.appendChild(cq);
-    nx.appendChild(el("p", "t-body", J.next_text));
+    var cpOpen = !!(r.coupon && r.coupon.open);                 // el texto del cupón, solo mientras el cupón sirve (no en la Segunda lectura)
+    if (cpOpen) nx.appendChild(el("p", "t-body", J.next_text));
     var row = el("div", "cta-row");
     if (r.coupon && r.coupon.open) nx.appendChild(couponCard(r));
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
@@ -453,7 +455,7 @@
     var b2 = el("button", "m-btn m-btn--text", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); siteEvent("saved", r.url); }); row.appendChild(b2);
     nx.appendChild(row);
     if (r.keep_note && !r.recorded) { var kp = el("p", "t-note keepnote m-card m-card--outlined"); kp.textContent = r.keep_note; nx.appendChild(kp); }
-    nx.appendChild(el("p", "t-note", J.next_note));
+    if (cpOpen) nx.appendChild(el("p", "t-note", J.next_note));
     // Reunión de 45 minutos. Con Cal.com configurado (cfg.booking por idioma), la nota comparativa que elige, paga y agenda;
     // si no, el botón al formulario de contacto con el pedido armado.
     var bk = cfg.booking || {};
@@ -479,6 +481,7 @@
   function couponCard(r) {
     var c = r.coupon, t = c.t, url = r.url || lastUrl, host = hostOf(url);
     var card = el("div", "m-card m-card--accent coupon");
+    if (r.cached_note) { var again = el("p", "t-body"); again.appendChild(el("b", null, r.cached_note)); card.appendChild(again); }   // dentro de las 6 h: que se note que es la misma lectura y el mismo cupón
     card.appendChild(el("p", "t-label", t.h + " · " + t.price));
     card.appendChild(el("p", "t-support", t.code));
     var code = el("p", "t-headline", c.code); code.dir = "ltr"; card.appendChild(code);
