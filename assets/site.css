@@ -40,6 +40,7 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
   .bar.menu-open nav{display:grid;position:absolute;inset-inline:0;top:100%;margin:0;gap:var(--s-4);padding:var(--s-8) max(16px,env(safe-area-inset-left,0px)) var(--s-16) max(16px,env(safe-area-inset-right,0px));background:var(--md-bg);border-bottom:1px solid var(--md-outline-var);box-shadow:0 12px 24px rgba(0,0,0,.35)}
   .bar.menu-open nav a{min-height:48px;font-size:16px;color:var(--md-on-bg)}
   .bar.menu-open .only-menu{display:inline-flex;justify-content:center;margin-top:var(--s-8)}
+  .bar.menu-open nav a.only-menu{color:var(--md-on-primary)}  /* el botón amarillo del menú lleva texto negro, nunca blanco (regla del amarillo) */
 }
 @media (max-width:560px){.bar .sx>.m-btn{display:none}.bar .m-ring{display:none}.bar .m-seg{flex:none}.bar .m-seg button{padding:0 12px}}  /* tres idiomas y el menú entran en 375 px sin recortar */
 
