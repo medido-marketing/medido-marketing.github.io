@@ -578,19 +578,6 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .m-modal-in .cta-row{position:sticky;inset-block-end:0;z-index:2;margin-inline:calc(-1*var(--s-32));padding:var(--s-12) var(--s-32);background:var(--md-bg);border-top:1px solid var(--md-outline-var)}
 @media (max-width:600px){.m-modal-in .cta-row{margin-inline:calc(-1*var(--s-16));padding-inline:var(--s-16)}}
 
-/* premios, 31/10: la lectura de ejemplo se reproduce una vez al entrar en la vista (site.js). Solo opacidad: no mueve el diseño */
-.exk{display:flex;align-items:center;gap:var(--s-8)}
-.exbody{position:relative;display:grid;gap:var(--s-12)}
-.explay{position:absolute;inset:0;display:grid;align-content:start;justify-items:center;gap:var(--s-16);padding-top:var(--s-8);opacity:0;pointer-events:none;transition:opacity .25s var(--ease)}
-.exringwrap{position:relative;display:grid;place-items:center}
-.exbig{--d:min(160px,40vw)}
-.expct{position:absolute;font:800 22px/1 var(--font-ui);font-variant-numeric:tabular-nums}
-.exlog{margin:0;max-height:none;background:transparent;padding:0;width:100%;overflow:visible}
-.exrest.is-armed .exbody>.t-title,.exrest.is-armed .exrows>li{opacity:0;transition:opacity .3s var(--ease)}
-.exrest.is-playing .explay{opacity:1}
-.exrest.is-done .exbody>.t-title,.exrest.is-done .exrows>li.on{opacity:1}
-.exrest.is-done .exrows>li.on .m-tag{animation:exseal .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes exseal{from{transform:scale(.6)}to{transform:none}}
 /* microinteracciones al pasar el mouse o enfocar (no dependen del scroll) */
 @media (hover:hover) and (prefers-reduced-motion:no-preference){
   .m-tag{transition:transform .15s var(--ease)}
