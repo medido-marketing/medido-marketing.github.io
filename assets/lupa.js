@@ -548,6 +548,8 @@
     if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" });
     var s = d.getElementById("result"), hl = $("#result .rhl");
     var go = function () { d.body.classList.add("has-result"); if (hl) { try { hl.focus({ preventScroll: true }); } catch (e) { hl.focus(); } } };
+    // la misma lectura otra vez (dentro de las 6 h): la página se queda en el hero, con el aviso, el cupón y la sesión; el informe queda abajo
+    if (lastResult && lastResult.repeat) { go(); return; }
     if (reduced) { s.scrollIntoView({ block: "start" }); go(); return; }
     setTimeout(function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(go, 420); }, 50);
   }
