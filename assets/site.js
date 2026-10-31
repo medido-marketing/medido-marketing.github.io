@@ -111,4 +111,25 @@
     new MutationObserver(function () { if (lpct.textContent !== mine) { paint(); if (!raf) raf = requestAnimationFrame(follow); } }).observe(lpct, { childList: true, characterData: true, subtree: true });
     new MutationObserver(function () { if (!raf) raf = requestAnimationFrame(follow); }).observe(lring, { attributes: true, attributeFilter: ["style"] });
   }
+  // Fin de la lectura → informe: un círculo blanco se abre desde el anillo, la página baja al informe por debajo
+  // y el círculo se desvanece. No se dispara con el scroll: solo cuando lupa.js muestra el informe.
+  // La lectura repetida (se queda en el hero) y el movimiento reducido van directo, como antes.
+  var rep = $("#result");
+  if (rep && "MutationObserver" in window && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    new MutationObserver(function () {
+      if (rep.hidden || $("#log .repeat")) return;
+      var rg = $("#ring"), r = rg && rg.getBoundingClientRect(), w = d.createElement("div");
+      w.className = "wipe"; w.setAttribute("aria-hidden", "true");
+      if (r && r.width) { w.style.setProperty("--x", (r.left + r.width / 2) + "px"); w.style.setProperty("--y", (r.top + r.height / 2) + "px"); }
+      body.appendChild(w); body.classList.add("is-wiping");
+      requestAnimationFrame(function () { requestAnimationFrame(function () { w.classList.add("is-open"); }); });
+      var t0 = performance.now(), last = -1, still = 0;
+      (function wait() {   // espera a que el círculo cubra todo y la página termine de bajar
+        var y = scrollY; still = (y === last) ? still + 1 : 0; last = y;
+        if (performance.now() - t0 < 800 || (still < 6 && performance.now() - t0 < 2200)) return requestAnimationFrame(wait);
+        body.classList.remove("is-wiping"); w.classList.add("is-out");
+        setTimeout(function () { w.remove(); }, 500);
+      })();
+    }).observe(rep, { attributes: true, attributeFilter: ["hidden"] });
+  }
 })();
