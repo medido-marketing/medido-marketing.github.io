@@ -142,6 +142,21 @@
     emit("reading_repeated");
   }
 
+  // El cupón se recuerda en este navegador (solo el código y su vencimiento, por sitio), para no tener que escribirlo al volver.
+  // No es un dato de la persona ni sirve para medir: si el navegador no deja guardar, todo funciona igual escribiéndolo.
+  var CP_KEY = "medido_cupones";
+  function cpAll() { try { var o = JSON.parse(localStorage.getItem(CP_KEY) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; } }
+  function cpSave(o) { try { localStorage.setItem(CP_KEY, JSON.stringify(o)); } catch (e) {} }
+  function cpSite(u) { return hostOf(u || "").replace(/^www\./, "").toLowerCase(); }
+  function cpKeep(u, c) {
+    var o = cpAll(), k = cpSite(u), now = Date.now();
+    for (var x in o) if (!o[x] || !(Date.parse(o[x].exp + "T23:59:59Z") > now)) delete o[x];   // los vencidos se van solos
+    if (k && c && c.code && c.open) o[k] = { code: c.code, exp: c.expires };
+    else if (k) delete o[k];                                                                       // usado o sin cupón: se olvida
+    cpSave(o);
+  }
+  function cpGet(u) { var v = cpAll()[cpSite(u)]; return v && Date.parse(v.exp + "T23:59:59Z") > Date.now() ? v.code : ""; }
+
   // ---------- Segunda lectura: el cupón y el pago (PayPal, por redirección) ----------
   // Un sitio ya leído, pasadas las 6 horas y con el cupón vigente: se pide el cupón y el pago de US$5.
   function askCoupon(j) {
@@ -150,6 +165,7 @@
     var box = el("div", "m-card askcp"); box.appendChild(el("h2", "t-headline", j.t.h)); box.appendChild(el("p", "t-body", j.t.p));
     var f = el("form", "askform"), lab = el("label", "t-label", j.t.label), inp = el("input"); inp.type = "text"; inp.id = "cpcode"; inp.autocomplete = "off"; inp.spellcheck = false; inp.dir = "ltr"; inp.maxLength = 12; inp.placeholder = "XXXX-XXXX";
     lab.htmlFor = "cpcode"; var go = el("button", "m-btn m-btn--filled", j.t.btn); go.type = "submit";
+    inp.value = cpGet(j.url || lastUrl);                                             // el que este navegador recuerda, si lo hay
     var msg = el("p", "t-note"); msg.setAttribute("role", "status");
     var bar = el("div", "m-search"); bar.appendChild(inp); bar.appendChild(go);
     f.appendChild(lab); f.appendChild(bar);
@@ -362,6 +378,7 @@
   var lastResult = null;
   function render(r) {
     lastResult = r;
+    if (r.coupon && !r.recorded) cpKeep(r.url || lastUrl, r.coupon);
     window.__readId = r.read_id || null;
     var root = $("#result-in"); root.textContent = "";
     var host = ""; try { host = new URL(r.final_url || r.url).hostname; } catch (e) {}
