@@ -134,4 +134,15 @@
     new IntersectionObserver(function (es) { inHero = es[0].isIntersecting; upd(); }).observe(hero);
     new IntersectionObserver(function (es) { inEnd = es[0].isIntersecting; upd(); }).observe(end);
   }
+  // Lectura en vivo: el número dentro del anillo sigue al anillo mientras desliza (lupa.js escribe el valor al que va).
+  // El anillo solo avanza cuando Lupa termina un paso de verdad; acá solo se acompaña ese avance, de a uno, hasta 100.
+  var lring = $("#ring"), lpct = $("#ringpct");
+  if (lring && lpct && "MutationObserver" in window) {
+    var mine = "", raf = 0;
+    var cur = function () { var v = parseFloat(getComputedStyle(lring).getPropertyValue("--p")); return isNaN(v) ? 0 : Math.round(v); };
+    var paint = function () { var t = cur() + " %"; if (lpct.textContent !== t) { mine = t; lpct.textContent = t; } };
+    var follow = function () { paint(); var goal = parseFloat(lring.style.getPropertyValue("--p")); raf = cur() !== Math.round(goal) ? requestAnimationFrame(follow) : 0; };
+    new MutationObserver(function () { if (lpct.textContent !== mine) { paint(); if (!raf) raf = requestAnimationFrame(follow); } }).observe(lpct, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(function () { if (!raf) raf = requestAnimationFrame(follow); }).observe(lring, { attributes: true, attributeFilter: ["style"] });
+  }
 })();
