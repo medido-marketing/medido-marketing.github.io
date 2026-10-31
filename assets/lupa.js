@@ -384,7 +384,7 @@
     var host = ""; try { host = new URL(r.final_url || r.url).hostname; } catch (e) {}
     var head = el("div", "rhead");
     head.appendChild(el("p", "t-label", J.reading_of + " " + host));
-    head.appendChild(el("p", "t-mono rmeta", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + J.loads_label + " · " + iso(r.elapsed + " s")));
+    head.appendChild(el("p", "t-mono rmeta", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + (r.loads === 1 && J.loads_label_one ? J.loads_label_one : J.loads_label) + " · " + iso(r.elapsed + " s")));
     if (r.recorded) head.appendChild(el("p", "t-note", J.ex_recorded.replace("{date}", r.date)));
     else if (r.cached) head.appendChild(el("p", "t-note", r.cached_note || J.cached));
     root.appendChild(head);
@@ -468,6 +468,14 @@
     if (r.second) {
       var un = el("div", "m-card m-card--accent unlocks"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
       if (r.second.unlocked.length) { var ul5 = el("ul", "cantlist"); r.second.unlocked.forEach(function (x) { ul5.appendChild(el("li", null, "✓ " + x)); }); un.appendChild(ul5); }
+      if (r.second.better && r.second.better.length && r.second.t.better) {                     // mejoró, pero falta un paso
+        un.appendChild(el("p", "t-body", r.second.t.better));
+        var ul7 = el("ul", "cantlist"); r.second.better.forEach(function (x) { ul7.appendChild(el("li", null, "↗ " + x)); }); un.appendChild(ul7);
+      }
+      if (r.second.worse && r.second.worse.length && r.second.t.worse) {                         // lo que se rompió desde la primera lectura
+        un.appendChild(el("p", "t-body", r.second.t.worse));
+        var ul6 = el("ul", "cantlist"); r.second.worse.forEach(function (x) { ul6.appendChild(el("li", null, "✕ " + x)); }); un.appendChild(ul6);
+      }
       var nxp = el("p", "t-body"); nxp.appendChild(el("b", null, r.second.t.next)); un.appendChild(nxp);
       root.appendChild(un);
     }
