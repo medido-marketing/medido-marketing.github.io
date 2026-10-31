@@ -51,6 +51,7 @@
     return el;
   }
   function para(s) { var p = d.createElement("p"); p.className = "t-body"; return rich(p, s); }
+  var calcTimer, calcSent = 0;
   if (sp && out && cfg) sp.addEventListener("input", function () {
     var v = parseInt((sp.value || "").replace(/[^0-9]/g, ""), 10);
     out.textContent = "";
@@ -64,6 +65,14 @@
     t.items.forEach(function (it) { var li = d.createElement("li"); ul.appendChild(rich(li, fill(it))); });
     out.appendChild(ul);
     if (t.tail) out.appendChild(para(fill(t.tail)));
+    // evento (solo llega a Analytics, Meta y Clarity si aceptaron las cookies): qué gasto escribió y en qué tramo cayó,
+    // cuando deja de escribir 1,5 s y solo si el número cambió
+    clearTimeout(calcTimer);
+    calcTimer = setTimeout(function () {
+      if (v === calcSent) return; calcSent = v;
+      var lo = n > 1 ? f.cuts[n - 2] : 0, hi = n <= f.cuts.length ? f.cuts[n - 1] : null;
+      try { d.dispatchEvent(new CustomEvent("medido:spend_calculated", { detail: { page_lang: cfg.lang, spend: v, currency: f.cur, spend_tier: "t" + n, spend_range: lo + "-" + (hi === null ? "+" : hi) } })); } catch (e) {}
+    }, 1500);
   });
 
   // ventanas (dialog nativo): el enlace abre la ventana; sin JS sigue llevando a la página. Cierra con la X, el botón, Escape o un toque afuera.
