@@ -132,4 +132,20 @@
       })();
     }).observe(rep, { attributes: true, attributeFilter: ["hidden"] });
   }
+  // Cómo leer una lectura (1/11): un botón en el encabezado del informe abre la guía de sellos y etiquetas.
+  var gdlg = $("#guidedlg"), grep = $("#result");
+  if (gdlg && grep && typeof gdlg.showModal === "function" && "MutationObserver" in window) {
+    all("[data-close]", gdlg).forEach(function (b) { b.addEventListener("click", function () { gdlg.close(); }); });
+    gdlg.addEventListener("click", function (e) { if (e.target === gdlg) gdlg.close(); });
+    var addGuide = function () {
+      var head = $("#result .rhead");
+      if (!head || $(".guide-btn", head)) return;
+      var b = d.createElement("button"); b.type = "button"; b.className = "m-btn m-btn--text guide-btn"; b.textContent = gdlg.getAttribute("data-btn");
+      b.setAttribute("aria-haspopup", "dialog");
+      b.addEventListener("click", function () { gdlg.showModal(); });
+      gdlg.addEventListener("close", function () { b.focus(); });
+      head.appendChild(b);
+    };
+    new MutationObserver(addGuide).observe($("#result-in") || grep, { childList: true });
+  }
 })();

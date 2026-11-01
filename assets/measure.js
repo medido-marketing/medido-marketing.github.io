@@ -29,6 +29,21 @@
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
+  // Código anónimo de visitante (1/11, pedido de Medición): al azar, no sale del client_id de GA4 ni de ningún dato de la persona.
+  // Solo existe después de «Aceptar» (lo piden loadGa y loadClarity) y nunca con ?interno=1 (ahí el script ya terminó arriba).
+  var VID = "";
+  function vid() {
+    if (VID) return VID;
+    try { VID = localStorage.getItem("medido_vid") || ""; } catch (e) {}
+    if (!/^v-[0-9a-f]{12}$/.test(VID)) {
+      var b = new Uint8Array(6); crypto.getRandomValues(b);
+      VID = "v-" + Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+      try { localStorage.setItem("medido_vid", VID); } catch (e) {}   // si el navegador no deja guardar, vale solo para esta página
+    }
+    return VID;
+  }
+  function tier() { try { return sessionStorage.getItem("medido_tier") || ""; } catch (e) { return ""; } }
+
   function loadGa() {
     if (!GA4_ID) return;
     var s = document.createElement("script");
@@ -39,11 +54,18 @@
     function gtag() { window.dataLayer.push(arguments); }
     window.gtag = gtag;
     gtag("js", new Date());
+    gtag("set", { visitante_id: vid() });
     gtag("config", GA4_ID, { anonymize_ip: true });
     // Evento clave: envío del formulario de contacto (lo dispara contact.js).
     document.addEventListener("medido:lead", function (e) { gtag("event", "generate_lead", { page_lang: (e.detail && e.detail.page_lang) || lang }); });
+    // El tramo de gasto que calculó la persona queda en esta pestaña y viaja con el pedido de reunión.
+    document.addEventListener("medido:spend_calculated", function (e) { try { if (e.detail && e.detail.spend_tier) sessionStorage.setItem("medido_tier", e.detail.spend_tier); } catch (x) {} });
     EV.forEach(function (name) {
-      document.addEventListener("medido:" + name, function (e) { gtag("event", name, Object.assign({ page_lang: lang }, (e && e.detail) || {})); });
+      document.addEventListener("medido:" + name, function (e) {
+        var p = Object.assign({ page_lang: lang }, (e && e.detail) || {});
+        if (name === "meeting_requested" && tier()) p.spend_tier = tier();
+        gtag("event", name, p);
+      });
     });
     // El pago de la Segunda lectura también va como compra (purchase), con su valor: así GA4 suma ingresos.
     document.addEventListener("medido:coupon_paid", function () {
@@ -87,6 +109,7 @@
     window.clarity = window.clarity || function () { (window.clarity.q = window.clarity.q || []).push(arguments); };
     var s = document.createElement("script"); s.async = true; s.src = "https://www.clarity.ms/tag/" + CLARITY; document.head.appendChild(s);
     window.clarity("consent");
+    window.clarity("set", "visitante_id", vid());
     EV.forEach(function (name) { document.addEventListener("medido:" + name, function () { window.clarity("event", name); }); });
     document.addEventListener("medido:lead", function () { window.clarity("event", "lead"); });
   }

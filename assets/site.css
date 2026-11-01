@@ -168,7 +168,7 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
   .m-table.stack td.c{grid-area:c;font-weight:700}
   .m-table.stack td.n{grid-area:n;align-self:start}
   .m-table.stack td.t{grid-area:t}
-  .m-table.stack td.o{grid-area:o;white-space:normal;align-self:center;text-align:end;font-size:11px;color:var(--md-on-var)}
+  .m-table.stack td.o{grid-area:o;white-space:normal;align-self:center;text-align:end;font-size:12px;color:var(--md-on-var)}
   .m-table.stack tr.total{grid-template-areas:"c n";border-top:2px solid var(--md-on-bg);border-bottom:0;padding-top:16px}
   .m-table.stack tr.total td{border:0}
 }
