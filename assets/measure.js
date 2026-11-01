@@ -20,6 +20,12 @@
     es: { t: "Usamos cookies para medir visitas y pedidos de contacto.", yes: "Aceptar", no: "Rechazar", privacy: "Privacidad", privacyHref: "/es/privacy/", label: "Cookies" }
   };
   var lang = (document.documentElement.lang || "en").slice(0, 2), L = T[lang] || T.en, KEY = "medido_ga";
+  // Eventos propios del embudo (los disparan lupa.js, site.js y connect.js como "medido:<nombre>"); van iguales a GA4, Meta y Clarity.
+  // Un evento que se dispara y no está en esta lista no llega a ningún lado.
+  var EV = ["pql_reading_requested", "reading_completed", "reading_repeated", "questions_copied", "manual_requested", "analytics_connected", "reading_shared", "meeting_requested",
+    "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated"];
+  // Precio de la Segunda lectura: el mismo que cobra Lupa (tools/lupa-workers/src/paypal.js, por idioma de la página). coupon_paid = venta.
+  var SALE = lang === "he" ? { value: 15, currency: "ILS" } : { value: 5, currency: "USD" };
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
@@ -36,9 +42,12 @@
     gtag("config", GA4_ID, { anonymize_ip: true });
     // Evento clave: envío del formulario de contacto (lo dispara contact.js).
     document.addEventListener("medido:lead", function (e) { gtag("event", "generate_lead", { page_lang: (e.detail && e.detail.page_lang) || lang }); });
-    // Eventos propios del embudo: lectura completada (quien puso su sitio), preguntas copiadas, Analytics conectado.
-    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected", "reading_shared", "meeting_requested", "reread_requested", "reading_feedback", "example_played", "spend_calculated"].forEach(function (name) {
+    EV.forEach(function (name) {
       document.addEventListener("medido:" + name, function (e) { gtag("event", name, Object.assign({ page_lang: lang }, (e && e.detail) || {})); });
+    });
+    // El pago de la Segunda lectura también va como compra (purchase), con su valor: así GA4 suma ingresos.
+    document.addEventListener("medido:coupon_paid", function () {
+      gtag("event", "purchase", { value: SALE.value, currency: SALE.currency, page_lang: lang, items: [{ item_id: "second_reading", item_name: "Second reading", price: SALE.value, quantity: 1 }] });
     });
     // Clic en un mail de contacto (solo existe si el sitio está en modo mailto).
     document.addEventListener("click", function (e) {
@@ -56,9 +65,10 @@
     var s = document.createElement("script"); s.async = true; s.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(s);
     window.fbq("init", PIXEL); window.fbq("track", "PageView");
     document.addEventListener("medido:lead", function () { window.fbq("track", "Lead"); });
-    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected", "reading_shared", "meeting_requested", "reread_requested", "reading_feedback", "example_played", "spend_calculated"].forEach(function (name) {
+    EV.forEach(function (name) {
       document.addEventListener("medido:" + name, function (e) { window.fbq("trackCustom", name, (e && e.detail) || {}); });
     });
+    document.addEventListener("medido:coupon_paid", function () { window.fbq("track", "Purchase", { value: SALE.value, currency: SALE.currency }); });
   }
   // Microsoft Clarity (mapas de calor y grabaciones de sesión): carga estándar, solo con consentimiento, y se le avisa el consentimiento para sus cookies.
   function loadClarity() {
@@ -66,7 +76,7 @@
     window.clarity = window.clarity || function () { (window.clarity.q = window.clarity.q || []).push(arguments); };
     var s = document.createElement("script"); s.async = true; s.src = "https://www.clarity.ms/tag/" + CLARITY; document.head.appendChild(s);
     window.clarity("consent");
-    ["pql_reading_requested", "reading_completed", "questions_copied", "analytics_connected", "reading_shared", "meeting_requested", "reread_requested", "reading_feedback", "example_played", "spend_calculated"].forEach(function (name) { document.addEventListener("medido:" + name, function () { window.clarity("event", name); }); });
+    EV.forEach(function (name) { document.addEventListener("medido:" + name, function () { window.clarity("event", name); }); });
     document.addEventListener("medido:lead", function () { window.clarity("event", "lead"); });
   }
   function load() { loadGa(); loadMeta(); loadClarity(); }
