@@ -62,7 +62,7 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
 .sample .hd{display:flex;justify-content:space-between;align-items:center;gap:var(--s-12);flex-wrap:wrap}
 .sample .m-list{background:transparent;border-radius:0}
 .sample .m-list-item{padding-inline:0}
-.chip-ex{display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border:1.5px dashed var(--md-on-var);border-radius:var(--r-full);font:700 11px/1 var(--font-mono);color:var(--md-on-var);text-transform:uppercase;letter-spacing:.06em}
+.chip-ex{display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border:1.5px dashed var(--md-on-var);border-radius:var(--r-full);font:700 12px/1 var(--font-mono);color:var(--md-on-var);text-transform:uppercase;letter-spacing:.06em}
 :lang(he) .chip-ex{font-family:var(--font-he);letter-spacing:0;text-transform:none;font-size:12px}
 @media (max-width:900px){.hero-grid{grid-template-columns:minmax(0,1fr)}}
 
@@ -199,7 +199,7 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
 .ftop{display:flex;justify-content:space-between;gap:var(--s-12);align-items:flex-start;flex-wrap:wrap}
 .ftop h3{flex:1 1 220px}
 .stlabel{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--font-mono);color:var(--md-on-var)}
-.stlabel b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:2px solid currentColor;font:800 11px/1 var(--font-ui)}
+.stlabel b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:2px solid currentColor;font:800 12px/1 var(--font-ui)}
 .st-problem .stlabel,.st-ok .stlabel{color:var(--md-on-bg)}
 .st-problem .stlabel b{background:var(--md-on-bg);color:var(--md-bg)}
 .st-warn .stlabel b{border-style:dashed}
