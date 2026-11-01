@@ -23,7 +23,7 @@
 <link rel="preload" href="/assets/fonts/Manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css?v=ecdbdeac">
 <link rel="stylesheet" href="/assets/medido-ui.css?v=e161bb75">
-<link rel="stylesheet" href="/assets/site.css?v=03af2dee">
+<link rel="stylesheet" href="/assets/site.css?v=2209b2c1">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-surface="blanco" class="m-surface">
@@ -43,6 +43,7 @@
     <div class="m-field"><label for="c-site" id="c-site-l">Tu sitio (opcional)</label><input id="c-site" name="site" type="text" inputmode="url" autocomplete="url" dir="ltr"></div>
     <div class="spend" id="c-spendbox" hidden><p class="t-label" id="c-spend-l">Gasto mensual en anuncios (opcional)</p><div class="chips" role="group" aria-labelledby="c-spend-l"><button type="button" class="m-chip" aria-pressed="false" data-spend="low">Menos de US$1.000</button><button type="button" class="m-chip" aria-pressed="false" data-spend="mid">US$1.000 a US$15.000</button><button type="button" class="m-chip" aria-pressed="false" data-spend="high">Más de US$15.000</button></div><input type="hidden" name="spend" id="c-spend" value=""></div>
     <div class="m-field"><label for="c-msg" id="c-msg-l">Tu mensaje</label><textarea id="c-msg" name="message" rows="5"></textarea></div>
+    <div class="m-field"><label for="c-how">¿Cómo conociste Medido? (opcional)</label><select id="c-how" class="c-select"><option value="">Elige una opción</option><option value="search">Un buscador</option><option value="ai">Un asistente de IA (ChatGPT, Claude, etc.)</option><option value="ads">Un anuncio o redes sociales</option><option value="newsletter">Un newsletter o un podcast</option><option value="team">Me lo pasó alguien de mi equipo</option><option value="referral">Me lo recomendó otra persona</option><option value="other">Otro</option></select><input type="hidden" name="how_found" id="c-howtxt" value=""></div>
     <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
     <input type="hidden" name="_subject" id="c-subject" value="Mensaje desde el sitio"><input type="hidden" name="lang" value="es">
     <div class="gcheck"><label class="m-check"><input type="checkbox" id="c-ack" name="consent" value="yes" required aria-describedby="c-ackerr"><span class="box" aria-hidden="true"></span><span>Acepto que Medido use lo que envío aquí para responderme, como describe el aviso de privacidad. <a href="/es/privacy/" target="_blank" rel="noopener">Aviso de privacidad</a></span></label><p class="gerrline" id="c-ackerr" hidden></p></div>
@@ -54,6 +55,6 @@
 <footer class="foot" data-surface="negro"><div class="sx"><img src="/assets/medido-logo-sobre-negro.svg" alt="Medido" width="132" height="28"></div></footer>
 <script type="application/json" id="cfg">{"lang": "es", "email": "marketingmedido@gmail.com", "form": "https://formspree.io/f/xbggyjdk", "c": {"sending": "Enviando…", "send": "Enviar", "err": "No se envió. Inténtalo de nuevo o escribe a {email}.", "need_email": "Escribe una dirección de correo donde pueda responderte.", "need_ack": "Marca la casilla para enviar."}, "spend_labels": {"low": "menos de US$1.000", "mid": "US$1.000 a US$15.000", "high": "más de US$15.000", "none": "no indicado"}, "modes": {"hello": {"h1": "Escríbeme", "lead": "Una pregunta, una propuesta o un comentario: cuéntame y te respondo por correo.", "site": "Tu sitio (opcional)", "msg": "Tu mensaje", "spend": false, "subject": "Mensaje desde el sitio", "send": "Enviar", "ok": "Respondo por correo y procuro hacerlo en un día hábil."}, "help": {"h1": "¿Un problema técnico o una pregunta?", "lead": "Cuéntame qué pasó o qué quieres saber, y te respondo por correo.", "site": "El sitio, si tiene que ver (opcional)", "msg": "Qué pasó, o tu pregunta", "spend": false, "subject": "Pregunta o problema técnico", "send": "Enviar", "ok": "Respondo por correo y procuro hacerlo en un día hábil."}, "diag": {"h1": "Pide el Diagnóstico", "lead": "Cuéntame qué sitio es y cuánto gastas más o menos por mes. Te respondo por correo con los próximos pasos.", "site": "Tu sitio", "msg": "Algo que debería saber (opcional)", "spend": true, "subject": "Solicitud de diagnóstico", "send": "Pedir el Diagnóstico", "ok": "Respondo por correo y procuro hacerlo en un día hábil, con los próximos pasos."}}, "title": "Medido · Contacto"}</script>
 <script src="/assets/site.js?v=ebbaed9e" defer></script>
-<script src="/assets/contact.js?v=668de682" defer></script>
+<script src="/assets/contact.js?v=2975c98c" defer></script>
 <script src="/assets/measure.js?v=0a7997a1" defer></script>
 </body></html>

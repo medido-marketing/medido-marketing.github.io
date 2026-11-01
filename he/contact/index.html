@@ -23,7 +23,7 @@
 <link rel="preload" href="/assets/fonts/Manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css?v=ecdbdeac">
 <link rel="stylesheet" href="/assets/medido-ui.css?v=e161bb75">
-<link rel="stylesheet" href="/assets/site.css?v=03af2dee">
+<link rel="stylesheet" href="/assets/site.css?v=2209b2c1">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-surface="blanco" class="m-surface">
@@ -43,6 +43,7 @@
     <div class="m-field"><label for="c-site" id="c-site-l">האתר שלכם (לא חובה)</label><input id="c-site" name="site" type="text" inputmode="url" autocomplete="url" dir="ltr"></div>
     <div class="spend" id="c-spendbox" hidden><p class="t-label" id="c-spend-l">הוצאה חודשית על פרסום (לא חובה)</p><div class="chips" role="group" aria-labelledby="c-spend-l"><button type="button" class="m-chip" aria-pressed="false" data-spend="low">עד 3,000 ₪</button><button type="button" class="m-chip" aria-pressed="false" data-spend="mid">3,000 עד 47,000 ₪</button><button type="button" class="m-chip" aria-pressed="false" data-spend="high">מעל 47,000 ₪</button></div><input type="hidden" name="spend" id="c-spend" value=""></div>
     <div class="m-field"><label for="c-msg" id="c-msg-l">ההודעה שלכם</label><textarea id="c-msg" name="message" rows="5"></textarea></div>
+    <div class="m-field"><label for="c-how">איך הגעתם ל-Medido? (לא חובה)</label><select id="c-how" class="c-select"><option value="">בחרו אפשרות</option><option value="search">מנוע חיפוש</option><option value="ai">עוזר בינה מלאכותית (ChatGPT, Claude וכו&#x27;)</option><option value="ads">מודעה או רשתות חברתיות</option><option value="newsletter">ניוזלטר או פודקאסט</option><option value="team">מישהו מהצוות שלי העביר לי</option><option value="referral">מישהו אחר המליץ לי</option><option value="other">אחר</option></select><input type="hidden" name="how_found" id="c-howtxt" value=""></div>
     <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
     <input type="hidden" name="_subject" id="c-subject" value="הודעה מהאתר"><input type="hidden" name="lang" value="he">
     <div class="gcheck"><label class="m-check"><input type="checkbox" id="c-ack" name="consent" value="yes" required aria-describedby="c-ackerr"><span class="box" aria-hidden="true"></span><span>אני מסכים/ה ש-Medido תשתמש במה ששלחתי כאן כדי לענות לי, כפי שמתואר בהודעת הפרטיות. <a href="/he/privacy/" target="_blank" rel="noopener">הודעת פרטיות</a></span></label><p class="gerrline" id="c-ackerr" hidden></p></div>
@@ -54,6 +55,6 @@
 <footer class="foot" data-surface="negro"><div class="sx"><img src="/assets/medido-he-sobre-negro.svg" alt="מדידו" width="132" height="28"></div></footer>
 <script type="application/json" id="cfg">{"lang": "he", "email": "marketingmedido@gmail.com", "form": "https://formspree.io/f/xbggyjdk", "c": {"sending": "בשליחה…", "send": "שליחה", "err": "השליחה לא הצליחה. נסו שוב, או כתבו ל-⁦{email}⁩.", "need_email": "כתבו כתובת מייל שאפשר לענות אליה.", "need_ack": "סמנו את התיבה כדי לשלוח."}, "spend_labels": {"low": "עד 3,000 ₪", "mid": "3,000 עד 47,000 ₪", "high": "מעל 47,000 ₪", "none": "לא צוין"}, "modes": {"hello": {"h1": "כתבו לי", "lead": "שאלה, הצעה או הערה: ספרו לי ואענה לכם במייל.", "site": "האתר שלכם (לא חובה)", "msg": "ההודעה שלכם", "spend": false, "subject": "הודעה מהאתר", "send": "שליחה", "ok": "אני עונה במייל, ומשתדלת לעשות זאת תוך יום עסקים אחד."}, "help": {"h1": "בעיה טכנית או שאלה?", "lead": "ספרו לי מה קרה או מה תרצו לדעת, ואענה לכם במייל.", "site": "האתר, אם זה קשור (לא חובה)", "msg": "מה קרה, או השאלה שלכם", "spend": false, "subject": "שאלה או בעיה טכנית", "send": "שליחה", "ok": "אני עונה במייל, ומשתדלת לעשות זאת תוך יום עסקים אחד."}, "diag": {"h1": "בקשו את האבחון", "lead": "ספרו לי איזה אתר זה וכמה אתם מוציאים בערך בחודש. אענה לכם במייל עם הצעדים הבאים.", "site": "האתר שלכם", "msg": "משהו שכדאי שאדע (לא חובה)", "spend": true, "subject": "בקשה לאבחון", "send": "לבקש אבחון", "ok": "אני עונה במייל, ומשתדלת לעשות זאת תוך יום עסקים אחד, עם הצעדים הבאים."}}, "title": "Medido · יצירת קשר"}</script>
 <script src="/assets/site.js?v=ebbaed9e" defer></script>
-<script src="/assets/contact.js?v=668de682" defer></script>
+<script src="/assets/contact.js?v=2975c98c" defer></script>
 <script src="/assets/measure.js?v=0a7997a1" defer></script>
 </body></html>

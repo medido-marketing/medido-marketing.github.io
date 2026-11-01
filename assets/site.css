@@ -696,3 +696,10 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .guidedlg h3.t-label{margin:var(--s-8) 0 0;border-top:1px solid var(--md-outline-var);padding-top:var(--s-12)}
 .guide-btn{margin-inline-start:auto}
 @media (max-width:600px){.glist li{grid-template-columns:1fr;row-gap:6px}}
+
+/* «¿Cómo conociste Medido?» (1/11): un desplegable con la misma medida y borde que los campos del formulario */
+.m-field select.c-select{min-height:56px;width:100%;padding:0 44px 0 var(--s-16);border:1px solid var(--md-outline);border-radius:var(--r-ctl);color:var(--md-on-bg);font:500 17px/1 var(--font-ui);
+  -webkit-appearance:none;appearance:none;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23767676' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center/18px}
+[dir="rtl"] .m-field select.c-select{padding:0 var(--s-16) 0 44px;background-position:left 14px center}
+:lang(he) .m-field select.c-select{font-family:var(--font-he)}
+.m-field select.c-select:focus-visible{outline:none;box-shadow:0 0 0 2px var(--md-bg),0 0 0 4px var(--md-on-bg)}

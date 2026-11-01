@@ -23,7 +23,7 @@
 <link rel="preload" href="/assets/fonts/Manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts.css?v=ecdbdeac">
 <link rel="stylesheet" href="/assets/medido-ui.css?v=e161bb75">
-<link rel="stylesheet" href="/assets/site.css?v=03af2dee">
+<link rel="stylesheet" href="/assets/site.css?v=2209b2c1">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-surface="blanco" class="m-surface">
@@ -43,6 +43,7 @@
     <div class="m-field"><label for="c-site" id="c-site-l">Your website (optional)</label><input id="c-site" name="site" type="text" inputmode="url" autocomplete="url" dir="ltr"></div>
     <div class="spend" id="c-spendbox" hidden><p class="t-label" id="c-spend-l">Monthly ad spend (optional)</p><div class="chips" role="group" aria-labelledby="c-spend-l"><button type="button" class="m-chip" aria-pressed="false" data-spend="low">Under US$1k</button><button type="button" class="m-chip" aria-pressed="false" data-spend="mid">US$1k to US$15k</button><button type="button" class="m-chip" aria-pressed="false" data-spend="high">Over US$15k</button></div><input type="hidden" name="spend" id="c-spend" value=""></div>
     <div class="m-field"><label for="c-msg" id="c-msg-l">Your message</label><textarea id="c-msg" name="message" rows="5"></textarea></div>
+    <div class="m-field"><label for="c-how">How did you find Medido? (optional)</label><select id="c-how" class="c-select"><option value="">Choose one</option><option value="search">A search engine</option><option value="ai">An AI assistant (ChatGPT, Claude, etc.)</option><option value="ads">An ad or social media</option><option value="newsletter">A newsletter or podcast</option><option value="team">Someone on my team passed it to me</option><option value="referral">Someone else recommended it</option><option value="other">Other</option></select><input type="hidden" name="how_found" id="c-howtxt" value=""></div>
     <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
     <input type="hidden" name="_subject" id="c-subject" value="Message from the site"><input type="hidden" name="lang" value="en">
     <div class="gcheck"><label class="m-check"><input type="checkbox" id="c-ack" name="consent" value="yes" required aria-describedby="c-ackerr"><span class="box" aria-hidden="true"></span><span>I agree that Medido may use what I send here to reply to me, as described in the privacy notice. <a href="/privacy/" target="_blank" rel="noopener">Privacy notice</a></span></label><p class="gerrline" id="c-ackerr" hidden></p></div>
@@ -54,6 +55,6 @@
 <footer class="foot" data-surface="negro"><div class="sx"><img src="/assets/medido-logo-sobre-negro.svg" alt="Medido" width="132" height="28"></div></footer>
 <script type="application/json" id="cfg">{"lang": "en", "email": "marketingmedido@gmail.com", "form": "https://formspree.io/f/xbggyjdk", "c": {"sending": "Sending…", "send": "Send", "err": "It didn't go through. Try again, or write to {email}.", "need_email": "Enter an email address where I can reply to you.", "need_ack": "Tick the box to send."}, "spend_labels": {"low": "under US$1k", "mid": "US$1k to US$15k", "high": "over US$15k", "none": "not given"}, "modes": {"hello": {"h1": "Write to me", "lead": "A question, a proposal or a comment: tell me, and I'll reply by email.", "site": "Your website (optional)", "msg": "Your message", "spend": false, "subject": "Message from the site", "send": "Send", "ok": "I aim to reply by email within one business day."}, "help": {"h1": "A technical problem or a question?", "lead": "Tell me what happened or what you'd like to know, and I'll reply by email.", "site": "The site, if it's related (optional)", "msg": "What happened, or your question", "spend": false, "subject": "Question or technical problem", "send": "Send", "ok": "I aim to reply by email within one business day."}, "diag": {"h1": "Ask for the Diagnosis", "lead": "Tell me which site it is and roughly what you spend a month. I'll reply by email with the next steps.", "site": "Your website", "msg": "Anything I should know (optional)", "spend": true, "subject": "Diagnosis request", "send": "Ask for the Diagnosis", "ok": "I aim to reply by email within one business day, with the next steps."}}, "title": "Medido · Contact"}</script>
 <script src="/assets/site.js?v=ebbaed9e" defer></script>
-<script src="/assets/contact.js?v=668de682" defer></script>
+<script src="/assets/contact.js?v=2975c98c" defer></script>
 <script src="/assets/measure.js?v=0a7997a1" defer></script>
 </body></html>

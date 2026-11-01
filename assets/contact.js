@@ -53,6 +53,9 @@
     else if (!ack.checked) { show(errAck, C.need_ack); bad = ack; }
     if (bad) { bad.focus(); return; }
     spendIn.value = spendKey ? (cfg.spend_labels[spendKey] || spendKey) : "";
+    // «¿Cómo conociste Medido?»: al mail va el texto elegido; a la medición, solo la clave fija
+    var how = $("c-how"), howKey = how ? how.value : "", howTxt = $("c-howtxt");
+    if (howTxt) howTxt.value = howKey ? how.options[how.selectedIndex].textContent : "";
     send.disabled = true; var label = send.textContent; send.textContent = C.sending;
     fetch(cfg.form, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } })
       .then(function (r) {
@@ -63,6 +66,7 @@
         try { tier = sessionStorage.getItem("medido_tier") || ""; } catch (x) {}
         if (tier) det.spend_tier = tier;              // t1…t5, de la calculadora de la portada
         if (spendKey) det.spend_chip = spendKey;      // low / mid / high, de los botones de este formulario
+        if (howKey) det.how_found = howKey;            // search, ai, ads, newsletter, team, referral, other
         d.dispatchEvent(new CustomEvent("medido:lead", { detail: det }));
       })
       .catch(function () {
