@@ -15,9 +15,9 @@
     if (localStorage.getItem("medido_interno") === "1") return;
   } catch (e) {}
   var T = {
-    en: { t: "We use cookies to measure visits and contact requests.", yes: "Accept", no: "Decline", privacy: "Privacy", privacyHref: "/privacy/", label: "Cookies" },
-    he: { t: "אנחנו משתמשים בעוגיות כדי למדוד ביקורים ופניות.", yes: "אישור", no: "דחייה", privacy: "פרטיות", privacyHref: "/he/privacy/", label: "עוגיות" },
-    es: { t: "Usamos cookies para medir visitas y pedidos de contacto.", yes: "Aceptar", no: "Rechazar", privacy: "Privacidad", privacyHref: "/es/privacy/", label: "Cookies" }
+    en: { t: "I use cookies to measure visits and contact requests.", yes: "Accept", no: "Decline", privacy: "Privacy", privacyHref: "/privacy/", label: "Cookies" },
+    he: { t: "אני משתמשת בעוגיות כדי למדוד ביקורים ופניות.", yes: "אישור", no: "דחייה", privacy: "פרטיות", privacyHref: "/he/privacy/", label: "עוגיות" },
+    es: { t: "Uso cookies para medir visitas y pedidos de contacto.", yes: "Aceptar", no: "Rechazar", privacy: "Privacidad", privacyHref: "/es/privacy/", label: "Cookies" }
   };
   var lang = (document.documentElement.lang || "en").slice(0, 2), L = T[lang] || T.en, KEY = "medido_ga";
   // Eventos propios del embudo (los disparan lupa.js, site.js y connect.js como "medido:<nombre>"); van iguales a GA4, Meta y Clarity.
@@ -53,6 +53,17 @@
     document.addEventListener("click", function (e) {
       var a = e.target.closest && e.target.closest('a[href^="mailto:"]');
       if (a) gtag("event", "click_mail", { link_text: a.textContent.trim(), page_lang: lang });
+    });
+    // Cada clic dentro del sitio (1/11, pedido de Medición): pestañas, acordeones, menú, «ver más», calculadora, lectura. Uno por clic, solo a GA4.
+    // Un texto que podría ser un dato de la persona (un mail, un dominio, 4 o más dígitos seguidos) va como "(dato)": la lectura muestra el sitio que escribió.
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest && e.target.closest('a, button, summary, [role="button"], [role="tab"]');
+      if (!t || t.matches('a[href^="mailto:"]')) return;
+      var label = (t.getAttribute("data-track") || t.getAttribute("aria-label") || t.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60);
+      if (/@|[a-z0-9-]+\.[a-z]{2,}|\d{4,}/i.test(label)) label = "(dato)";
+      var box = t.parentElement && t.parentElement.closest("[id]"), link = "";
+      if (t.tagName === "A" && t.href) { try { var u = new URL(t.href, location.href); if (u.origin === location.origin) link = (u.pathname + u.hash).slice(0, 100); } catch (x) {} }
+      gtag("event", "ui_click", { page_lang: lang, label: label, section: box ? box.id : "", kind: t.getAttribute("role") || t.tagName.toLowerCase(), link_url: link });
     });
   }
 
