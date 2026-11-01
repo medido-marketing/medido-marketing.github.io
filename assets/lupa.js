@@ -7,7 +7,16 @@
   var d = document;
   var cfgEl = d.getElementById("cfg"); if (!cfgEl) return;
   var cfg = JSON.parse(cfgEl.textContent), J = cfg.js;
-  var API = cfg.api || "";   // vacío: el servidor de Lupa es el mismo del sitio; con valor: el Worker de Cloudflare (otra dirección)
+  var API = cfg.api || "";
+  // las lecturas de Débora (navegador marcado con ?interno=1, ver measure.js) se cuentan aparte en los totales de Lupa
+  // se lee al mandar, no al cargar: lupa.js corre antes que measure.js y en la primera visita con ?interno=1 la marca todavía no estaba
+  function INT() {
+    try {
+      var q = location.search;
+      if (/[?&]interno=0(&|$)/.test(q)) return 0;
+      return (/[?&]interno=1(&|$)/.test(q) || localStorage.getItem("medido_interno") === "1") ? 1 : 0;
+    } catch (e) { return 0; }
+  }   // vacío: el servidor de Lupa es el mismo del sitio; con valor: el Worker de Cloudflare (otra dirección)
   // Si Google devuelve al visitante a esta portada (?google=ok|error), lo llevamos a la página de conexión de su idioma, con la misma consulta.
   if (/[?&]google=/.test(location.search)) {
     var gl = null; try { gl = sessionStorage.getItem("medido_glang"); } catch (e) {}
@@ -28,8 +37,13 @@
     });
   });
 
-  // Con formulario activo (cfg.contact), el pedido va a la página de contacto con el texto ya armado; si no, al mail de siempre.
-  function mailto(subject, bodyTxt) { return (cfg.contact ? cfg.contact + "?" : "mailto:" + cfg.email + "?") + "subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyTxt); }
+  // Con formulario activo (cfg.contact), el pedido va a la página de contacto con el texto ya armado y el modo del formulario
+  // (m=help: lectura a mano, pagos, cupón; m=diag: Diagnóstico; m=hello: sesión), que lee contact.js; si no, al mail de siempre.
+  function mailto(subject, bodyTxt, mode, site) {
+    if (!cfg.contact) return "mailto:" + cfg.email + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyTxt);
+    return cfg.contact + "?m=" + (mode || "help") + "&subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyTxt) + (site ? "&site=" + encodeURIComponent(site) : "");
+  }
+  var HELP = cfg.contact ? cfg.contact + "?m=help" : "";
   function mailBody(url, extra) { return cfg.body.replace("{url}", url).replace("{spend}", J.spend_labels[spend]) + (extra ? "\n\n" + extra : ""); }
   function note(txt, err) {
     var n = $("#formnote"); n.textContent = txt; n.classList.toggle("err", !!err);
@@ -92,7 +106,7 @@
     // si Turnstile no carga o no verifica, se pregunta igual sin la ficha: el servidor contesta «no pude confirmar que eres
     // una persona» en el idioma de la página (antes salía «la lectura en vivo todavía no funciona en este servidor», que no era cierto)
     getToken().catch(function () { return ""; }).then(function (token) {
-      return fetch(API + "/api/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, lang: cfg.lang, token: token }) });
+      return fetch(API + "/api/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, lang: cfg.lang, token: token, interno: INT() }) });
     })
       .then(function (r) { return r.json().catch(function () { return { error: "?" }; }).then(function (j) { return { status: r.status, j: j }; }); })
       .then(function (o) {
@@ -111,9 +125,9 @@
   // Lo que pasa con la lectura (copiarla, compartirla, guardar el cupón) se suma al registro del sitio, sin datos de quien lo hace.
   // Va como texto simple (sin consulta previa del navegador), para que llegue aunque la página se cierre enseguida.
   function siteEvent(name, url) {
-    try { fetch(API + "/api/event", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ url: url || lastUrl, name: name, lang: cfg.lang }) }).catch(function () {}); } catch (e) {}
+    try { fetch(API + "/api/event", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ url: url || lastUrl, name: name, lang: cfg.lang, interno: INT() }) }).catch(function () {}); } catch (e) {}
   }
-  function contactLink(p) { if (cfg.contact) { p.appendChild(d.createTextNode(" ")); var a = el("a", null, J.offline_btn); a.href = cfg.contact; p.appendChild(a); } return p; }
+  function contactLink(p) { if (cfg.contact) { p.appendChild(d.createTextNode(" ")); var a = el("a", null, J.offline_btn); a.href = HELP; p.appendChild(a); } return p; }
   function failContact(msg) { back(); note(msg, true); contactLink($("#formnote")); }
 
   // La misma lectura otra vez (dentro de las 6 horas): la rueda llega enseguida al 100 % y, donde va el registro de pasos,
@@ -171,14 +185,14 @@
     f.appendChild(lab); f.appendChild(bar);
     f.addEventListener("submit", function (e) { e.preventDefault(); var code = (inp.value || "").trim(); if (!code) { inp.focus(); return; } msg.textContent = j.t.check; msg.classList.remove("err"); go.disabled = true; payStart(j.url, code, msg, function () { go.disabled = false; }); });
     box.appendChild(f); box.appendChild(msg);
-    var lost = el("p", "t-support"); var la = el("a", null, j.t.lost); la.href = cfg.contact || ("mailto:" + cfg.email); lost.appendChild(la); box.appendChild(lost);
+    var lost = el("p", "t-support"); var la = el("a", null, j.t.lost); la.href = HELP || ("mailto:" + cfg.email); lost.appendChild(la); box.appendChild(lost);
     root.appendChild(box); show("result", true);
     try { inp.focus({ preventScroll: true }); } catch (e) {}
     emit("coupon_asked");
   }
   // Valida el cupón en el servidor y manda a pagar a PayPal; PayPal devuelve a esta portada con ?pp=1&token=<orden>.
   function payStart(url, code, msg, done) {
-    fetch(API + "/api/pay/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, code: code, lang: cfg.lang, back: location.origin + location.pathname }) })
+    fetch(API + "/api/pay/start", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: url, code: code, lang: cfg.lang, back: location.origin + location.pathname, interno: INT() }) })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (j) {
         if (j.approve) { emit("coupon_payment_started"); location.href = j.approve; return; }
@@ -196,7 +210,7 @@
     if (pp !== "1" || !order) return;
     busy = true; $("#go").disabled = true;
     show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading"); beginLog();
-    fetch(API + "/api/pay/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: order, lang: cfg.lang }) })
+    fetch(API + "/api/pay/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: order, lang: cfg.lang, interno: INT() }) })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (j) {
         if (!j.id) return j.contact ? failContact(j.error || "?") : fail(j.error || "?");
@@ -212,7 +226,7 @@
   function offline(url) {
     back();
     var n = $("#formnote"); n.textContent = J.offline + " ";
-    var a = el("a", null, J.offline_btn); a.href = mailto(cfg.subject, mailBody(url)); n.appendChild(a);
+    var a = el("a", null, J.offline_btn); a.href = mailto(cfg.subject, mailBody(url), "help", url); n.appendChild(a);
   }
 
   function poll(id, shown) {
@@ -396,7 +410,7 @@
       if (r.manual) {                                                                // el sitio frena a Lupa: la lectura a mano, en 48 horas
         var mt = r.manual.t, mc = el("div", "m-card m-card--accent manual");
         mc.appendChild(el("h3", "t-title", mt.h)); mc.appendChild(el("p", "t-body", mt.p));
-        var ma = el("a", "m-btn m-btn--filled", mt.btn); ma.href = mailto(mt.subject, mt.body);
+        var ma = el("a", "m-btn m-btn--filled", mt.btn); ma.href = mailto(mt.subject, mt.body, "help", r.url || lastUrl);
         ma.addEventListener("click", function () { siteEvent("manual_requested", r.url); emit("manual_requested"); });
         var mr = el("div", "cta-row"); mr.appendChild(ma); mc.appendChild(mr); root.appendChild(mc);
       }
@@ -449,7 +463,7 @@
     var diag = el("p", "t-body b4diag"); diag.appendChild(el("b", null, J.b4_diag)); b4.appendChild(diag);
     if (cfg.ask) {
       var A = cfg.ask, arow = el("div", "cta-row"), aa = el("a", "m-btn m-btn--filled", A.ask_btn);
-      aa.href = mailto(A.ask_subject, A.ask_body.replace("{url}", r.url || lastUrl).replace("{langname}", A.lang_name).replace("{spend}", J.spend_labels[spend]));
+      aa.href = mailto(A.ask_subject, A.ask_body.replace("{url}", r.url || lastUrl).replace("{langname}", A.lang_name).replace("{spend}", J.spend_labels[spend]), "diag", r.url || lastUrl);
       arow.appendChild(aa);
       if (cfg.diag_href) { var dl = el("a", "m-btn m-btn--text", J.b4_link); dl.href = cfg.diag_href; arow.appendChild(dl); }
       b4.appendChild(arow); b4.appendChild(el("p", "t-note", A.ask_note));
@@ -505,7 +519,7 @@
     if (cpOpen) nx.appendChild(el("p", "t-body", J.next_text));
     var row = el("div", "cta-row");
     if (r.coupon && r.coupon.open) nx.appendChild(couponCard(r));
-    if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, "")); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
+    if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, ""), "diag", r.url || lastUrl); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
     // Compartir: el enlace permanente abre esta misma lectura (?site=). En el celular usa la hoja de compartir del sistema; si no, copia el enlace.
     var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + "?site=" + encodeURIComponent(r.url || lastUrl);
     var b4 = el("button", "m-btn m-btn--outlined", J.share); b4.type = "button";
@@ -532,7 +546,7 @@
       });
       nx.appendChild(sess);
     } else {
-      var a3 = el("a", "m-btn m-btn--outlined", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl));
+      var a3 = el("a", "m-btn m-btn--outlined", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl), "hello", r.url || lastUrl);
       a3.addEventListener("click", function () { emit("meeting_requested", { host_known: true, via: "form" }); }); row.appendChild(a3);
     }
     // qué te conviene según el gasto: vive en los precios, debajo de la lista (no en medio de la lectura)

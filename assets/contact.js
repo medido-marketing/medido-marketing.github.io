@@ -9,8 +9,21 @@
   var email = $("c-email"), site = $("c-site"), msg = $("c-msg"), ack = $("c-ack"), spendIn = $("c-spend"), send = $("c-send");
   var errAll = $("c-err"), errAck = $("c-ackerr"), ok = $("c-ok"), subj = $("c-subject");
 
-  // datos que llegan desde la portada (la caja de lectura): asunto, texto y sitio
+  // el formulario según desde dónde se llega (1/11): ?m=help, ?m=hello o ?m=diag; sin m, el contacto general.
+  // Un asunto viejo de Diagnóstico (?subject=…) también abre el modo Diagnóstico.
   var q = function (k, n) { return (qs.get(k) || "").slice(0, n); };
+  var M = cfg.modes || {}, mk = q("m", 10);
+  if (!M[mk]) mk = (M.diag && q("subject", 120) === M.diag.subject) ? "diag" : "hello";
+  var m = M[mk], formMode = M[q("m", 10)] ? q("m", 10) : "general";
+  if (m) {
+    var set = function (id, t) { var n = $(id); if (n) n.textContent = t; };
+    set("ch1", m.h1); set("c-lead", m.lead); set("c-site-l", m.site); set("c-msg-l", m.msg); set("c-send", m.send); set("c-okp", m.ok);
+    subj.value = m.subject; var sb = $("c-spendbox"); if (sb) sb.hidden = !m.spend;
+    if (cfg.title) d.title = cfg.title + " · " + m.h1;
+    // al cambiar de idioma, el formulario sigue siendo el mismo motivo
+    Array.prototype.forEach.call(d.querySelectorAll(".m-seg [data-go]"), function (x) { x.setAttribute("data-go", x.getAttribute("data-go").split("?")[0] + "?m=" + mk); });
+  }
+  // datos que llegan de otra página (la lectura, por ejemplo): asunto, texto y sitio
   if (q("subject", 120)) subj.value = q("subject", 120);
   if (q("body", 1500)) msg.value = q("body", 1500);
   if (q("site", 300)) site.value = q("site", 300);
@@ -45,7 +58,12 @@
       .then(function (r) {
         if (!r.ok) throw new Error("http " + r.status);
         form.hidden = true; ok.hidden = false; ok.focus();
-        d.dispatchEvent(new CustomEvent("medido:lead", { detail: { page_lang: cfg.lang } }));
+        // para la medición (1/11): solo el motivo y el tramo, nunca el correo ni el mensaje
+        var det = { page_lang: cfg.lang, form_mode: formMode }, tier = "";
+        try { tier = sessionStorage.getItem("medido_tier") || ""; } catch (x) {}
+        if (tier) det.spend_tier = tier;              // t1…t5, de la calculadora de la portada
+        if (spendKey) det.spend_chip = spendKey;      // low / mid / high, de los botones de este formulario
+        d.dispatchEvent(new CustomEvent("medido:lead", { detail: det }));
       })
       .catch(function () {
         send.disabled = false; send.textContent = label;
