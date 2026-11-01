@@ -54,8 +54,8 @@
     function gtag() { window.dataLayer.push(arguments); }
     window.gtag = gtag;
     gtag("js", new Date());
-    gtag("set", { visitante_id: vid() });
-    gtag("config", GA4_ID, { anonymize_ip: true });
+    // visitante_id va en el config: con gtag("set") solo no viajaba en los envíos a GA4 (lo detectó Medición en vivo, 1/11).
+    gtag("config", GA4_ID, { anonymize_ip: true, visitante_id: vid() });
     // Evento clave: envío del formulario de contacto (lo dispara contact.js).
     document.addEventListener("medido:lead", function (e) { gtag("event", "generate_lead", { page_lang: (e.detail && e.detail.page_lang) || lang }); });
     // El tramo de gasto que calculó la persona queda en esta pestaña y viaja con el pedido de reunión.
