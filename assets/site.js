@@ -118,6 +118,8 @@
   if (rep && "MutationObserver" in window && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
     new MutationObserver(function () {
       if (rep.hidden || $("#log .repeat")) return;
+      // la caja que pide el cupón (sitio ya leído): sin círculo blanco; el hero sigue a la vista y la página baja hasta la caja
+      if ($("#result-in .askcp")) { setTimeout(function () { rep.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); return; }
       var rg = $("#ring"), r = rg && rg.getBoundingClientRect(), w = d.createElement("div");
       w.className = "wipe"; w.setAttribute("aria-hidden", "true");
       if (r && r.width) { w.style.setProperty("--x", (r.left + r.width / 2) + "px"); w.style.setProperty("--y", (r.top + r.height / 2) + "px"); }

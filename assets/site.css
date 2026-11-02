@@ -703,3 +703,10 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 [dir="rtl"] .m-field select.c-select{padding:0 var(--s-16) 0 44px;background-position:left 14px center}
 :lang(he) .m-field select.c-select{font-family:var(--font-he)}
 .m-field select.c-select:focus-visible{outline:none;box-shadow:0 0 0 2px var(--md-bg),0 0 0 4px var(--md-on-bg)}
+
+/* Sitio ya leído, se pide el cupón (2/11): el hero no se vacía; la caja del cupón va en la sección del informe, y la página baja hasta ahí */
+.is-reading:has(#result-in .askcp) .hero-copy{display:grid}
+.is-reading:has(#result-in .askcp) .hero-grid{grid-template-columns:minmax(0,1fr);justify-items:stretch}
+#result.report .askcp{background:transparent;border:0;border-top:2px solid var(--md-on-bg);border-radius:0;padding:var(--s-24) 0 0}
+#result.report .askcp .t-headline{font-size:clamp(28px,4vw,52px);line-height:1.05;letter-spacing:-.025em;max-width:22ch}
+#result.report .askcp .askform{max-width:560px}
