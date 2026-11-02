@@ -208,7 +208,7 @@
     if (!pp) return;
     try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
     if (pp !== "1" || !order) return;
-    busy = true; $("#go").disabled = true;
+    busy = true; $("#go").disabled = true; waitShown = false;
     show("idle", false); show("progress", true); show("result", false); d.body.classList.add("is-reading"); beginLog();
     fetch(API + "/api/pay/capture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: order, lang: cfg.lang, interno: INT() }) })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
@@ -229,12 +229,19 @@
     var a = el("a", null, J.offline_btn); a.href = mailto(cfg.subject, mailBody(url), "help", url); n.appendChild(a);
   }
 
+  var waitShown = false;
   function poll(id, shown) {
     fetch(API + "/api/status?id=" + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(function (s) {
-      var q = d.getElementById("queue"); if (q) { q.textContent = (s.queue && s.queue.text) || ""; q.hidden = !(s.queue && s.queue.text); }
+      // en la fila: cuántas lecturas hay antes y cuánto falta; si es mucho, también la lectura a mano en 48 horas. El anillo espera quieto.
+      var q = d.getElementById("queue");
+      if (q) {
+        q.textContent = (s.queue && s.queue.text) || ""; q.hidden = !(s.queue && s.queue.text);
+        if (s.queue && s.queue.manual) { q.appendChild(d.createTextNode(" " + s.queue.manual.p + " ")); var qa = el("a", null, s.queue.manual.btn); qa.href = mailto(s.queue.manual.subject, s.queue.manual.body, "help", lastUrl); q.appendChild(qa); }
+      }
+      if (s.queue && s.queue.wait && !waitShown && !s.steps.length) { logLine("ev", s.queue.wait); waitShown = true; }
       while (shown < s.steps.length) { addStep(s.steps[shown], shown + 1); shown++; }
       if (s.done) {
-        if (s.error) return fail(s.error);
+        if (s.error) return s.contact ? failContact(s.error) : fail(s.error);
         if (s.result && s.result.repeat) { repeatPanel(s.result); busy = false; $("#go").disabled = false; setTimeout(function () { render(s.result); }, 600); return; }
         finishLog(s.result);
         busy = false; $("#go").disabled = false;
@@ -487,6 +494,9 @@
       }); chg.appendChild(cl);
     }
     root.appendChild(chg);
+    if (r.second_pending) {                                                        // pagó y el navegador no estuvo: esta lectura no cuenta como la Segunda
+      var sp = el("div", "m-card m-card--accent unlocks"); sp.appendChild(el("h3", "t-title", r.second_pending.h)); sp.appendChild(el("p", "t-body", r.second_pending.p)); root.appendChild(sp);
+    }
     if (r.second) {
       var un = el("div", "m-card m-card--accent unlocks"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
       if (r.second.unlocked.length) { var ul5 = el("ul", "cantlist"); r.second.unlocked.forEach(function (x) { ul5.appendChild(el("li", null, "✓ " + x)); }); un.appendChild(ul5); }
