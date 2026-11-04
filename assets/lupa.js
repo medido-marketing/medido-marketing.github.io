@@ -539,7 +539,8 @@
       else { window.medidoCopy(text + " " + link, b4, J.copied); emit("reading_shared", { how: "copy" }); }
       siteEvent("shared", r.url);
     }); row.appendChild(b4);
-    var b2 = el("button", "m-btn m-btn--text", J.copy_reading); b2.type = "button"; b2.addEventListener("click", function () { window.medidoCopy(readingText(r), b2, J.copied); siteEvent("saved", r.url); }); row.appendChild(b2);
+    // «Copiar la lectura» se sacó el 4/11 (Débora, vía Web); la fila queda con Compartir y, según el caso, el diagnóstico o la reunión.
+    // readingText() sigue para la descarga del informe, que viene después.
     nx.appendChild(row);
     if (r.keep_note && !r.recorded) { var kp = el("p", "t-note keepnote m-card m-card--outlined"); kp.textContent = r.keep_note; nx.appendChild(kp); }
     if (cpOpen) nx.appendChild(el("p", "t-note", J.next_note));
