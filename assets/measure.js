@@ -116,6 +116,8 @@
   function load() { loadGa(); loadMeta(); loadClarity(); }
 
   function banner() {
+    // 4/11 (pedido de Débora): la página se atenúa hasta que se elige; solo se ve más oscura, no se bloquea nada (sin muro)
+    var dim = document.createElement("div"); dim.className = "cc-dim"; dim.setAttribute("aria-hidden", "true"); document.body.appendChild(dim);
     var b = document.createElement("div");
     b.className = "cc"; b.setAttribute("role", "region"); b.setAttribute("aria-label", L.label);
     var p = document.createElement("p"); p.className = "t-body"; p.textContent = L.t;
@@ -125,7 +127,7 @@
     var row = document.createElement("div"); row.className = "cc-row";
     function btn(txt, v) {
       var x = document.createElement("button"); x.type = "button"; x.className = "m-btn m-btn--outlined"; x.textContent = txt;
-      x.addEventListener("click", function () { set(v); b.remove(); document.body.classList.remove("has-cc"); removeEventListener("resize", fit); if (v === "yes") load(); });
+      x.addEventListener("click", function () { set(v); b.remove(); dim.remove(); document.body.classList.remove("has-cc"); removeEventListener("resize", fit); if (v === "yes") load(); });
       return x;
     }
     row.appendChild(btn(L.no, "no")); row.appendChild(btn(L.yes, "yes"));

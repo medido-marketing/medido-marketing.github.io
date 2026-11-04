@@ -312,6 +312,7 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .cc{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 16px;background:#0E0F12;color:#fff;border-top:1px solid #fff;font-size:13px}
 .cc .t-body{margin:0;color:#fff;font-size:13px;line-height:1.35;flex:1 1 280px}
 .cc .t-body a{color:#fff;text-decoration:underline}
+.cc-dim{position:fixed;inset:0;z-index:49;background:rgba(14,15,18,.5);pointer-events:none}   /* atenúa la página hasta que se elige; no bloquea nada */
 .cc-row{display:flex;gap:8px;flex:none}
 .cc-row .m-btn{min-height:32px;padding:4px 12px;font-size:13px;color:#fff;border-color:#fff}
 
