@@ -23,7 +23,7 @@
   // Eventos propios del embudo (los disparan lupa.js, site.js y connect.js como "medido:<nombre>"); van iguales a GA4, Meta y Clarity.
   // Un evento que se dispara y no está en esta lista no llega a ningún lado.
   var EV = ["pql_reading_requested", "reading_completed", "reading_repeated", "questions_copied", "manual_requested", "analytics_connected", "reading_shared", "meeting_requested",
-    "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated"];
+    "steps_cta_clicked", "steps_calendar", "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated"];
   // Precio de la Segunda lectura: el mismo que cobra Lupa (tools/lupa-workers/src/paypal.js, por idioma de la página). coupon_paid = venta.
   var SALE = lang === "he" ? { value: 15, currency: "ILS" } : { value: 5, currency: "USD" };
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }

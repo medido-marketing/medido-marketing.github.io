@@ -23,6 +23,10 @@
     // al cambiar de idioma, el formulario sigue siendo el mismo motivo
     Array.prototype.forEach.call(d.querySelectorAll(".m-seg [data-go]"), function (x) { x.setAttribute("data-go", x.getAttribute("data-go").split("?")[0] + "?m=" + mk); });
   }
+  // campos que solo tiene el modo «steps» (próximos pasos): nombre, apellido, rol, nota de qué se guarda, calendario al confirmar
+  var steps = mk === "steps";
+  Array.prototype.forEach.call(d.querySelectorAll("[data-only=steps]"), function (n) { if (n.id !== "c-cal") n.hidden = !steps; });
+  if (steps) { site.required = true; ["c-first", "c-last", "c-role"].forEach(function (id) { $(id).required = true; }); }
   // datos que llegan de otra página (la lectura, por ejemplo): asunto, texto y sitio
   if (q("subject", 120)) subj.value = q("subject", 120);
   if (q("body", 1500)) msg.value = q("body", 1500);
@@ -45,10 +49,35 @@
   email.addEventListener("input", function () { fieldErr(email, ""); show(errAll, ""); });
   ack.addEventListener("change", function () { show(errAck, ""); });
 
+  // «Agregar al calendario» (solo modo steps): un recordatorio para cuando llegan los pasos, a las 24 h. Google Calendar y .ics.
+  // Todo en el navegador: el evento lleva título, la descripción y, si viene de una lectura, su enlace; ningún dato de la persona.
+  function showCalendar() {
+    var box = $("c-cal"); if (!box) return;
+    var start = new Date(Date.now() + 24 * 3600 * 1000), end = new Date(start.getTime() + 15 * 60 * 1000);
+    var z = function (t) { return t.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z"); };
+    var rid = q("r", 40), home = "https://marketingmedido.com" + (cfg.lang === "en" ? "/" : "/" + cfg.lang + "/");
+    var desc = C.ev_desc + (/^[A-Za-z0-9_-]{8,40}$/.test(rid) ? " " + C.ev_read.replace("{u}", home + "?r=" + rid) : " " + home);
+    var g = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(C.ev_title) + "&dates=" + z(start) + "/" + z(end) + "&details=" + encodeURIComponent(desc);
+    var esc = function (t) { return t.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n"); };
+    var fold = function (l) { var o = []; while (l.length > 35) { o.push(l.slice(0, 35)); l = " " + l.slice(35); } o.push(l); return o.join("\r\n"); };
+    var uid = "steps-" + start.getTime() + "-" + Math.random().toString(16).slice(2, 10) + "@marketingmedido.com";
+    var ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Medido//steps//" + cfg.lang.toUpperCase(), "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT", "UID:" + uid, "DTSTAMP:" + z(new Date()), "DTSTART:" + z(start), "DTEND:" + z(end),
+      "SUMMARY:" + esc(C.ev_title), "DESCRIPTION:" + esc(desc), "URL:" + home, "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + esc(C.ev_alarm), "TRIGGER:PT0S", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].map(fold).join("\r\n") + "\r\n";
+    var ga = $("c-cal-g"), ia = $("c-cal-i");
+    ga.href = g; ia.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" })); ia.download = "medido-next-steps.ics";
+    ga.addEventListener("click", function () { d.dispatchEvent(new CustomEvent("medido:steps_calendar", { detail: { kind: "google" } })); });
+    ia.addEventListener("click", function () { d.dispatchEvent(new CustomEvent("medido:steps_calendar", { detail: { kind: "ics" } })); });
+    box.hidden = false;
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     show(errAll, ""); show(errAck, ""); fieldErr(email, "");
     var bad = null;
+    if (steps) {
+      var miss = [$("c-first"), $("c-last"), site, $("c-role")].filter(function (x) { return !(x.value || "").trim(); })[0];
+      if (miss) { show(errAll, C.need_fields); miss.focus(); return; }
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email.value || "").trim())) { fieldErr(email, C.need_email); show(errAll, C.need_email); bad = email; }
     else if (!ack.checked) { show(errAck, C.need_ack); bad = ack; }
     if (bad) { bad.focus(); return; }
@@ -66,7 +95,8 @@
         try { tier = sessionStorage.getItem("medido_tier") || ""; } catch (x) {}
         if (tier) det.spend_tier = tier;              // t1…t5, de la calculadora de la portada
         if (spendKey) det.spend_chip = spendKey;      // low / mid / high, de los botones de este formulario
-        if (howKey) det.how_found = howKey;            // search, ai, ads, newsletter, team, referral, other
+        if (howKey) det.how_found = howKey;
+        if (steps) { det.role = $("c-role").value; showCalendar(); }            // search, ai, ads, newsletter, team, referral, other
         d.dispatchEvent(new CustomEvent("medido:lead", { detail: det }));
       })
       .catch(function () {
