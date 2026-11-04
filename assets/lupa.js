@@ -64,8 +64,12 @@
     if (stage === "static") { var lk = $("#logk"); if (lk && J.log_k_static) lk.textContent = J.log_k_static; var wn = $("#waitnote"); if (wn && J.wait_note_static) wn.textContent = J.wait_note_static; }
   }).catch(function () {});
 
-  // Enlace compartido: ?site=... arranca la lectura al abrir la página (misma caché del Worker: no gasta una lectura nueva dentro de las 6 horas).
-  try { var sp = new URLSearchParams(location.search), qs = sp.get("site"); if (qs) { $("#site").value = qs; setTimeout(function () { lastUrl = qs; if (!sp.get("re")) emit("pql_reading_requested", { via: "shared_link" }); start(qs); }, 50); } } catch (e) {}
+  // Link permanente: ?r=<id> dibuja la lectura ya hecha, tal cual, sin pedir nada nuevo (el Worker la guarda 30 días; Débora, 4/11).
+  try { var rp = new URLSearchParams(location.search).get("r"); if (rp && /^[0-9a-f]{12,32}$/.test(rp)) {
+    fetch(API + "/api/reading/" + rp + ".json").then(function (x) { if (!x.ok) throw new Error("gone"); return x.json(); }).then(function (r) { lastUrl = r.url || ""; $("#site").value = r.url || ""; emit("pql_reading_requested", { via: "permanent_link" }); render(r); }).catch(function () { /* vencida o inexistente: queda la portada */ });
+  } } catch (e) {}
+  // Enlace compartido viejo: ?site=... arranca la lectura al abrir la página (misma caché del Worker: no gasta una lectura nueva dentro de las 6 horas).
+  try { var sp = new URLSearchParams(location.search), qs = sp.get("site"); if (qs && !sp.get("r")) { $("#site").value = qs; setTimeout(function () { lastUrl = qs; if (!sp.get("re")) emit("pql_reading_requested", { via: "shared_link" }); start(qs); }, 50); } } catch (e) {}
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (busy) return;
@@ -531,7 +535,8 @@
     if (r.coupon && r.coupon.open) nx.appendChild(couponCard(r));
     if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, ""), "diag", r.url || lastUrl); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
     // Compartir: el enlace permanente abre esta misma lectura (?site=). En el celular usa la hoja de compartir del sistema; si no, copia el enlace.
-    var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + "?site=" + encodeURIComponent(r.url || lastUrl);
+    // el link que se comparte abre esta misma lectura, ya hecha, durante 30 días (?r=id); sin id (lecturas viejas), el de antes
+    var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + (r.read_id ? "?r=" + encodeURIComponent(r.read_id) : "?site=" + encodeURIComponent(r.url || lastUrl));
     var b4 = el("button", "m-btn m-btn--outlined", J.share); b4.type = "button";
     b4.addEventListener("click", function () {
       var text = J.share_text.replace("{host}", host);
