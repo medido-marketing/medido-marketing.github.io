@@ -49,11 +49,13 @@
   email.addEventListener("input", function () { fieldErr(email, ""); show(errAll, ""); });
   ack.addEventListener("change", function () { show(errAck, ""); });
 
-  // «Agregar al calendario» (solo modo steps): un recordatorio para cuando llegan los pasos, a las 24 h. Google Calendar y .ics.
+  // «Agregar al calendario» (solo modo steps): un recordatorio para cuando llegan los pasos, a las 48 horas hábiles. Google Calendar y .ics.
   // Todo en el navegador: el evento lleva título, la descripción y, si viene de una lectura, su enlace; ningún dato de la persona.
   function showCalendar() {
     var box = $("c-cal"); if (!box) return;
-    var start = new Date(Date.now() + 24 * 3600 * 1000), end = new Date(start.getTime() + 15 * 60 * 1000);
+    // 48 horas hábiles: 2 días hábiles (sin sábado ni domingo), a la misma hora
+    var start = new Date(), left = 2; while (left > 0) { start.setDate(start.getDate() + 1); var wd = start.getDay(); if (wd !== 0 && wd !== 6) left--; }
+    var end = new Date(start.getTime() + 15 * 60 * 1000);
     var z = function (t) { return t.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z"); };
     var rid = q("r", 40), home = "https://marketingmedido.com" + (cfg.lang === "en" ? "/" : "/" + cfg.lang + "/");
     var desc = C.ev_desc + (/^[A-Za-z0-9_-]{8,40}$/.test(rid) ? " " + C.ev_read.replace("{u}", home + "?r=" + rid) : " " + home);

@@ -711,3 +711,168 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 #result.report .askcp{background:transparent;border:0;border-top:2px solid var(--md-on-bg);border-radius:0;padding:var(--s-24) 0 0}
 #result.report .askcp .t-headline{font-size:clamp(28px,4vw,52px);line-height:1.05;letter-spacing:-.025em;max-width:22ch}
 #result.report .askcp .askform{max-width:560px}
+#result.report .askcp{display:grid;gap:var(--s-16);align-content:start}#result.report .askcp>*{margin:0}#result.report .askcp .t-body{max-width:62ch}
+/* Informe variante A (4/11): clases rp- que dibuja lupa.js. Solo tokens y componentes de medido-ui.css; superficie blanca con bandas que cambian de superficie (negro, amarillo). */
+.rp-rep{max-width:1120px;margin:0 auto;padding:var(--s-24) var(--s-16) var(--s-96);display:grid;gap:var(--s-48)}
+@media(min-width:900px){.rp-rep{padding:var(--s-32) var(--s-32) var(--s-96);gap:var(--s-64)}}
+.rp-rep>*{min-width:0}
+/* cabecera: meta a un lado, acciones al otro (aquí van Compartir y Descargar) */
+.rp-head{display:flex;flex-wrap:wrap;gap:var(--s-16);justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--md-on-bg);padding-bottom:var(--s-16)}
+.rp-head p{margin:0}.rp-head-meta{display:grid;gap:var(--s-4)}.rp-head-meta .t-mono{color:var(--md-on-var)}
+.rp-head-act{display:flex;flex-wrap:wrap;gap:var(--s-8)}
+.rp-hl{margin:calc(var(--s-48)*-.5) 0 0;max-width:20ch;font:800 clamp(34px,6.4vw,76px)/1.02 var(--font-ui);letter-spacing:-.035em;text-wrap:balance}
+/* bloques: más aire entre bloques que adentro de cada uno */
+.rp-blk{display:grid;gap:var(--s-16)}
+.rp-bh{display:grid;gap:var(--s-4)}.rp-bh p,.rp-bh h3{margin:0}
+.rp-bh .t-label{color:var(--md-on-var)}
+.rp-evs{display:flex;flex-wrap:wrap;gap:var(--s-8);margin:0}
+.rp-ev{font:500 12px/1 var(--font-mono);padding:6px 8px;border:1px solid var(--md-outline-var);border-radius:var(--r-min);color:var(--md-on-var)}
+/* signos de estado: anillo de 24 px con el signo adentro */
+.rp-sg{display:inline-grid;place-items:center;flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--md-on-bg);font:800 13px/1 var(--font-ui);color:var(--md-on-bg)}
+.rp-sg-problem{background:var(--md-on-bg);color:var(--md-bg)}
+.rp-sg-warn{border-style:dashed}
+.rp-sg-info{border-color:var(--md-outline)}.rp-sg-info{color:var(--md-on-var);font-family:var(--font-mono)}
+/* 1 · resumen del tamaño real (negro) */
+.rp-sum{display:grid;gap:var(--s-24);padding:var(--s-24);border-radius:var(--r-content);background:var(--md-bg);color:var(--md-on-bg);grid-template-columns:auto 1fr;align-items:center}
+.rp-sum-ring{--d:112px;position:relative;display:grid;place-items:center}
+.rp-sum-ring .m-ring{--d:112px}.rp-sum-ring b{position:absolute;font:800 calc(112px*.3)/1 var(--font-ui);letter-spacing:-.04em}
+.rp-sum-txt{display:grid;gap:var(--s-12);min-width:0}.rp-sum-txt p{margin:0}.rp-sum-txt .t-label{color:var(--md-on-var)}
+.rp-sum-h{font:800 clamp(20px,2.6vw,30px)/1.15 var(--font-ui);letter-spacing:-.02em;max-width:28ch}
+.rp-segs{display:flex;gap:4px}.rp-segs i{flex:1;height:12px;border-radius:2px;border:2px solid var(--md-on-bg)}
+.rp-s-problem{background:var(--md-on-bg)}.rp-s-warn{border-style:dashed!important;border-width:1.5px!important}.rp-s-info{border-color:var(--md-outline)!important}.rp-s-ok{background:var(--md-primary);border-color:var(--md-primary)!important}
+.rp-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,auto);gap:var(--s-8) var(--s-24);justify-content:start}
+.rp-stats li{display:grid;grid-template-columns:auto auto;gap:0 var(--s-8);align-items:center}
+.rp-stats b{font:800 28px/1 var(--font-ui)}.rp-stats span:last-child{grid-column:1/-1;font:500 13px/1.3 var(--font-mono);color:var(--md-on-var);margin-top:2px}
+.rp-stats .rp-sg{grid-row:1}
+@media(max-width:700px){.rp-sum{grid-template-columns:1fr;justify-items:start}.rp-stats{grid-template-columns:repeat(2,auto)}.rp-sum-ring,.rp-sum-ring .m-ring{--d:96px}.rp-sum-ring b{font-size:calc(96px*.3)}}
+/* 2 · lo que está en orden: lista m-list, visible */
+.rp-list{list-style:none;margin:0;padding:0;background:var(--md-surface);border-radius:var(--r-content);overflow:hidden;display:grid}
+@media(min-width:900px){.rp-list:not(.rp-list--sess){grid-template-columns:1fr 1fr}.rp-list:not(.rp-list--sess) .rp-row:nth-child(odd){border-inline-end:1px dashed var(--md-outline-var)}}
+.rp-row{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s-16);align-items:start;padding:var(--s-12) var(--s-16);border-bottom:1px dashed var(--md-outline-var)}
+.rp-row b{display:block;font-size:16px;line-height:1.35}.rp-row .rp-sup{display:block;font:500 14px/1.45 var(--font-ui);color:var(--md-on-var)}
+.rp-row .rp-tr{font:700 12px/1.6 var(--font-mono);color:var(--md-on-var)}
+.rp-list--sess .rp-row{grid-template-columns:1fr auto auto;align-items:center}.rp-pr{font:800 16px/1 var(--font-ui)}
+@media(max-width:700px){.rp-list--sess .rp-row{grid-template-columns:1fr auto}.rp-list--sess .rp-row .rp-sup{grid-column:1/-1}.rp-list--sess .rp-row>div{grid-column:1/-1}}
+/* 3 · el problema, a escala grande */
+.rp-pcard{display:grid;gap:var(--s-24);border:2px solid var(--md-on-bg);border-radius:var(--r-content);padding:var(--s-24)}
+@media(min-width:900px){.rp-pcard{grid-template-columns:1.1fr .9fr;gap:var(--s-48);padding:var(--s-32)}}
+.rp-pc-main{display:grid;gap:var(--s-16);align-content:start}.rp-pc-top{display:flex;gap:var(--s-12);align-items:center}
+.rp-pc-h{margin:0;font:800 clamp(24px,2.4vw,32px)/1.12 var(--font-ui);letter-spacing:-.03em;text-wrap:balance}
+.rp-pc-s{margin:0;font:500 19px/1.5 var(--font-ui);max-width:42ch}
+.rp-why{margin:0;display:grid;gap:var(--s-4);padding:var(--s-12) 0 var(--s-12) var(--s-16);border-inline-start:4px solid var(--md-on-bg);font:600 17px/1.5 var(--font-ui)}
+.rp-why .t-label{color:var(--md-on-var)}
+.rp-pc-side{display:grid;gap:var(--s-16);align-content:start}.rp-pc-side>.t-label{margin:0;color:var(--md-on-var)}
+.rp-stp{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:var(--s-8)}
+.rp-stp li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:var(--s-8);font:500 15px/1.45 var(--font-ui);color:var(--md-on-var)}
+.rp-stp li::before{content:counter(s);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--md-surface-hi);color:var(--md-on-bg);font:800 12px/1 var(--font-mono)}
+.rp-ag{display:grid;gap:var(--s-4);background:var(--md-surface);border-radius:var(--r-ctl);padding:var(--s-12) var(--s-16)}.rp-ag p{margin:0;font:600 15px/1.45 var(--font-ui)}.rp-ag .t-label{color:var(--md-on-var)}
+.rp-ok3{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-8) var(--s-12)}.rp-chips{display:flex;flex-wrap:wrap;gap:var(--s-8)}
+/* 4 · a revisar, escala media */
+.rp-wcard{display:grid;gap:var(--s-12);border:2px dashed var(--md-on-bg);border-radius:var(--r-content);padding:var(--s-24)}.rp-wc-top{display:flex;gap:var(--s-12);align-items:center}
+.rp-wcard>*{margin:0}.rp-wcard .t-body{max-width:62ch}
+/* 5 · para saber, escala chica, tres columnas */
+.rp-icards{display:grid;gap:var(--s-12)}@media(min-width:900px){.rp-icards{grid-template-columns:repeat(3,1fr);gap:var(--s-16)}}
+.rp-icard{display:grid;gap:var(--s-8);align-content:start;background:var(--md-surface);border-radius:var(--r-content);padding:var(--s-16) var(--s-16) var(--s-12)}
+.rp-icard h4{margin:0;font:800 17px/1.3 var(--font-ui)}.rp-icard p{margin:0}
+.rp-icard summary{cursor:pointer;font:700 13px/1.3 var(--font-mono);min-height:36px;display:flex;align-items:center;color:var(--md-on-bg)}
+.rp-icard details{border-top:1px dashed var(--md-outline-var);margin-top:var(--s-4)}.rp-icard details[open] .rp-stp{margin-bottom:var(--s-12)}
+/* 6 · preguntas para la agencia (amarillo, negro encima) */
+.rp-ask{background:var(--md-bg);color:var(--md-on-bg);border-radius:var(--r-content);padding:var(--s-24);display:grid;gap:var(--s-24)}
+@media(min-width:900px){.rp-ask{padding:var(--s-48);grid-template-columns:.7fr 1.3fr;column-gap:var(--s-48)}.rp-ask .rp-bh{grid-row:1/3;align-content:start}.rp-ask .rp-ask-f{grid-column:2}}
+.rp-ask .t-headline{font-size:clamp(34px,4.4vw,52px);line-height:1.02}
+.rp-ask .rp-bh .t-label{color:var(--md-on-bg)}
+.rp-qs{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-16)}
+.rp-qs li{display:grid;grid-template-columns:auto 1fr;gap:var(--s-16);padding-bottom:var(--s-16);border-bottom:2px solid var(--md-on-bg)}.rp-qs li:last-child{border-bottom:0}
+.rp-qn{font:800 36px/1 var(--font-ui);letter-spacing:-.04em;min-width:1ch}.rp-qs p{margin:0;font:700 18px/1.4 var(--font-ui)}.rp-qt{font:700 12px/1.4 var(--font-mono);text-transform:uppercase;letter-spacing:.05em;color:var(--md-on-var)}
+.rp-ask-f{display:grid;gap:var(--s-12);justify-items:start}.rp-ask-f p{margin:0;max-width:56ch}
+/* 7 · lo que no se ve: datacards + el Diagnóstico */
+.rp-dcs{display:grid;gap:var(--s-12)}@media(min-width:700px){.rp-dcs{grid-template-columns:1fr 1fr}}@media(min-width:1000px){.rp-dcs{grid-template-columns:repeat(4,1fr)}}
+.rp-dcs .m-datacard{align-content:start}.rp-dcs h4{margin:0;font:800 16px/1.3 var(--font-ui)}.rp-dcs p{margin:0}
+.rp-nev{margin:0;max-width:80ch}.rp-nev b{color:var(--md-on-bg)}
+.rp-diag{display:grid;gap:var(--s-16);border:2px solid var(--md-on-bg);border-radius:var(--r-content);padding:var(--s-24);align-items:center}
+@media(min-width:900px){.rp-diag{grid-template-columns:1fr auto;padding:var(--s-24) var(--s-32)}}
+.rp-diag p{margin:0}.rp-diag-p{font:800 clamp(20px,2.4vw,26px)/1.2 var(--font-ui);letter-spacing:-.02em;max-width:26ch;margin-top:var(--s-4)!important}
+.rp-diag-r{display:grid;gap:var(--s-8);justify-items:start}@media(min-width:900px){.rp-diag-r{justify-items:end}}
+.rp-lnk{font:700 15px/1.3 var(--font-ui);text-decoration:underline;text-underline-offset:3px}
+/* 8 · lo que cambió y lo pendiente, y el final con Compartir y Descargar */
+.rp-strip{display:grid;gap:var(--s-12)}@media(min-width:900px){.rp-strip{grid-template-columns:1fr 1.4fr}}
+.rp-strip h4{margin:0 0 var(--s-8);font:800 17px/1.3 var(--font-ui)}.rp-strip p{margin:0}.rp-pend{border:2px solid var(--md-on-bg)}
+.rp-end .rp-bh{grid-template-columns:1fr;gap:var(--s-12)}
+.rp-actions{display:flex;flex-wrap:wrap;gap:var(--s-8) var(--s-12);align-items:center}.rp-perma{font:500 13px/1.4 var(--font-mono);color:var(--md-on-var);overflow-wrap:anywhere}
+@media(max-width:700px){
+  .rp-rep{gap:var(--s-32)}
+  .rp-pcard{padding:var(--s-16)}.rp-pc-s{font-size:17px}.rp-why{font-size:16px}
+  .rp-wcard,.rp-diag,.rp-ask{padding:var(--s-16)}.rp-qs p{font-size:16px}.rp-qn{font-size:28px}
+  .rp-row{padding:var(--s-8) var(--s-12);gap:var(--s-12)}
+}
+/* resumen: letras amarillas sobre negro; el botón blanco es la venta del Diagnóstico */
+.rp-sum{color:#F5F5F2;align-items:start}
+.rp-sum .rp-sum-txt .t-label,.rp-sum .rp-stats span:last-child{color:#A7ADB8}
+.rp-sum .rp-sg{border-color:#F5F5F2;color:#F5F5F2}.rp-sum .rp-sg-problem{background:#F5F5F2;color:#0E0F12}
+.rp-sum .rp-sg-info{border-color:#A7ADB8;color:#A7ADB8}
+.rp-sum-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-12) var(--s-16);margin-top:var(--s-8)}
+.rp-wbtn{display:inline-flex;align-items:center;min-height:48px;padding:0 var(--s-24);border-radius:var(--r-ctl);background:#fff;color:#0E0F12;font:800 15px/1.2 var(--font-ui);text-decoration:none}
+.rp-sum-p{font:500 13px/1.4 var(--font-mono);color:#A7ADB8}
+/* 5/11, decisión de Débora: «Amarillo solo medida». En amarillo queda el anillo y los segmentos de «bien»; titular, cifras y signos en #F5F5F2; apoyo en #A7ADB8 */
+.rp-sum .rp-sum-ring b,.rp-sum .rp-sum-h,.rp-sum .rp-stats b{color:#F5F5F2}
+/* celular: desde «No visible desde afuera» para abajo solo el botón de PDF */
+.rp-pdfbar{display:none}
+@media(max-width:700px){.rp-desk{display:none}.rp-pdfbar{display:grid;gap:var(--s-12);justify-items:start}.rp-pdfbar p{margin:0}}
+
+/* ---- agregados sobre el DOM real (no están en el boceto) ---- */
+.rp-do{display:grid;gap:var(--s-4)}.rp-do p{margin:0}.rp-do .t-label{color:var(--md-on-var)}
+.rp-det{border-top:1px dashed var(--md-outline-var);margin-top:var(--s-4)}.rp-det summary{cursor:pointer;font:700 13px/1.3 var(--font-mono);min-height:36px;display:flex;align-items:center}
+.rp-det[open] .rp-stp{margin-bottom:var(--s-12)}
+.rp-wcard .rp-ag,.rp-wcard .rp-ok3{margin-top:var(--s-4)}.rp-wcard .rp-det{margin-top:var(--s-4)}
+.rp-pcard+.rp-pcard,.rp-wcard+.rp-wcard{margin-top:var(--s-16)}
+.rp-paths{display:grid;gap:var(--s-8)}.rp-paths .t-label{margin:0;color:var(--md-on-var)}
+.rp-icard .rp-sg{justify-self:start}
+.rp-steps{display:grid;gap:var(--s-12);justify-items:start}.rp-steps>*{margin:0}
+.rp-coupon{display:grid;gap:var(--s-8);justify-items:start}.rp-coupon>*{margin:0}.rp-code{letter-spacing:.06em}
+.rp-second{display:grid;gap:var(--s-12)}.rp-second>*{margin:0}.rp-cantlist{margin:0;padding:0;list-style:none;display:grid;gap:var(--s-4)}
+.rp-chg h4,.rp-pend h4{margin:0 0 var(--s-8);font:800 17px/1.3 var(--font-ui)}.rp-chg p,.rp-chg ul{margin:0}
+.rp-end>.rp-bh{grid-template-columns:1fr;gap:var(--s-12)}
+.rp-keep{margin:0}
+
+/* PDF de la lectura (4/11): lupa.js llama a window.print(). Se imprime solo el informe, completo (también lo que en celular se oculta), con las bandas de color. */
+@media print{
+  @page{margin:14mm}
+  body{background:#fff!important}
+  body>*:not(main),main>*:not(#result),.cc,.cc-dim,.site-fab{display:none!important}
+  #result,#result *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #result.report{padding:0!important}
+  .rp-rep{padding:0;gap:var(--s-32);max-width:none}
+  .rp-head-act,.rp-pdfbar,.rp-sum-cta .rp-wbtn,.rp-steps,.rp-coupon,.rp-actions,.rp-chips,.rp-end,.rp-ok3{display:none!important}
+  .rp-blk>.t-label,.rp-bh{break-after:avoid}
+  .rp-pcard,.rp-wcard,.rp-icard,.rp-ask,.rp-sum,.rp-diag,.rp-row,.m-datacard{break-inside:avoid}
+  .rp-icard details::details-content,.rp-det::details-content{content-visibility:visible!important;display:block!important}
+}
+/* ajustes de Manual de marca (5/11) */
+@media(max-width:700px){.rp-head-act{display:grid;grid-template-columns:1fr 1fr;width:100%}.rp-head-act .m-btn{width:100%;justify-content:center;text-align:center;padding-inline:var(--s-8)}.rp-wbtn{width:100%;justify-content:center;text-align:center}}
+/* RTL: cada texto de la lectura toma la dirección de su primera letra (equivale a dir=auto), para que ?, . y ( ) no salten cuando hay tramos en latín */
+.rp-rep :is(.rp-hl,.rp-sum-h,.rp-pc-h,.rp-pc-s,.rp-why,.rp-wcard h3,.rp-wcard p,.rp-icard h4,.rp-icard p,.rp-row b,.rp-sup,.rp-qs p,.rp-stp li,.rp-ag p,.rp-ev,.rp-qt){unicode-bidi:plaintext}
+@media(max-width:700px){.rp-segs{gap:3px}.rp-segs i{min-width:0}}
+/* 5/11: «Esperando mi turno…» en gris y sin tilde (la tilde es «hecho»; Lupa le puso la clase wait) */
+.loglines .wait{color:#A7ADB8}
+/* 5/11, Manual de marca: las tarjetas de acción (próximos pasos, cupón, «Recibido») no llevan el borde de tinta de 2 px (en el informe quiere decir «problema»); en celular sus botones van a ancho completo, con 8 px entre sí */
+.rp-steps.m-card,.rp-coupon.m-card,#c-ok.m-card,.manual.m-card{border:1px solid #D7D7D2}
+#c-ok>p:last-child{margin:var(--s-8) 0 0}
+@media(max-width:700px){
+  .rp-steps .m-btn,.rp-coupon .m-btn,.rp-pdfbar .m-btn,#c-ok .m-btn{width:100%;justify-content:center;text-align:center}
+  .rp-steps .cta-row,.rp-coupon .cta-row{width:100%;justify-self:stretch}
+  #c-ok .cta-row{display:grid;gap:var(--s-8);margin-top:var(--s-8)}
+}
+/* Tarjeta del cupón (Manual de marca, 5/11, «Sí, así»): «Segunda lectura» como título, el precio como apoyo, «Tu cupón» en mono y el código grande */
+.rp-coupon-title{margin:0;font:800 20px/1.2 var(--font-ui);letter-spacing:-.01em}
+@media(min-width:900px){.rp-coupon-title{font-size:24px}}
+:lang(he) .rp-coupon-title{font-family:var(--font-he);letter-spacing:0}
+.rp-coupon-price{margin:0;font:500 15px/1.4 var(--font-ui);color:var(--md-on-var)}
+:lang(he) .rp-coupon-price{font-family:var(--font-he)}
+/* rama bajo «Lectura gratis» en la lista de precios (5/11): el protocolo de implementación a pedido, con un filete a un lado */
+.plist-branch{margin:var(--s-4) 0 0;padding-inline-start:var(--s-16);border-inline-start:2px solid var(--md-on-bg);font:500 15px/1.5 var(--font-ui);color:var(--md-on-var);max-width:52ch}
+.plist-branch a{color:var(--md-on-bg);font-weight:700;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+/* invitación del final del informe (5/11): leer el informe con ella o pedir los pasos; tarjeta de acción: borde de 1 px, botones a ancho completo en celular */
+.rp-invite.m-card{border:1px solid #D7D7D2}
+.rp-invite{display:grid;gap:var(--s-12);justify-items:start}.rp-invite>*{margin:0}.rp-invite .cta-row{margin-top:var(--s-4)}
+@media(max-width:700px){.rp-invite .cta-row{width:100%;display:grid;gap:var(--s-8);justify-self:stretch}.rp-invite .m-btn{width:100%;justify-content:center;text-align:center}}
+@media(max-width:700px){.manual .cta-row{width:100%}.manual .m-btn{width:100%;justify-content:center;text-align:center}}

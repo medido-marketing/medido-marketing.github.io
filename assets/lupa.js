@@ -53,7 +53,6 @@
   function iso(t) { return cfg.lang === "he" ? "⁦" + t + "⁩" : t; }
   function sealClass(s) { return s === "verified" ? "m-tag m-tag--ver" : s === "inferred" ? "m-tag m-tag--inf" : s === "reported" ? "m-tag m-tag--rep" : "m-tag m-tag--not"; }
   var STATE = { problem: "✕", warn: "!", ok: "✓", info: "i" };
-  function stateLabel(s) { var b = el("span", "stlabel st-" + s); b.appendChild(el("b", null, STATE[s] || "i")); b.appendChild(el("span", null, J[s] || s)); return b; }
 
   function show(id, on) { var n = d.getElementById(id); if (n) n.hidden = !on; }
 
@@ -242,7 +241,7 @@
         q.textContent = (s.queue && s.queue.text) || ""; q.hidden = !(s.queue && s.queue.text);
         if (s.queue && s.queue.manual) { q.appendChild(d.createTextNode(" " + s.queue.manual.p + " ")); var qa = el("a", null, s.queue.manual.btn); qa.href = mailto(s.queue.manual.subject, s.queue.manual.body, "help", lastUrl); q.appendChild(qa); }
       }
-      if (s.queue && s.queue.wait && !waitShown && !s.steps.length) { logLine("ev", s.queue.wait); waitShown = true; }
+      if (s.queue && s.queue.wait && !waitShown && !s.steps.length) { logLine("wait", s.queue.wait); waitShown = true; }   // «wait»: sin tilde, que en el sistema quiere decir «hecho»
       while (shown < s.steps.length) { addStep(s.steps[shown], shown + 1); shown++; }
       if (s.done) {
         if (s.error) return s.contact ? failContact(s.error) : fail(s.error);
@@ -314,24 +313,9 @@
   function facts(r) {
     var h = hintsOf(r), out = [];
     (r.main || []).forEach(function (f) { if (h && h.legacy && f.seal === "not_seen" && (f.id === "dup" || f.id === "click")) return; out.push(f); });
-    (r.more || []).forEach(function (m) { out.push({ id: m.id, title: m.title, state: m.state, sentence: m.text, evidence: m.evidence || [], why: m.why || "", action: m.action || "", agency: m.agency || "", check: [], seal: "", lite: true }); });
+    (r.more || []).forEach(function (m) { out.push({ id: m.id, title: m.title, state: m.state, sentence: m.text, evidence: m.evidence || [], why: m.why || "", action: m.action || "", agency: m.agency || "", check: [], seal: m.seal || "", seal_label: m.seal_label || "", lite: true }); });
     out.sort(function (a, b) { return (ORDER[a.state] == null ? 9 : ORDER[a.state]) - (ORDER[b.state] == null ? 9 : ORDER[b.state]); });
     return out;
-  }
-  function questions(r) {
-    var qs = [];
-    facts(r).forEach(function (f) { if (f.agency) qs.push({ q: f.agency, from: f.title }); });
-    return qs;
-  }
-  function agencyText(r) {
-    var host = ""; try { host = new URL(r.url).hostname; } catch (e) {}
-    var lines = [J.kit_intro.replace("{host}", host).replace("{date}", r.date), ""];
-    var n = 1;
-    questions(r).forEach(function (q) { lines.push(n + ". " + q.q); n++; });
-    cfg.kit.forEach(function (q) { lines.push(n + ". " + q); n++; });
-    lines.push("", J.fact + ":");
-    facts(r).forEach(function (f) { lines.push("- " + f.title + (f.seal_label ? " [" + f.seal_label + "]" : "") + ": " + f.sentence); });
-    return lines.join("\n");
   }
   function readingText(r) {
     var lines = [J.reading_of + " " + r.url, r.date + " · " + r.point_of_view, "", r.headline, "", J.b1_h + ":"];
@@ -343,61 +327,219 @@
   }
 
   // ---------- piezas ----------
-  function block(cls, kicker, title) {
-    var b = el("section", "rblock " + (cls || ""));
-    if (kicker) b.appendChild(el("p", "t-label rblock-k", kicker));
-    if (title) b.appendChild(el("h3", "t-title rblock-h", title));
-    return b;
+  // Textos nuevos del informe (variante A, 4/11): vienen de J.rp_* (content.py). Estos son los de respaldo en inglés, para probar sin ellos;
+  // el botón de PDF solo se muestra si J.rp_pdf existe (Web lo enciende junto con los estilos de impresión).
+  var RP = {
+    rp_pdf: "Download PDF", rp_pdf_all: "Download the full reading (PDF)", rp_pdf_note: "The rest of the reading (what can't be seen from outside, what changed, what comes next) is in the PDF.",
+    rp_size: "The real size", rp_sum: "{n} checks: {ok} in order, {act} to act on, {know} to know.", rp_price_note: "US$925 · the reading above stays free",
+    rp_ok_k: "In order · {n}", rp_ok_h: "What is in order", rp_fix_k: "To fix first", rp_warn_k: "Worth a look", rp_know_k: "To know · {n}", rp_know_h: "What I saw, without a verdict",
+    rp_check_n: "Check it yourself · {n} steps", rp_diag_k: "The Diagnosis", rp_cant_k: "Not visible from outside", rp_after_k: "Afterwards",
+    rp_inv_h: "Want to go through this report together?", rp_inv_p: "I can read it with you, or send you the detailed steps to fix what I found. The steps are requested, not bought.", rp_inv_read: "Read the report with me", rp_inv_steps: "Request the detailed steps",
+    rp_perma: "Permanent link", rp_free: "The reading above stays free and complete whether you ask or not."
+  };
+  function X(k, v) { var s = J[k] != null ? J[k] : (RP[k] || ""); if (v) for (var p in v) s = s.split("{" + p + "}").join(v[p]); return s; }
+  var PDF_ON = J.rp_pdf != null;
+
+  // Hebreo (RTL): lo que va en letras latinas dentro de una frase (identificadores, eventos, direcciones, fechas) se aísla con <bdi> para que no se desordene.
+  var BDI_RX = /\b(?:G|AW|GTM|UA|GT)-[A-Z0-9][A-Z0-9-]{3,}\b|\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b|\b(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s,;)"]*)?|\b\d{4}-\d{2}-\d{2}\b|\bGA4\b/gi;
+  function rich(node, text) {
+    text = String(text == null ? "" : text);
+    if (cfg.lang !== "he") { node.appendChild(d.createTextNode(text)); return node; }
+    var last = 0, m; BDI_RX.lastIndex = 0;
+    while ((m = BDI_RX.exec(text))) { if (m.index > last) node.appendChild(d.createTextNode(text.slice(last, m.index))); node.appendChild(el("bdi", null, m[0])); last = m.index + m[0].length; }
+    if (last < text.length) node.appendChild(d.createTextNode(text.slice(last)));
+    return node;
   }
-  function metaRow(label, text, extraCls) { var w = el("div", "fmeta" + (extraCls ? " " + extraCls : "")); w.appendChild(el("span", "t-label", label)); w.appendChild(el("p", null, text)); return w; }
-  function checkDetails(f) {
-    if (!(f.check && f.check.length)) return null;
-    var dt = el("details", "fdet"); dt.appendChild(el("summary", "m-state", J.check));
-    var ol = el("ol"); f.check.forEach(function (s) { ol.appendChild(el("li", null, s)); }); dt.appendChild(ol); return dt;
+  function elr(tag, cls, txt) { return rich(el(tag, cls), txt); }
+  function sign(state) { return el("span", "rp-sg rp-sg-" + state, STATE[state] || "i"); }
+  function sealTag(f) { return f.seal ? el("span", sealClass(f.seal), f.seal_label) : null; }
+  function evidence(f) {
+    if (!(f.evidence && f.evidence.length)) return null;
+    var ev = el("p", "rp-evs"); f.evidence.slice(0, 4).forEach(function (e) { var s = el("span", "rp-ev", iso(e)); ev.appendChild(s); }); return ev;
   }
+  function stepsOl(list) { var ol = el("ol", "rp-stp"); list.forEach(function (s) { ol.appendChild(elr("li", null, s)); }); return ol; }
+  // ¿Es correcto? (sí / no / no sé): se suma al conteo de aciertos del Worker
   function feedback(f) {
     if (!(f.id && window.__readId)) return null;
-    var fb = el("div", "ffb"); fb.setAttribute("aria-live", "polite"); fb.appendChild(el("span", "t-note", J.fb_q));
+    var fb = el("div", "rp-ok3"); fb.setAttribute("aria-live", "polite"); fb.appendChild(el("span", "t-note", J.fb_q));
+    var chips = el("span", "rp-chips");
     [["correct", J.fb_yes], ["incorrect", J.fb_no], ["unknown", J.fb_unk]].forEach(function (p) {
       var b2 = el("button", "m-chip", p[1]); b2.type = "button";
       b2.addEventListener("click", function () {
         fetch(API + "/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ read_id: window.__readId, finding: f.id, verdict: p[0] }) }).catch(function () {});
         fb.textContent = ""; fb.appendChild(el("span", "t-note", J.fb_thanks));
       });
-      fb.appendChild(b2);
+      chips.appendChild(b2);
     });
-    return fb;
+    fb.appendChild(chips); return fb;
   }
-  function evidence(f) { if (!(f.evidence && f.evidence.length)) return null; var ev = el("p", "m-source"); ev.textContent = J.evidence + ": " + f.evidence.slice(0, 4).map(iso).join(" · "); return ev; }
+  function block(cls, kicker, title) {
+    var b = el("section", "rp-blk " + (cls || ""));
+    if (kicker || title) { var h = el("header", "rp-bh"); if (kicker) h.appendChild(el("p", "t-label", kicker)); if (title) h.appendChild(el("h3", "t-title", title)); b.appendChild(h); }
+    return b;
+  }
+  function pdfButton(cls, label) {
+    if (!PDF_ON) return null;
+    var b = el("button", cls, label); b.type = "button";
+    b.addEventListener("click", function () {
+      var host = hostOf((lastResult && lastResult.url) || lastUrl), old = d.title;
+      d.title = "Medido · " + host;                                  // el nombre con que el navegador propone guardar el PDF
+      var back2 = function () { d.title = old; window.removeEventListener("afterprint", back2); };
+      window.addEventListener("afterprint", back2);
+      emit("pdf_downloaded"); siteEvent("pdf_downloaded", (lastResult && lastResult.url) || lastUrl);
+      try { window.print(); } catch (e) { back2(); }
+    });
+    return b;
+  }
+  function diagHref(r) { var A = cfg.ask; return A ? mailto(A.ask_subject, A.ask_body.replace("{url}", r.url || lastUrl).replace("{langname}", A.lang_name).replace("{spend}", J.spend_labels[spend]), "diag", r.url || lastUrl) : ""; }
 
-  // Un hecho: qué vi (sello + frase + evidencia) · para vos · qué hacer (y cómo la segunda lectura lo confirma) · comprobalo vos · ¿es correcto?
-  function finding(f, i) {
-    var c = el("article", "finding st-" + f.state + (f.lite ? " finding--lite" : "")); c.style.setProperty("--i", i);
-    var top = el("div", "ftop"); top.appendChild(stateLabel(f.state)); if (f.seal) top.appendChild(el("span", sealClass(f.seal), f.seal_label)); c.appendChild(top);
-    c.appendChild(el("h4", "t-title ftitle", f.title));
-    c.appendChild(el("p", "fsent", f.sentence));
+  // La banda negra: el tamaño real de la lectura (cuántas cosas se miraron y cómo salieron) y el pedido del Diagnóstico
+  function summary(r, all) {
+    var c = { problem: 0, warn: 0, info: 0, ok: 0 }; all.forEach(function (f) { if (c[f.state] != null) c[f.state]++; });
+    var n = c.problem + c.warn + c.info + c.ok, sec = el("section", "rp-sum"); sec.setAttribute("data-surface", "negro"); sec.setAttribute("aria-label", X("rp_size"));
+    var ringW = el("div", "rp-sum-ring"), ring = el("span", "m-ring"); ring.setAttribute("aria-hidden", "true"); ring.style.setProperty("--p", n ? Math.round(c.ok / n * 100) : 0);
+    ringW.appendChild(ring); ringW.appendChild(el("b", null, String(c.ok))); sec.appendChild(ringW);
+    var tx = el("div", "rp-sum-txt");
+    tx.appendChild(el("p", "t-label", X("rp_size")));
+    tx.appendChild(el("p", "rp-sum-h", X("rp_sum", { n: n, ok: c.ok, act: c.problem + c.warn, know: c.info })));
+    var segs = el("div", "rp-segs"); segs.setAttribute("aria-hidden", "true");
+    ["problem", "warn", "info", "ok"].forEach(function (s) { for (var i = 0; i < c[s]; i++) segs.appendChild(el("i", "rp-s-" + s)); }); tx.appendChild(segs);
+    var ul = el("ul", "rp-stats");
+    ["problem", "warn", "info", "ok"].forEach(function (s) { var li = el("li"); li.appendChild(sign(s)); li.appendChild(el("b", null, String(c[s]))); li.appendChild(el("span", null, J[s] || s)); ul.appendChild(li); });
+    tx.appendChild(ul);
+    if (cfg.ask) {
+      var cta = el("div", "rp-sum-cta"), a = el("a", "rp-wbtn", cfg.ask.ask_btn); a.href = diagHref(r);
+      a.addEventListener("click", function () { emit("diagnosis_cta_clicked", { where: "summary" }); }); cta.appendChild(a); cta.appendChild(el("span", "rp-sum-p", X("rp_price_note"))); tx.appendChild(cta);
+    }
+    sec.appendChild(tx); return sec;
+  }
+  // Lo que está en orden: una lista visible, lo primero
+  function okList(fine) {
+    var b = block("rp-ok", X("rp_ok_k", { n: fine.length }), X("rp_ok_h")), ul = el("ul", "rp-list");
+    fine.forEach(function (f) {
+      var li = el("li", "rp-row"); li.appendChild(sign("ok"));
+      var t = el("div"); t.appendChild(el("b", null, f.title)); t.appendChild(elr("span", "rp-sup", f.sentence)); li.appendChild(t);
+      var st = sealTag(f); if (st) li.appendChild(st);              // cada fila con su sello (Manual de marca, 4/11); una lectura vieja sin sello no pone nada
+      ul.appendChild(li);
+    });
+    b.appendChild(ul); return b;
+  }
+  // Un problema: tarjeta grande. Qué vi · para vos · qué hacer | comprobalo vos · para tu agencia · ¿es correcto?
+  function problemCard(f) {
+    var c = el("article", "rp-pcard"), main = el("div", "rp-pc-main"), top = el("div", "rp-pc-top"); top.appendChild(sign(f.state)); var st = sealTag(f); if (st) top.appendChild(st); main.appendChild(top);
+    main.appendChild(el("h3", "rp-pc-h", f.title)); main.appendChild(elr("p", "rp-pc-s", f.sentence));
+    var ev = evidence(f); if (ev) main.appendChild(ev);
+    if (f.why) { var w = el("blockquote", "rp-why"); w.appendChild(el("span", "t-label", J.lab_why)); rich(w, f.why); main.appendChild(w); }
+    if (f.action) { var dd = el("div", "rp-do"); dd.appendChild(el("span", "t-label", J.lab_do)); dd.appendChild(elr("p", null, f.action)); if (f.state !== "ok") dd.appendChild(el("p", "t-note", J.do_reread)); main.appendChild(dd); }
+    c.appendChild(main);
+    var side = el("div", "rp-pc-side");
+    if (f.check && f.check.length) { side.appendChild(el("p", "t-label", X("rp_check_n", { n: f.check.length }))); side.appendChild(stepsOl(f.check)); }
+    var fb = feedback(f); if (fb) side.appendChild(fb);
+    if (side.childNodes.length) c.appendChild(side);
+    return c;
+  }
+  // A revisar: tarjeta punteada, escala media. Un hallazgo inferido ya trae su titular en forma de pregunta (lo decide el Worker).
+  function warnCard(f) {
+    var c = el("article", "rp-wcard"), top = el("div", "rp-wc-top"); top.appendChild(sign(f.state)); var st = sealTag(f); if (st) top.appendChild(st); c.appendChild(top);
+    c.appendChild(el("h3", "t-title", f.title)); c.appendChild(elr("p", "t-body", f.sentence));
     var ev = evidence(f); if (ev) c.appendChild(ev);
-    if (f.why) c.appendChild(metaRow(J.lab_why, f.why));
-    if (f.action) { var ar = metaRow(J.lab_do, f.action, "fdo"); if (f.state !== "ok") ar.appendChild(el("p", "t-note", J.do_reread)); c.appendChild(ar); }
-    var dt = checkDetails(f); if (dt) c.appendChild(dt);
-    if (f.agency) { var ag = el("p", "fagency-line t-support"); ag.appendChild(el("b", null, J.agency + ": ")); ag.appendChild(d.createTextNode(f.agency)); c.appendChild(ag); }
+    if (f.why) { var w = el("p", "t-support"); w.appendChild(el("b", null, J.lab_why + ": ")); rich(w, f.why); c.appendChild(w); }
+    if (f.action) { var dd = el("p", "t-support"); dd.appendChild(el("b", null, J.lab_do + ": ")); rich(dd, f.action); c.appendChild(dd); c.appendChild(el("p", "t-note", J.do_reread)); }
+    if (f.check && f.check.length) { var dt = el("details", "rp-det"); dt.appendChild(el("summary", null, J.check)); dt.appendChild(stepsOl(f.check)); c.appendChild(dt); }
     var fb = feedback(f); if (fb) c.appendChild(fb);
     return c;
   }
-  // Un hecho "bien": una línea, sin ceremonia.
-  function okRow(f) {
-    var li = el("li", "okrow"); li.appendChild(stateLabel(f.state)); var t = el("span"); t.appendChild(el("b", null, f.title + (/[?!]$/.test(f.title) ? " " : ". "))); t.appendChild(d.createTextNode(f.sentence)); li.appendChild(t); return li;
-  }
-  // Una pista del código (bloque 3): sello inferido o no lo vi, texto, evidencia, comprobalo vos.
-  function hintCard(h) {
-    var c = el("article", "hint st-" + h.state);
-    var top = el("div", "ftop"); top.appendChild(stateLabel(h.state)); top.appendChild(el("span", sealClass(h.seal), h.seal_label)); c.appendChild(top);
-    c.appendChild(el("h4", "t-title ftitle", h.title));
-    c.appendChild(el("p", "fsent", h.text));
-    var ev = evidence(h); if (ev) c.appendChild(ev);
-    var dt = checkDetails(h); if (dt) c.appendChild(dt);
-    var fb = feedback(h); if (fb) c.appendChild(fb);
+  // Para saber: tarjeta chica, sin veredicto; cómo comprobarlo y qué preguntar, plegado
+  function infoCard(f) {
+    var c = el("article", "rp-icard"), top = el("div", "rp-ic-top"); top.appendChild(sign(f.state)); var st = sealTag(f); if (st) top.appendChild(st); c.appendChild(top); c.appendChild(el("h4", null, f.title)); c.appendChild(elr("p", "t-support", f.sentence));
+    var ev = evidence(f); if (ev) c.appendChild(ev);
+    if (f.why) c.appendChild(elr("p", "t-support", J.lab_why + ": " + f.why));
+    if (f.action) c.appendChild(elr("p", "t-support", J.lab_do + ": " + f.action));
+    if (f.check && f.check.length) { var dt = el("details", "rp-det"); dt.appendChild(el("summary", null, J.check)); dt.appendChild(stepsOl(f.check)); c.appendChild(dt); }
+    var fb = feedback(f); if (fb) c.appendChild(fb);
     return c;
+  }
+  // Pistas del código (solo cuando esta lectura no abrió un navegador): como "a revisar", con el sello inferido o "no lo vi"
+  function hintCard(h) { return warnCard({ id: h.id, state: h.state, seal: h.seal, seal_label: h.seal_label, title: h.title, sentence: h.text, evidence: h.evidence, check: h.check }); }
+
+  // Lo que no se ve desde afuera + el Diagnóstico (solo computadora)
+  function cantSee(r) {
+    var access = [], never = [];
+    (r.cant_see || []).forEach(function (c, i) { var grp = c.group || (i < 4 ? "access" : "never"); (grp === "never" ? never : access).push(c); });
+    var b = block("rp-cant rp-desk", X("rp_cant_k"), J.b4_h);
+    if (access.length) {
+      b.appendChild(el("p", "t-support", J.b4_access));
+      var g = el("div", "rp-dcs"); access.forEach(function (c) { var a = el("article", "m-datacard"); a.appendChild(el("h4", null, c.title)); a.appendChild(elr("p", "t-support", c.text)); g.appendChild(a); }); b.appendChild(g);
+    }
+    if (never.length) {
+      var nv = el("p", "t-note rp-nev"); nv.appendChild(el("b", null, J.b4_never + " "));
+      never.forEach(function (c, i) { if (i) nv.appendChild(d.createTextNode(" · ")); nv.appendChild(el("b", null, c.title)); rich(nv, " (" + c.text.replace(/\.$/, "") + ")"); });
+      b.appendChild(nv);
+    }
+    if (cfg.ask) {
+      var dg = el("div", "rp-diag"), l = el("div"); l.appendChild(el("p", "t-label", X("rp_diag_k"))); l.appendChild(el("p", "rp-diag-p", J.b4_diag)); dg.appendChild(l);
+      var rr = el("div", "rp-diag-r"), a = el("a", "m-btn m-btn--filled", cfg.ask.ask_btn); a.href = diagHref(r); a.addEventListener("click", function () { emit("diagnosis_cta_clicked", { where: "card" }); }); rr.appendChild(a);
+      if (cfg.diag_href) { var dl = el("a", "rp-lnk", J.b4_link); dl.href = cfg.diag_href; rr.appendChild(dl); }
+      dg.appendChild(rr); b.appendChild(dg); b.appendChild(el("p", "t-note", X("rp_free")));
+    }
+    return b;
+  }
+  // Invitación (Débora, 5/11), en el lugar de las preguntas para la agencia: leer el informe con ella, o pedir los pasos detallados para solucionar
+  // (se piden, no se compran: formulario de contacto en modo «steps», con el sitio y la lectura). Reemplaza también la tarjeta de próximos pasos.
+  function invite(r) {
+    var host = hostOf(r.final_url || r.url || lastUrl).replace(/^www\./, ""), c = el("section", "rp-invite m-card m-card--accent"), row = el("div", "cta-row");
+    c.appendChild(el("h3", "t-title", X("rp_inv_h"))); c.appendChild(el("p", "t-body", X("rp_inv_p")));
+    if (cfg.contact) {
+      var a = el("a", "m-btn m-btn--filled", X("rp_inv_steps")); a.href = cfg.contact + "?m=steps&site=" + encodeURIComponent(host) + (r.read_id ? "&r=" + encodeURIComponent(r.read_id) : "");
+      a.addEventListener("click", function () { siteEvent("steps_cta_clicked", r.url); emit("next_step_clicked", { option: "steps" }); }); row.appendChild(a);   // un solo evento por botón (Medición, 5/11)
+    }
+    var bk = cfg.booking || {}, url = r.url || lastUrl, rd;
+    if (bk.talk) { rd = el("a", "m-btn m-btn--outlined", X("rp_inv_read")); rd.href = bk.talk + "?site=" + encodeURIComponent(url); rd.target = "_blank"; rd.rel = "noopener"; rd.addEventListener("click", function () { emit("next_step_clicked", { option: "read_together" }); emit("meeting_requested", { via: "report" }); }); }   // meeting_requested es evento clave (paso 4 del embudo)
+    else if (cfg.contact) { rd = el("a", "m-btn m-btn--outlined", X("rp_inv_read")); rd.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", url), "hello", url); rd.addEventListener("click", function () { emit("next_step_clicked", { option: "read_together" }); emit("meeting_requested", { via: "report" }); }); }
+    if (rd) row.appendChild(rd);
+    c.appendChild(row); return c;
+  }
+  // «Qué cambió» (J.changes_*): con Segunda lectura va justo después de «Lo que desbloqueaste»; en una lectura que se repite sin pagar, en la franja del final
+  function changesCard(r) {
+    var chg = el("article", "rp-chg m-card"); chg.appendChild(el("h4", null, J.changes_h + (r.previous && r.previous.date ? " (" + iso(r.previous.date) + ")" : "")));
+    if (!r.previous.changes.length) chg.appendChild(el("p", "t-support", J.changes_none));
+    else {
+      var cl = el("ul"); r.previous.changes.forEach(function (c) {
+        var t = c.what + ": ", raw = function (v) { return typeof v === "string" ? v : JSON.stringify(v); };
+        if (c.added || c.removed) t += (c.added && c.added.length ? "+ " + c.added.join(", ") + " " : "") + (c.removed && c.removed.length ? "− " + c.removed.join(", ") : "");
+        else t += raw(c.from) + " → " + raw(c.to);
+        cl.appendChild(elr("li", "t-mono", t));
+      }); chg.appendChild(cl);
+    }
+    return chg;
+  }
+  // La franja del final: solo cuando hay una lectura anterior y no es una Segunda lectura; solo en computadora salvo que traiga cambios. La primera lectura no la lleva.
+  function strip(r) {
+    if (!r.previous || r.second) return null;
+    var s = el("section", "rp-strip" + (r.previous.changes.length ? "" : " rp-desk")); s.appendChild(changesCard(r)); return s;
+  }
+  // Segunda lectura pendiente (pagó y el navegador no estuvo): va ARRIBA de todo el informe, en computadora y en celular
+  function pendingCard(r) { var sp = el("article", "rp-pend m-card"); sp.appendChild(el("h4", null, r.second_pending.h)); sp.appendChild(el("p", "t-support", r.second_pending.p)); return sp; }
+  // La Segunda lectura comparada: lo que se desbloqueó, mejoró o se rompió (se ve en celular también: es lo que la persona pagó)
+  function secondBox(r) {
+    var un = el("section", "rp-second m-card m-card--accent"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
+    var list = function (arr, mark) { var ul = el("ul", "rp-cantlist"); arr.forEach(function (x) { ul.appendChild(el("li", null, mark + " " + x)); }); un.appendChild(ul); };
+    if (r.second.unlocked.length) list(r.second.unlocked, "✓");
+    if (r.second.better && r.second.better.length && r.second.t.better) { un.appendChild(el("p", "t-body", r.second.t.better)); list(r.second.better, "↗"); }
+    if (r.second.worse && r.second.worse.length && r.second.t.worse) { un.appendChild(el("p", "t-body", r.second.t.worse)); list(r.second.worse, "✕"); }
+    var nxp = el("p", "t-body"); nxp.appendChild(el("b", null, r.second.t.next)); un.appendChild(nxp); return un;
+  }
+  // Compartir: el enlace abre esta misma lectura, ya hecha, durante 30 días (?r=id); sin id (lecturas viejas), el de antes
+  function shareLink(r) { return location.origin + location.pathname + (r.read_id ? "?r=" + encodeURIComponent(r.read_id) : "?site=" + encodeURIComponent(r.url || lastUrl)); }
+  function shareButton(r) {
+    var host = hostOf(r.url || lastUrl), link = shareLink(r), b = el("button", "m-btn m-btn--outlined", J.share); b.type = "button";
+    b.addEventListener("click", function () {
+      var text = J.share_text.replace("{host}", host);
+      if (navigator.share) { navigator.share({ title: J.share_subject.replace("{host}", host), text: text, url: link }).then(function () { emit("reading_shared", { how: "native" }); }).catch(function () {}); }
+      else { window.medidoCopy(text + " " + link, b, J.copied); emit("reading_shared", { how: "copy" }); }
+      siteEvent("shared", r.url);
+    });
+    return b;
   }
 
   var lastResult = null;
@@ -406,179 +548,122 @@
     if (r.coupon && !r.recorded) cpKeep(r.url || lastUrl, r.coupon);
     window.__readId = r.read_id || null;
     var root = $("#result-in"); root.textContent = "";
+    var rep = el("div", "rp-rep"); root.appendChild(rep);
     var host = ""; try { host = new URL(r.final_url || r.url).hostname; } catch (e) {}
-    var head = el("div", "rhead");
-    head.appendChild(el("p", "t-label", J.reading_of + " " + host));
-    head.appendChild(el("p", "t-mono rmeta", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + (r.loads === 1 && J.loads_label_one ? J.loads_label_one : J.loads_label) + " · " + iso(r.elapsed + " s")));
-    if (r.recorded) head.appendChild(el("p", "t-note", J.ex_recorded.replace("{date}", r.date)));
-    else if (r.cached) head.appendChild(el("p", "t-note", r.cached_note || J.cached));
-    root.appendChild(head);
+
+    // 1 · cabecera: de dónde y cuándo se leyó; Compartir y Descargar a un lado
+    var head = el("header", "rp-head"), meta = el("div", "rp-head-meta");
+    meta.appendChild(el("p", "t-label", J.reading_of + " " + host));
+    meta.appendChild(el("p", "t-mono", iso(r.date) + " · " + J.pov + ": " + r.point_of_view + " · " + r.loads + " " + (r.loads === 1 && J.loads_label_one ? J.loads_label_one : J.loads_label) + " · " + iso(r.elapsed + " s")));
+    if (r.recorded) meta.appendChild(el("p", "t-note", J.ex_recorded.replace("{date}", r.date)));
+    else if (r.cached) meta.appendChild(el("p", "t-note", r.cached_note || J.cached));
+    head.appendChild(meta);
+    if (!r.unreadable) { var act = el("div", "rp-head-act"); act.appendChild(shareButton(r)); var pb = pdfButton("m-btn m-btn--outlined", X("rp_pdf")); if (pb) act.appendChild(pb); head.appendChild(act); }
+    rep.appendChild(head);
+    if (r.second_pending) rep.appendChild(pendingCard(r));
 
     if (r.unreadable) {
       var u = el("div", "unread m-card"); u.appendChild(el("h2", "t-headline", J.unreadable_h));
       [[J.unreadable_cause, r.unreadable.cause], [J.unreadable_tried, r.unreadable.tried], [J.unreadable_needs, r.unreadable.needs]].forEach(function (p) { u.appendChild(el("p", "t-label", p[0])); u.appendChild(el("p", "t-body", p[1])); });
-      root.appendChild(u);
+      rep.appendChild(u);
       if (r.manual) {                                                                // el sitio frena a Lupa: la lectura a mano, en 48 horas
         var mt = r.manual.t, mc = el("div", "m-card m-card--accent manual");
         mc.appendChild(el("h3", "t-title", mt.h)); mc.appendChild(el("p", "t-body", mt.p));
         var ma = el("a", "m-btn m-btn--filled", mt.btn); ma.href = mailto(mt.subject, mt.body, "help", r.url || lastUrl);
         ma.addEventListener("click", function () { siteEvent("manual_requested", r.url); emit("manual_requested"); });
-        var mr = el("div", "cta-row"); mr.appendChild(ma); mc.appendChild(mr); root.appendChild(mc);
+        var mr = el("div", "cta-row"); mr.appendChild(ma); mc.appendChild(mr); rep.appendChild(mc);
       }
-      actions(root, r); reveal(); return;
-    }
-    var hl = el("h2", "t-headline rhl", r.headline); hl.tabIndex = -1; root.appendChild(hl);
-
-    // 1 · Lo que vi (hacelo vos): hechos por gravedad; los "bien" en una línea al final
-    var all = facts(r), loud = all.filter(function (f) { return f.state !== "ok"; }), fine = all.filter(function (f) { return f.state === "ok"; });
-    var b1 = block("b1", J.b1_k, J.b1_h);
-    var g = el("div", "findings"); loud.forEach(function (f, i) { g.appendChild(finding(f, i)); }); b1.appendChild(g);
-    if (fine.length) { var ul = el("ul", "okrows"); fine.forEach(function (f) { ul.appendChild(okRow(f)); }); b1.appendChild(ul); }
-    root.appendChild(b1);
-
-    // 2 · Preguntale a tu agencia: las preguntas que salen de los hechos, numeradas, con un solo botón
-    var qs = questions(r);
-    if (qs.length) {
-      var b2 = block("b2", J.b2_k, J.b2_h);
-      var ol = el("ol", "agq"); qs.forEach(function (q) { var li = el("li"); li.appendChild(el("span", null, q.q)); li.appendChild(el("small", "t-note", q.from)); ol.appendChild(li); }); b2.appendChild(ol);
-      var row2 = el("div", "cta-row");
-      var cb = el("button", "m-btn m-btn--outlined", J.b2_copy); cb.type = "button"; cb.addEventListener("click", function () { window.medidoCopy(agencyText(r), cb, J.copied); emit("questions_copied", { what: "all" }); siteEvent("copied_agency", r.url); }); row2.appendChild(cb);
-      b2.appendChild(row2);
-      b2.appendChild(el("p", "t-support", J.b2_more));
-      b2.appendChild(el("p", "t-body b2note", J.b2_note));
-      root.appendChild(b2);
+      rep.appendChild(endBlock(r, false)); reveal(); return;
     }
 
-    // 3 · Lo que un navegador confirma: solo cuando esta lectura no abrió uno (pistas del código); con navegador, duplicados y clics ya son hechos del bloque 1
+    // 2 · titular
+    var hl = elr("h2", "t-display rp-hl", r.headline); hl.tabIndex = -1; rep.appendChild(hl);
+    var all = facts(r), pro = all.filter(function (f) { return f.state === "problem"; }), wrn = all.filter(function (f) { return f.state === "warn"; }),
+        inf = all.filter(function (f) { return f.state === "info"; }), fine = all.filter(function (f) { return f.state === "ok"; });
+    // 3 · la banda negra con el tamaño real y el pedido del Diagnóstico
+    rep.appendChild(summary(r, all));
+    // 4 · lo que está en orden, primero
+    if (fine.length) rep.appendChild(okList(fine));
+    // 5 · el problema · 6 · a revisar · pistas del código (lecturas sin navegador) · 7 · para saber
+    if (pro.length) { var bp = block("rp-hero", X("rp_fix_k")); pro.forEach(function (f) { bp.appendChild(problemCard(f)); }); rep.appendChild(bp); }
     var h = hintsOf(r);
-    if (h) {
-      var b3 = block("b3", J.b3_k, J.b3_h);
-      if (r.checks && r.checks.browser_load === "failed") b3.appendChild(el("p", "t-support", J.b3_fallback));
-      if (h.note) b3.appendChild(el("p", "t-support", h.note));
-      var hg = el("div", "hints"); [h.dup, h.click].forEach(function (x) { if (x) hg.appendChild(hintCard(x)); }); b3.appendChild(hg);
-      var paths = el("div", "paths"); paths.appendChild(el("p", "t-label", J.b3_paths_h));
-      var pl = el("ol", "paths-list");
-      [[J.b3_self, J.b3_self_d], [J.b3_me, J.b3_me_d]].forEach(function (p) { var li = el("li"); li.appendChild(el("b", null, p[0])); li.appendChild(el("span", null, p[1])); pl.appendChild(li); });
-      paths.appendChild(pl); b3.appendChild(paths);
-      root.appendChild(b3);
-    }
-
-    // 4 · Lo que no se ve desde afuera: con acceso de lectura (el Diagnóstico) o nunca
-    var access = [], never = [];
-    (r.cant_see || []).forEach(function (c, i) { var grp = c.group || (i < 4 ? "access" : "never"); (grp === "never" ? never : access).push(c); });
-    var b4 = block("b4 m-card--accent", null, J.b4_h);
-    if (access.length) {
-      b4.appendChild(el("p", "t-body", J.b4_access));
-      var ul4 = el("ul", "cantlist"); access.forEach(function (c) { var li = el("li"); li.appendChild(el("b", null, c.title)); li.appendChild(el("span", "t-support", c.text)); ul4.appendChild(li); }); b4.appendChild(ul4);
-    }
-    var diag = el("p", "t-body b4diag"); diag.appendChild(el("b", null, J.b4_diag)); b4.appendChild(diag);
-    if (cfg.ask) {
-      var A = cfg.ask, arow = el("div", "cta-row"), aa = el("a", "m-btn m-btn--filled", A.ask_btn);
-      aa.href = mailto(A.ask_subject, A.ask_body.replace("{url}", r.url || lastUrl).replace("{langname}", A.lang_name).replace("{spend}", J.spend_labels[spend]), "diag", r.url || lastUrl);
-      arow.appendChild(aa);
-      if (cfg.diag_href) { var dl = el("a", "m-btn m-btn--text", J.b4_link); dl.href = cfg.diag_href; arow.appendChild(dl); }
-      b4.appendChild(arow); b4.appendChild(el("p", "t-note", A.ask_note));
-    }
-    if (never.length) {
-      var nv = el("p", "t-support b4never"); nv.appendChild(el("b", null, J.b4_never + " ")); nv.appendChild(d.createTextNode(never.map(function (c) { return c.title + " (" + c.text.replace(/\.$/, "") + ")"; }).join(" · ") + "."));
-      b4.appendChild(nv);
-    }
-    root.appendChild(b4);
-
-    // qué cambió (segunda lectura comparada)
-    var chg = el("div", "changes m-card"); chg.appendChild(el("h3", "t-title", J.changes_h + (r.previous && r.previous.date ? " (" + iso(r.previous.date) + ")" : "")));
-    if (!r.previous) chg.appendChild(el("p", "t-support", J.first));
-    else if (!r.previous.changes.length) chg.appendChild(el("p", "t-support", J.changes_none));
-    else {
-      var cl = el("ul"); r.previous.changes.forEach(function (c) {
-        var t = c.what + ": ", raw = function (v) { return typeof v === "string" ? v : JSON.stringify(v); };
-        if (c.added || c.removed) t += (c.added && c.added.length ? "+ " + c.added.join(", ") + " " : "") + (c.removed && c.removed.length ? "− " + c.removed.join(", ") : "");
-        else t += raw(c.from) + " → " + raw(c.to);
-        cl.appendChild(el("li", "t-mono", t));
-      }); chg.appendChild(cl);
-    }
-    root.appendChild(chg);
-    if (r.second_pending) {                                                        // pagó y el navegador no estuvo: esta lectura no cuenta como la Segunda
-      var sp = el("div", "m-card m-card--accent unlocks"); sp.appendChild(el("h3", "t-title", r.second_pending.h)); sp.appendChild(el("p", "t-body", r.second_pending.p)); root.appendChild(sp);
-    }
-    if (r.second) {
-      var un = el("div", "m-card m-card--accent unlocks"); un.appendChild(el("h3", "t-title", r.second.t.h)); un.appendChild(el("p", "t-body", r.second.t.lead));
-      if (r.second.unlocked.length) { var ul5 = el("ul", "cantlist"); r.second.unlocked.forEach(function (x) { ul5.appendChild(el("li", null, "✓ " + x)); }); un.appendChild(ul5); }
-      if (r.second.better && r.second.better.length && r.second.t.better) {                     // mejoró, pero falta un paso
-        un.appendChild(el("p", "t-body", r.second.t.better));
-        var ul7 = el("ul", "cantlist"); r.second.better.forEach(function (x) { ul7.appendChild(el("li", null, "↗ " + x)); }); un.appendChild(ul7);
+    if (wrn.length || h) {
+      var bw = block("rp-warn", X("rp_warn_k")); wrn.forEach(function (f) { bw.appendChild(warnCard(f)); });
+      if (h) {
+        if (r.checks && r.checks.browser_load === "failed") bw.appendChild(el("p", "t-support", J.b3_fallback));
+        if (h.note) bw.appendChild(el("p", "t-support", h.note));
+        [h.dup, h.click].forEach(function (x) { if (x) bw.appendChild(hintCard(x)); });
+        var paths = el("div", "rp-paths"); paths.appendChild(el("p", "t-label", J.b3_paths_h));
+        var pl = el("ol", "rp-stp"); [[J.b3_self, J.b3_self_d], [J.b3_me, J.b3_me_d]].forEach(function (p) { var li = el("li"); li.appendChild(el("b", null, p[0] + ". ")); li.appendChild(d.createTextNode(p[1])); pl.appendChild(li); });
+        paths.appendChild(pl); bw.appendChild(paths);
       }
-      if (r.second.worse && r.second.worse.length && r.second.t.worse) {                         // lo que se rompió desde la primera lectura
-        un.appendChild(el("p", "t-body", r.second.t.worse));
-        var ul6 = el("ul", "cantlist"); r.second.worse.forEach(function (x) { ul6.appendChild(el("li", null, "✕ " + x)); }); un.appendChild(ul6);
-      }
-      var nxp = el("p", "t-body"); nxp.appendChild(el("b", null, r.second.t.next)); un.appendChild(nxp);
-      root.appendChild(un);
+      rep.appendChild(bw);
     }
-
-    // 5 · Después
-    actions(root, r); reveal();
+    if (inf.length) { var bi = block("rp-know", X("rp_know_k", { n: inf.length }), X("rp_know_h")), gi = el("div", "rp-icards"); inf.forEach(function (f) { gi.appendChild(infoCard(f)); }); bi.appendChild(gi); rep.appendChild(bi); }
+    // 8 · preguntas para la agencia
+    rep.appendChild(invite(r));                                      // en el lugar de las preguntas para la agencia
+    if (r.second) { rep.appendChild(secondBox(r)); if (r.previous) rep.appendChild(changesCard(r)); }
+    // 9 · lo que no se ve desde afuera (computadora) · 10 · los próximos pasos · cupón · 11 · cambios, final (computadora)
+    rep.appendChild(cantSee(r));
+    if (r.coupon && r.coupon.open) rep.appendChild(couponCard(r));
+    if (r.keep_note && !r.recorded) { var kp = el("p", "t-note rp-keep m-card m-card--outlined"); kp.textContent = r.keep_note; rep.appendChild(kp); }
+    var sb = strip(r); if (sb) rep.appendChild(sb);
+    rep.appendChild(endBlock(r, true));
+    // celular: de «No visible desde afuera» para abajo solo queda el botón de PDF (Débora, 4/11)
+    var pb2 = pdfButton("m-btn m-btn--filled", X("rp_pdf_all"));
+    if (pb2) { var bar = el("section", "rp-pdfbar"); bar.appendChild(el("p", "t-support", X("rp_pdf_note"))); bar.appendChild(pb2); rep.appendChild(bar); }
+    reveal();
   }
 
-  function actions(root, r) {
-    var nx = block("b5 nextbox", null, J.b5_h);
-    var cq = el("div", "clearq"); cq.appendChild(el("p", "t-body", J.clear_q)); var cr = el("div", "chips");
+  // El final: ¿tuvo sentido la lectura?, compartir y descargar, el enlace permanente y la sesión de 45 minutos. `desk`: solo en computadora.
+  function endBlock(r, desk) {
+    var nx = block("rp-end" + (desk ? " rp-desk" : ""), X("rp_after_k"), J.clear_q);
+    var cr = el("span", "rp-chips");
     [["yes", J.clear_yes], ["partly", J.clear_partly], ["no", J.clear_no]].forEach(function (p) {
       var cb = el("button", "m-chip", p[1]); cb.type = "button";
-      cb.addEventListener("click", function () { emit("reading_feedback", { value: p[0] }); cq.textContent = ""; cq.appendChild(el("p", "t-note", J.clear_thanks)); });
+      cb.addEventListener("click", function () { emit("reading_feedback", { value: p[0] }); cr.textContent = ""; cr.appendChild(el("span", "t-note", J.clear_thanks)); });
       cr.appendChild(cb);
     });
-    cq.appendChild(cr); nx.appendChild(cq);
-    var cpOpen = !!(r.coupon && r.coupon.open);                 // el texto del cupón, solo mientras el cupón sirve (no en la Segunda lectura)
-    if (cpOpen) nx.appendChild(el("p", "t-body", J.next_text));
-    var row = el("div", "cta-row");
-    if (r.coupon && r.coupon.open) nx.appendChild(couponCard(r));
-    if (r.unreadable) { var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, ""), "diag", r.url || lastUrl); row.appendChild(a2); }   // en una lectura normal, el pedido va en el bloque 4
-    // Compartir: el enlace permanente abre esta misma lectura (?site=). En el celular usa la hoja de compartir del sistema; si no, copia el enlace.
-    // el link que se comparte abre esta misma lectura, ya hecha, durante 30 días (?r=id); sin id (lecturas viejas), el de antes
-    var host = hostOf(r.url || lastUrl), link = location.origin + location.pathname + (r.read_id ? "?r=" + encodeURIComponent(r.read_id) : "?site=" + encodeURIComponent(r.url || lastUrl));
-    var b4 = el("button", "m-btn m-btn--outlined", J.share); b4.type = "button";
-    b4.addEventListener("click", function () {
-      var text = J.share_text.replace("{host}", host);
-      if (navigator.share) { navigator.share({ title: J.share_subject.replace("{host}", host), text: text, url: link }).then(function () { emit("reading_shared", { how: "native" }); }).catch(function () {}); }
-      else { window.medidoCopy(text + " " + link, b4, J.copied); emit("reading_shared", { how: "copy" }); }
-      siteEvent("shared", r.url);
-    }); row.appendChild(b4);
-    // «Copiar la lectura» se sacó el 4/11 (Débora, vía Web); la fila queda con Compartir y, según el caso, el diagnóstico o la reunión.
-    // readingText() sigue para la descarga del informe, que viene después.
+    nx.firstChild.appendChild(cr);
+    var row = el("div", "rp-actions");
+    if (!r.unreadable) {
+      row.appendChild(shareButton(r)); var pb = pdfButton("m-btn m-btn--outlined", X("rp_pdf")); if (pb) row.appendChild(pb);
+      if (r.read_id) row.appendChild(el("span", "rp-perma", X("rp_perma") + " · " + shareLink(r).replace(/^https?:\/\//, "")));
+    } else {
+      var a2 = el("a", "m-btn m-btn--outlined", J.diag_btn); a2.href = mailto(cfg.subject, mailBody(r.url || lastUrl, ""), "diag", r.url || lastUrl); row.appendChild(a2);
+    }
     nx.appendChild(row);
-    if (r.keep_note && !r.recorded) { var kp = el("p", "t-note keepnote m-card m-card--outlined"); kp.textContent = r.keep_note; nx.appendChild(kp); }
-    if (cpOpen) nx.appendChild(el("p", "t-note", J.next_note));
     // Reunión de 45 minutos. Con Cal.com configurado (cfg.booking por idioma), la nota comparativa que elige, paga y agenda;
     // si no, el botón al formulario de contacto con el pedido armado.
-    var bk = cfg.booking || {};
+    var bk = cfg.booking || {}, host = hostOf(r.url || lastUrl);
     if (bk.talk && bk.note) {
-      var sess = el("div", "sess"); sess.appendChild(el("p", "t-label", J.sess_h));
+      var ul = el("ul", "rp-list rp-list--sess");
       [["talk", J.sess_talk_n, J.sess_talk_d, J.sess_talk_p], ["note", J.sess_note_n, J.sess_note_d, J.sess_note_p]].forEach(function (o) {
-        var rw = el("div", "sess-row"), tx = el("div", "sess-tx"); tx.appendChild(el("b", null, o[1])); tx.appendChild(el("span", "t-support", o[2])); rw.appendChild(tx);
-        rw.appendChild(el("b", "sess-p", o[3]));
+        var li = el("li", "rp-row"), tx = el("div"); tx.appendChild(el("b", null, o[1])); tx.appendChild(el("span", "rp-sup", o[2])); li.appendChild(tx);
+        li.appendChild(el("b", "rp-pr", o[3]));
         var a = el("a", "m-btn m-btn--outlined", J.sess_book); a.href = bk[o[0]] + "?site=" + encodeURIComponent(r.url || lastUrl); a.target = "_blank"; a.rel = "noopener";
-        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "cal" }); }); rw.appendChild(a); sess.appendChild(rw);
+        a.addEventListener("click", function () { emit("meeting_requested", { option: o[0], via: "cal" }); }); li.appendChild(a); ul.appendChild(li);
       });
-      nx.appendChild(sess);
+      nx.appendChild(ul);
     } else {
       var a3 = el("a", "m-btn m-btn--outlined", J.meet_btn); a3.href = mailto(J.meet_subject.replace("{host}", host), J.meet_body.replace("{host}", host).replace("{url}", r.url || lastUrl), "hello", r.url || lastUrl);
       a3.addEventListener("click", function () { emit("meeting_requested", { host_known: true, via: "form" }); }); row.appendChild(a3);
     }
     // qué te conviene según el gasto: vive en los precios, debajo de la lista (no en medio de la lectura)
     var rl = el("p", "t-support"); var ra = el("a", null, J.route_link); ra.href = "#prices"; rl.appendChild(ra); nx.appendChild(rl);
-    root.appendChild(nx);
+    return nx;
   }
 
   // El cupón de la Segunda lectura: el código bien visible, cuándo vence y UN enlace para agregar el aviso a Google Calendar
   // (plantilla pública de Google: sin iniciar sesión ni permisos). Para usarlo hay que volver, pegar el mismo sitio y se pide el cupón.
   function couponCard(r) {
     var c = r.coupon, t = c.t, url = r.url || lastUrl, host = hostOf(url);
-    var card = el("div", "m-card m-card--accent coupon");
+    var card = el("section", "rp-coupon m-card m-card--accent");
     if (r.cached_note) { var again = el("p", "t-body"); again.appendChild(el("b", null, r.cached_note)); card.appendChild(again); }   // dentro de las 6 h: que se note que es la misma lectura y el mismo cupón
-    card.appendChild(el("p", "t-label", t.h + " · " + t.price));
-    card.appendChild(el("p", "t-support", t.code));
-    var code = el("p", "t-headline", c.code); code.dir = "ltr"; card.appendChild(code);
+    card.appendChild(el("h3", "t-title rp-coupon-title", t.h));
+    card.appendChild(el("p", "rp-coupon-price", t.price_line || t.price));
+    card.appendChild(el("p", "t-label", t.code));
+    var code = el("p", "t-headline rp-code", c.code); code.dir = "ltr"; card.appendChild(code);
     card.appendChild(el("p", "t-support", t.valid));
     card.appendChild(el("p", "t-body", t.validate));
     if (window.MedidoIcs && window.MedidoIcs.googleUrl) {
@@ -599,7 +684,7 @@
   function reveal() {
     show("result", true);
     if (!(lastResult && lastResult.recorded)) emit("reading_completed", { state: (lastResult && lastResult.state) || "" });
-    var s = d.getElementById("result"), hl = $("#result .rhl");
+    var s = d.getElementById("result"), hl = $("#result .rp-hl");
     var go = function () { d.body.classList.add("has-result"); if (hl) { try { hl.focus({ preventScroll: true }); } catch (e) { hl.focus(); } } };
     // la misma lectura otra vez (dentro de las 6 h): la página se queda en el hero, con el aviso, el cupón y la sesión; el informe queda abajo
     if (lastResult && lastResult.repeat) { go(); return; }
