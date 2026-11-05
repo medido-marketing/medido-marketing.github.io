@@ -879,3 +879,5 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 /* verificación del correo (5/11): fila con el campo del código y el botón */
 #c-verify .vrow{display:flex;gap:var(--s-8);align-items:stretch}#c-verify{min-width:0}#c-verify .vrow input{flex:1 1 0;width:0;min-width:0;letter-spacing:.3em;font:700 20px/1 var(--font-mono)}
 #c-verify .cta-row{margin-bottom:var(--s-8)}#c-verify #c-vmsg{margin:var(--s-8) 0 0}#c-verify #c-vmsg.err{color:var(--md-on-bg);font-weight:600}
+/* el titular del informe recibe el foco al terminar la lectura (para lectores de pantalla); no es un control, no lleva borde de foco */
+.rp-hl:focus,.rp-hl:focus-visible{outline:none}

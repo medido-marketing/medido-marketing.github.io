@@ -101,7 +101,7 @@
     cs.addEventListener("click", function () {
       if (!emailOk()) { fieldErr(email, C.need_email); show(errAll, C.need_email); email.focus(); return; }
       show(errAll, ""); cs.disabled = true; var lbl = cs.textContent; cs.textContent = C.v_busy; vsay("");
-      token().then(function (t) { return post("/api/email/code", { email: (email.value || "").trim(), lang: cfg.lang, token: t }); })
+      token().then(function (t) { return post("/api/email/code", { email: (email.value || "").trim(), lang: cfg.lang, token: t, site: (site.value || "").trim() }); })
         .then(function (r) {
           cs.disabled = false; cs.textContent = C.v_resend;
           if (r.ok && r.j.ok) { cb.hidden = false; vsay(C.v_sent.replace("{email}", (email.value || "").trim())); vev("email_code_sent"); try { cc.focus(); } catch (x) {} }
@@ -112,7 +112,7 @@
       var code = (cc.value || "").replace(/\D/g, "");
       if (code.length !== 6) { cc.focus(); return; }
       ck.disabled = true;
-      post("/api/email/verify", { email: (email.value || "").trim(), code: code, lang: cfg.lang }).then(function (r) {
+      post("/api/email/verify", { email: (email.value || "").trim(), code: code, lang: cfg.lang, site: (site.value || "").trim() }).then(function (r) {
         ck.disabled = false;
         if (r.ok && r.j.ok && r.j.proof) { verified = true; pf.value = r.j.proof; cb.hidden = true; cs.hidden = true; vsay(C.v_ok); vev("email_code_verified"); }
         else { vsay(r.j.error || C.v_fail, true); vev("email_code_failed", { reason: r.j.reason === "expired" ? "expired" : "wrong" }); }
