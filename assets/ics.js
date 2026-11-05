@@ -2,7 +2,7 @@
  * ics.js · recordatorio de calendario de «Vuelve a leer tu sitio · Medido» (archivo nuevo, no cargado en ninguna página todavía).
  *
  * Qué hace: una función PURA, build({lang, domain, now, code, days}), que devuelve el texto de un archivo .ics con UN evento,
- * a los 25 días de «now» (antes de que venza el cupón de 30 días), a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
+ * a los 23 días de «now» (7 días antes de que venza el cupón de 30 días), a las 10:00 hora local (hora «flotante»: el calendario la interpreta en la zona de quien lo
  * abre; no hay zona horaria escrita en el archivo). Título en EN/HE/ES; el dominio va en la descripción, con el enlace a
  * https://marketingmedido.com/. No lleva ningún dato personal: ni nombre, ni mail, ni teléfono, ni ciudad. No usa red,
  * no guarda nada, no toca el DOM.
@@ -37,18 +37,18 @@
   "use strict";
 
   var SITE_URL = "https://marketingmedido.com/";
-  var DAYS = 25, HOUR = 10, MINUTES = 30;     // 25 días (el cupón vale 30), a las 10:00, de 30 minutos
+  var DAYS = 23, HOUR = 10, MINUTES = 30;     // 23 días (el cupón vale 30: el evento avisa 7 días antes de que venza), a las 10:00, de 30 minutos
   var CRLF = "\r\n";
 
   var TEXT = {
     en: { title: "Read your site again · Medido",
-          desc: "Second reading of {d}: US$5 with the coupon from your first reading. Read it again at {u} and see what changed.",
+          desc: "Second reading of {d}: US$5 with the coupon from your first reading. Read it again at {u} and see what changed. Your coupon expires in 7 days.",
           code: "Your coupon: {c}. It is valid for 30 days from your first reading." },
     he: { title: "קראו שוב את האתר שלכם · Medido",
-          desc: "קריאה שנייה של {d}: 15 ₪ עם הקופון מהקריאה הראשונה. קראו שוב בכתובת {u} וראו מה השתנה.",
+          desc: "קריאה שנייה של {d}: 15 ₪ עם הקופון מהקריאה הראשונה. קראו שוב בכתובת {u} וראו מה השתנה. הקופון שלכם יפוג בעוד 7 ימים.",
           code: "הקופון שלכם: {c}. הוא בתוקף 30 יום מהקריאה הראשונה." },
     es: { title: "Vuelve a leer tu sitio · Medido",
-          desc: "Segunda lectura de {d}: US$5 con el cupón de tu primera lectura. Vuelve a leerlo en {u} y mira qué cambió.",
+          desc: "Segunda lectura de {d}: US$5 con el cupón de tu primera lectura. Vuelve a leerlo en {u} y mira qué cambió. Tu cupón vence en 7 días.",
           code: "Tu cupón: {c}. Vale 30 días desde tu primera lectura." }
   };
 
@@ -115,7 +115,7 @@
    * @param {{lang?: "en"|"he"|"es", domain: string, now?: Date, code?: string, days?: number}} opts
    *   now: el momento de la lectura (por defecto, ahora; pasarlo explícito vuelve la función determinista).
    *   code: el cupón de Segunda lectura, «XXXX-XXXX» (letras y números); si viene, va en la descripción.
-   *   days: a cuántos días de «now» cae el recordatorio (por defecto 25, de 1 a 30: el cupón vale 30).
+   *   days: a cuántos días de «now» cae el recordatorio (por defecto 23, de 1 a 30: el cupón vale 30).
    * @returns {string} el contenido del .ics, con CRLF en todas las líneas y al final.
    */
   function build(opts) {
@@ -167,5 +167,25 @@
     return "medido-relectura-" + normalizeDomain(domain).replace(/[^a-z0-9.-]/g, "_") + ".ics";
   }
 
-  return { build: build, filename: filename, normalizeDomain: normalizeDomain, escapeText: escapeText, fold: fold };
+  /** Enlace de «Agregar a Google Calendar» (plantilla pública, sin iniciar sesión ni permisos): mismo evento que build(), a las 10:00 locales
+   *  (hora flotante: sin Z, Google la toma en la zona de quien abre el enlace). Mismas opciones y validaciones que build(). Sin red, sin DOM. */
+  function googleUrl(opts) {
+    opts = opts || {};
+    var lang = TEXT[opts.lang] ? opts.lang : "en";
+    var domain = normalizeDomain(opts.domain);
+    var now = opts.now instanceof Date ? opts.now : new Date();
+    if (isNaN(now.getTime())) throw new Error("ics: fecha inválida");
+    var days = opts.days == null ? DAYS : opts.days;
+    if (!(days === Math.floor(days) && days >= 1 && days <= 30)) throw new Error("ics: días inválidos");
+    var code = opts.code == null ? "" : String(opts.code).trim().toUpperCase();
+    if (code && !/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) throw new Error("ics: cupón inválido");
+    var start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, HOUR, 0, 0);
+    var end = new Date(start.getFullYear(), start.getMonth(), start.getDate(), HOUR, MINUTES, 0);
+    var t = TEXT[lang];
+    var desc = t.desc.replace("{d}", domain).replace("{u}", SITE_URL) + (code ? " " + t.code.replace("{c}", code) : "");
+    return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(t.title) +
+      "&dates=" + localStamp(start) + "/" + localStamp(end) + "&details=" + encodeURIComponent(desc);
+  }
+
+  return { build: build, googleUrl: googleUrl, filename: filename, normalizeDomain: normalizeDomain, escapeText: escapeText, fold: fold };
 });

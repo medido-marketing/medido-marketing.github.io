@@ -570,7 +570,8 @@
     root.appendChild(nx);
   }
 
-  // El cupón de la Segunda lectura: código, vencimiento, guardarlo en el calendario (aviso a los 25 días, con el código), copiarlo o usarlo ya.
+  // El cupón de la Segunda lectura: el código bien visible, cuándo vence y UN enlace para agregar el aviso a Google Calendar
+  // (plantilla pública de Google: sin iniciar sesión ni permisos). Para usarlo hay que volver, pegar el mismo sitio y se pide el cupón.
   function couponCard(r) {
     var c = r.coupon, t = c.t, url = r.url || lastUrl, host = hostOf(url);
     var card = el("div", "m-card m-card--accent coupon");
@@ -580,27 +581,14 @@
     var code = el("p", "t-headline", c.code); code.dir = "ltr"; card.appendChild(code);
     card.appendChild(el("p", "t-support", t.valid));
     card.appendChild(el("p", "t-body", t.validate));
-    var row = el("div", "cta-row");
-    if (window.MedidoIcs) {
-      var bc = el("button", "m-btn m-btn--outlined", t.cal); bc.type = "button";
-      bc.addEventListener("click", function () {
-        var text = window.MedidoIcs.build({ lang: cfg.lang, domain: host, now: new Date(), code: c.code, days: 25 });
-        var href = URL.createObjectURL(new Blob([text], { type: "text/calendar;charset=utf-8" }));
-        var a = d.createElement("a"); a.href = href; a.download = window.MedidoIcs.filename(host); d.body.appendChild(a); a.click(); a.remove();
-        setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
-        siteEvent("coupon_calendar", url); emit("coupon_calendar");
-      });
-      row.appendChild(bc);
+    if (window.MedidoIcs && window.MedidoIcs.googleUrl) {
+      var url2 = ""; try { url2 = window.MedidoIcs.googleUrl({ lang: cfg.lang, domain: host, now: new Date(), code: c.code }); } catch (e) {}
+      if (url2) {
+        var row = el("div", "cta-row"), a = el("a", "m-btn m-btn--outlined", t.cal); a.href = url2; a.target = "_blank"; a.rel = "noopener";
+        a.addEventListener("click", function () { siteEvent("coupon_calendar", url); emit("coupon_calendar"); });
+        row.appendChild(a); card.appendChild(row); card.appendChild(el("p", "t-note", t.cal_note));
+      }
     }
-    var bk = el("button", "m-btn m-btn--text", t.copy); bk.type = "button";
-    bk.addEventListener("click", function () { window.medidoCopy(c.code, bk, J.copied); siteEvent("coupon_copied", url); });
-    row.appendChild(bk);
-    var bu = el("button", "m-btn m-btn--text", t.use); bu.type = "button";
-    var msg = el("p", "t-note"); msg.setAttribute("role", "status");
-    bu.addEventListener("click", function () { bu.disabled = true; payStart(url, c.code, msg, function () { bu.disabled = false; }); });
-    row.appendChild(bu);
-    card.appendChild(row); card.appendChild(msg);
-    card.appendChild(el("p", "t-note", t.cal_note));
     return card;
   }
 
