@@ -26,6 +26,9 @@
   // campos que solo tiene el modo «steps» (próximos pasos): nombre, apellido, rol, nota de qué se guarda, calendario al confirmar
   var steps = mk === "steps";
   Array.prototype.forEach.call(d.querySelectorAll("[data-only=steps]"), function (n) { if (n.id !== "c-cal") n.hidden = !steps; });
+  // Verificación del correo con código (5/11): solo en el modo steps y con cfg.verify (el Worker de Lupa con el envío activo).
+  var verify = steps && !!cfg.verify, verified = false, vbox = $("c-verify");
+  if (verify && vbox) vbox.hidden = false;
   if (steps) { site.required = true; ["c-first", "c-last", "c-role"].forEach(function (id) { $(id).required = true; }); }
   // datos que llegan de otra página (la lectura, por ejemplo): asunto, texto y sitio
   if (q("subject", 120)) subj.value = q("subject", 120);
@@ -72,10 +75,56 @@
     box.hidden = false;
   }
 
+  // Verificación del correo: /api/email/code (manda el código, con Turnstile) y /api/email/verify (devuelve una prueba firmada de 30 min que viaja con el formulario).
+  // Eventos solo con el hecho (email_code_sent / verified / failed), nunca el correo ni el código.
+  if (verify) {
+    var cs = $("c-code-send"), cb = $("c-code-box"), cc = $("c-code"), ck = $("c-code-check"), vm = $("c-vmsg"), pf = $("c-proof");
+    var vev = function (n, x) { d.dispatchEvent(new CustomEvent("medido:" + n, { detail: Object.assign({ form_mode: formMode }, x || {}) })); };
+    var vsay = function (t, err) { vm.textContent = t; vm.hidden = !t; vm.classList.toggle("err", !!err); };
+    var post = function (path, body) { return fetch(cfg.api + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); }); };
+    var ts = null, tsRes = null;
+    var token = function () {
+      if (!cfg.sitekey) return Promise.resolve("");
+      return new Promise(function (ok, no) {
+        var go = function () {
+          var host = $("c-ts"); if (!host) { host = d.createElement("div"); host.id = "c-ts"; form.appendChild(host); }
+          tsRes = ok;
+          if (ts === null) ts = window.turnstile.render(host, { sitekey: cfg.sitekey, appearance: "interaction-only", execution: "execute", callback: function (t) { var f = tsRes; tsRes = null; try { window.turnstile.reset(ts); } catch (x) {} if (f) f(t); }, "error-callback": function () { no(new Error("turnstile")); } });
+          window.turnstile.execute(ts);
+        };
+        if (window.turnstile) return go();
+        var sc = d.createElement("script"); sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; sc.async = true; sc.onload = go; sc.onerror = function () { no(new Error("turnstile")); }; d.head.appendChild(sc);
+      });
+    };
+    var emailOk = function () { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email.value || "").trim()); };
+    email.addEventListener("input", function () { if (verified) { verified = false; pf.value = ""; vsay(""); cs.hidden = false; cb.hidden = true; } });
+    cs.addEventListener("click", function () {
+      if (!emailOk()) { fieldErr(email, C.need_email); show(errAll, C.need_email); email.focus(); return; }
+      show(errAll, ""); cs.disabled = true; var lbl = cs.textContent; cs.textContent = C.v_busy; vsay("");
+      token().then(function (t) { return post("/api/email/code", { email: (email.value || "").trim(), lang: cfg.lang, token: t }); })
+        .then(function (r) {
+          cs.disabled = false; cs.textContent = C.v_resend;
+          if (r.ok && r.j.ok) { cb.hidden = false; vsay(C.v_sent.replace("{email}", (email.value || "").trim())); vev("email_code_sent"); try { cc.focus(); } catch (x) {} }
+          else { cs.textContent = lbl; vsay(r.j.error || C.v_fail, true); }
+        }).catch(function () { cs.disabled = false; cs.textContent = lbl; vsay(C.v_fail, true); });
+    });
+    ck.addEventListener("click", function () {
+      var code = (cc.value || "").replace(/\D/g, "");
+      if (code.length !== 6) { cc.focus(); return; }
+      ck.disabled = true;
+      post("/api/email/verify", { email: (email.value || "").trim(), code: code, lang: cfg.lang }).then(function (r) {
+        ck.disabled = false;
+        if (r.ok && r.j.ok && r.j.proof) { verified = true; pf.value = r.j.proof; cb.hidden = true; cs.hidden = true; vsay(C.v_ok); vev("email_code_verified"); }
+        else { vsay(r.j.error || C.v_fail, true); vev("email_code_failed", { reason: r.j.reason === "expired" ? "expired" : "wrong" }); }
+      }).catch(function () { ck.disabled = false; vsay(C.v_fail, true); });
+    });
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     show(errAll, ""); show(errAck, ""); fieldErr(email, "");
     var bad = null;
+    if (verify && !verified) { show(errAll, C.v_need); (cs || email).focus(); return; }
     if (steps) {
       var miss = [$("c-first"), $("c-last"), site, $("c-role")].filter(function (x) { return !(x.value || "").trim(); })[0];
       if (miss) { show(errAll, C.need_fields); miss.focus(); return; }

@@ -876,3 +876,6 @@ body.m-surface[data-surface="blanco"]>main{flex:1}
 .rp-invite{display:grid;gap:var(--s-12);justify-items:start}.rp-invite>*{margin:0}.rp-invite .cta-row{margin-top:var(--s-4)}
 @media(max-width:700px){.rp-invite .cta-row{width:100%;display:grid;gap:var(--s-8);justify-self:stretch}.rp-invite .m-btn{width:100%;justify-content:center;text-align:center}}
 @media(max-width:700px){.manual .cta-row{width:100%}.manual .m-btn{width:100%;justify-content:center;text-align:center}}
+/* verificación del correo (5/11): fila con el campo del código y el botón */
+#c-verify .vrow{display:flex;gap:var(--s-8);align-items:stretch}#c-verify{min-width:0}#c-verify .vrow input{flex:1 1 0;width:0;min-width:0;letter-spacing:.3em;font:700 20px/1 var(--font-mono)}
+#c-verify .cta-row{margin-bottom:var(--s-8)}#c-verify #c-vmsg{margin:var(--s-8) 0 0}#c-verify #c-vmsg.err{color:var(--md-on-bg);font-weight:600}
