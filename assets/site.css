@@ -629,6 +629,7 @@ html:not([data-m=steps]) .cpage [data-only=steps],html:not([data-m=diag]) .cpage
 .hero .hero-grid{grid-template-columns:minmax(0,1fr)}
 .hero-copy{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(12px,2vw,24px);row-gap:0}
 .hero-copy>h1{grid-column:1/-1;margin:0}
+.hero-copy>.define{grid-column:1/-1;max-width:62ch;margin:var(--s-16) 0 var(--s-24)}   /* 16/11: definición de Medido bajo el h1 */
 .hero h1 .kick{display:flex;justify-content:space-between;gap:var(--s-16);border-top:1px solid color-mix(in srgb,var(--md-on-bg) 22%,transparent);padding-top:var(--s-12);
   margin-bottom:clamp(28px,5vw,64px);font:700 12px/1.4 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--md-on-var)}
 :lang(he) .hero h1 .kick{font:800 14px/1.4 var(--font-he);letter-spacing:0;text-transform:none}
