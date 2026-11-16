@@ -297,6 +297,31 @@ body:has(#reader) .bar-cta:not(.is-on){visibility:hidden;opacity:0}
 .gleft{display:flex;align-items:center;gap:var(--s-12);font-size:20px}
 .gok .tick{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--md-primary);color:var(--md-on-primary);font-weight:800;font-size:15px;flex:none}
 .gnote{margin:0}
+/* 16/11: «Lo que leí de tu cuenta» en /connect/ */
+.gsum{display:grid;gap:var(--s-12)}
+.gsum .t-title,.gsum-card .t-title{margin:0}
+.gsum p{margin:0}
+.gsum-grid{display:grid;gap:var(--s-16)}
+.gsum-card{display:grid;gap:var(--s-12);padding:var(--s-20);border:1px solid var(--md-outline-var)}
+.gsum-card h4{margin:0;font:700 16px/1.3 var(--font-ui)}
+.gsum-err{border:2px dashed var(--md-err);display:grid;gap:var(--s-12)}
+.gkv{margin:0;display:grid}
+.gkv>div{display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr);gap:var(--s-12);padding:var(--s-8) 0;border-top:1px dashed var(--md-outline-var)}
+.gkv>div:first-child{border-top:0}
+.gkv dt{color:var(--md-on-var);padding-top:3px}
+.gkv dd{margin:0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.gkv ul{margin:0;padding:0;list-style:none;display:grid;gap:var(--s-4)}
+.gnums{display:flex;flex-wrap:wrap;gap:var(--s-8) var(--s-24)}
+.gnums>div{display:grid}
+.gnums b{font:800 24px/1.1 var(--font-ui)}
+.gnums span{font-size:13px;color:var(--md-on-var)}
+.gtbl-wrap{overflow-x:auto}
+.gtbl{border-collapse:collapse;width:100%;font-size:14px}
+.gtbl th,.gtbl td{text-align:start;padding:6px 10px;border-top:1px solid var(--md-outline-var);vertical-align:top}
+.gtbl th{font:600 12px/1.2 var(--font-mono);color:var(--md-on-var);text-transform:uppercase;letter-spacing:.02em}
+.gtbl td.n{text-align:end;font-variant-numeric:tabular-nums}
+.gchoose{display:flex;flex-wrap:wrap;gap:var(--s-8)}
+@media (max-width:600px){.gkv>div{grid-template-columns:minmax(0,1fr);gap:var(--s-4)}.gsum-card{padding:var(--s-16)}}
 .gpage a{overflow-wrap:anywhere}
 .gpage h1{max-width:24ch}
 @media (max-width:600px){.gfacts>div{grid-template-columns:minmax(0,1fr);gap:var(--s-4)}.gbox,.gask{padding:var(--s-16)}.gbox .cta-row .m-btn{width:100%}.gask .cta-row .m-btn{width:100%}}
