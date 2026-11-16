@@ -107,7 +107,7 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (o) {
         b.removeAttribute("aria-disabled"); b.textContent = b.getAttribute("data-label");
-        if (o.ok && o.j.ok) { clearSum(); SUM.prop = null; SUM.cont = null; S.phase = "idle"; S.msg = ""; S.st = null; S.note = o.j.revocado_en_google === false ? g.disc_nog : g.disc_ok; paint("note"); }
+        if (o.ok && o.j.ok) { SUM.gen++; SUM.busy = false; clearSum(); SUM.prop = null; SUM.cont = null; S.phase = "idle"; S.msg = ""; S.st = null; S.note = o.j.revocado_en_google === false ? g.disc_nog : g.disc_ok; paint("note"); }
         else { S.note = ""; S.phase = "connected"; paint(); var e = R("note"); e.hidden = false; e.textContent = o.j.error || g.e_fail; }
       })
       .catch(function () { b.removeAttribute("aria-disabled"); b.textContent = b.getAttribute("data-label"); var e = R("note"); e.hidden = false; e.textContent = g.e_net; });
@@ -117,7 +117,7 @@
   // ---------- «Lo que leí de tu cuenta» (16/11): GET /api/google/summary ----------
   // Se pide UNA vez al cargar conectada y al elegir de una lista (cupo: 6 por hora por conexión); sin reintentos automáticos.
   // Son datos de la cuenta de la persona: solo en memoria de la página (nada en localStorage ni sessionStorage) y siempre con textContent.
-  var SUM = { busy: false, prop: null, cont: null };
+  var SUM = { busy: false, prop: null, cont: null, gen: 0 };
   var NF = LOCALE[cfg.lang] || "en-US";
   function el(tag, cls, txt) { var e = d.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
   function ltr(txt) { var b = el("bdi", null, txt == null ? "" : String(txt)); b.setAttribute("dir", "ltr"); return b; }
@@ -208,17 +208,18 @@
     sumShow("body");
   }
   function loadSummary() {
-    if (SUM.busy) return; SUM.busy = true; sumShow("load");
+    if (SUM.busy) return; SUM.busy = true; var mine = ++SUM.gen; sumShow("load");
     var q = new URLSearchParams({ lang: cfg.lang }); if (SUM.prop) q.set("property", SUM.prop); if (SUM.cont) q.set("container", SUM.cont);
     fetch(GAPI + "/api/google/summary?" + q, { headers: { Accept: "application/json" }, cache: "no-store", credentials: "include" })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, ok: r.ok, j: j || {} }; }); })
       .then(function (o) {
+        if (mine !== SUM.gen) return;   // se desconectó mientras tanto: se ignora la respuesta
         SUM.busy = false;
         if (o.ok && o.j.ok) { renderSummary(o.j); return; }
         if (o.status === 401) { clearSum(); S.phase = "error"; S.msg = o.j.error || g.e_fail; S.st = null; paint("err"); return; }   // sin conexión: vuelve a «sin conectar»
         sumError(o.j.error || g.sm_e_fail, o.status !== 429);   // 429 (cupo): sin reintento
       })
-      .catch(function () { SUM.busy = false; sumError(g.sm_e_net, true); });
+      .catch(function () { if (mine !== SUM.gen) return; SUM.busy = false; sumError(g.sm_e_net, true); });
   }
   R("sum-retry").addEventListener("click", function () { loadSummary(); });
 
