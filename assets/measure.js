@@ -5,6 +5,9 @@
   var GA4_ID = "G-T14ZL11D2C"; // ej. "G-ABC123DEF4"
   var pm = document.querySelector('meta[name="medido-meta-pixel"]'), PIXEL = pm ? (pm.getAttribute("content") || "") : "";
   var cm = document.querySelector('meta[name="medido-clarity"]'), CLARITY = cm ? (cm.getAttribute("content") || "") : "";
+  // /connect/ (20/11, pedido de Medición): esa página muestra datos de la cuenta de Google del cliente. Con <meta name="medido-measure" content="ga-only"> solo mide GA4 (page_view y los eventos),
+  // sin ui_click (manda el texto de los botones), sin Clarity (graba la pantalla) y sin el píxel de Meta.
+  var GA_ONLY = ((document.querySelector('meta[name="medido-measure"]') || {}).content || "") === "ga-only";
   if (!GA4_ID && !PIXEL) return;
   // Interruptor para las visitas propias: abrir el sitio con ?interno=1 guarda una marca en ese navegador y desde entonces no se carga ni se manda nada
   // (ni Google Analytics ni Meta). ?interno=0 la quita. No depende de la dirección IP y no guarda ningún dato personal.
@@ -23,7 +26,7 @@
   // Eventos propios del embudo (los disparan lupa.js, site.js y connect.js como "medido:<nombre>"); van iguales a GA4, Meta y Clarity.
   // Un evento que se dispara y no está en esta lista no llega a ningún lado.
   var EV = ["pql_reading_requested", "reading_completed", "reading_repeated", "questions_copied", "manual_requested", "analytics_connected", "reading_shared", "meeting_requested",
-    "steps_cta_clicked", "next_step_clicked", "steps_calendar", "email_code_sent", "email_code_verified", "email_code_failed", "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated"];
+    "steps_cta_clicked", "next_step_clicked", "steps_calendar", "email_code_sent", "email_code_verified", "email_code_failed", "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated", "diagnosis_cta_clicked", "pdf_downloaded"];
   // Precio de la Segunda lectura: el mismo que cobra Lupa (tools/lupa-workers/src/paypal.js, por idioma de la página). coupon_paid = venta.
   var SALE = lang === "he" ? { value: 15, currency: "ILS" } : { value: 5, currency: "USD" };
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -78,7 +81,7 @@
     });
     // Cada clic dentro del sitio (1/11, pedido de Medición): pestañas, acordeones, menú, «ver más», calculadora, lectura. Uno por clic, solo a GA4.
     // Un texto que podría ser un dato de la persona (un mail, un dominio, 4 o más dígitos seguidos) va como "(dato)": la lectura muestra el sitio que escribió.
-    document.addEventListener("click", function (e) {
+    if (!GA_ONLY) document.addEventListener("click", function (e) {
       var t = e.target.closest && e.target.closest('a, button, summary, [role="button"], [role="tab"]');
       if (!t || t.matches('a[href^="mailto:"]')) return;
       var label = (t.getAttribute("data-track") || t.getAttribute("aria-label") || t.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60);
@@ -113,7 +116,7 @@
     EV.forEach(function (name) { document.addEventListener("medido:" + name, function () { window.clarity("event", name); }); });
     document.addEventListener("medido:lead", function () { window.clarity("event", "lead"); });
   }
-  function load() { loadGa(); loadMeta(); loadClarity(); }
+  function load() { loadGa(); if (!GA_ONLY) { loadMeta(); loadClarity(); } }
 
   function banner() {
     // 4/11 (pedido de Débora): la página se atenúa hasta que se elige; solo se ve más oscura, no se bloquea nada (sin muro)
