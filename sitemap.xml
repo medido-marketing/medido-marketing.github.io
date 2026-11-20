@@ -12,4 +12,8 @@
   <url><loc>https://marketingmedido.com/diagnosis/</loc><xhtml:link rel="alternate" hreflang="en" href="https://marketingmedido.com/diagnosis/"/><xhtml:link rel="alternate" hreflang="he" href="https://marketingmedido.com/he/diagnosis/"/><xhtml:link rel="alternate" hreflang="es" href="https://marketingmedido.com/es/diagnosis/"/><xhtml:link rel="alternate" hreflang="x-default" href="https://marketingmedido.com/diagnosis/"/></url>
   <url><loc>https://marketingmedido.com/he/diagnosis/</loc><xhtml:link rel="alternate" hreflang="en" href="https://marketingmedido.com/diagnosis/"/><xhtml:link rel="alternate" hreflang="he" href="https://marketingmedido.com/he/diagnosis/"/><xhtml:link rel="alternate" hreflang="es" href="https://marketingmedido.com/es/diagnosis/"/><xhtml:link rel="alternate" hreflang="x-default" href="https://marketingmedido.com/diagnosis/"/></url>
   <url><loc>https://marketingmedido.com/es/diagnosis/</loc><xhtml:link rel="alternate" hreflang="en" href="https://marketingmedido.com/diagnosis/"/><xhtml:link rel="alternate" hreflang="he" href="https://marketingmedido.com/he/diagnosis/"/><xhtml:link rel="alternate" hreflang="es" href="https://marketingmedido.com/es/diagnosis/"/><xhtml:link rel="alternate" hreflang="x-default" href="https://marketingmedido.com/diagnosis/"/></url>
+  <!-- learn:start -->
+  <url><loc>https://marketingmedido.com/findings/</loc></url>
+  <url><loc>https://marketingmedido.com/findings/google-ads-audit-what-i-found/</loc></url>
+  <!-- learn:end -->
 </urlset>

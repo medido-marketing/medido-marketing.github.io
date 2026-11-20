@@ -911,3 +911,17 @@ html:not([data-m=steps]) .cpage [data-only=steps],html:not([data-m=diag]) .cpage
 #c-verify .cta-row{margin-bottom:var(--s-8)}#c-verify #c-vmsg{margin:var(--s-8) 0 0}#c-verify #c-vmsg.err{color:var(--md-on-bg);font-weight:600}
 /* el titular del informe recibe el foco al terminar la lectura (para lectores de pantalla); no es un control, no lleva borde de foco */
 .rp-hl:focus,.rp-hl:focus-visible{outline:none}
+
+/* «Aprende» / «Learn» (19/11) */
+.learn p,.learn li{font:500 17px/1.6 var(--font-ui);max-width:70ch;margin:0}
+.learn ul{margin:0;padding-inline-start:1.3em;display:grid;gap:var(--s-8)}
+.learn li>ul{margin-top:var(--s-8)}
+.learn .lintro{display:grid;gap:var(--s-16)}
+.learn .msec{gap:var(--s-12)}
+.learn .t-note,.learn .k{font:500 13px/1.45 var(--font-ui)}
+.learn .k a{text-decoration:none}
+.learn .m-btn{justify-self:start}
+.lidx{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-16)}
+.lidx .m-card{display:grid;gap:var(--s-8);padding:var(--s-24)}
+.lidx .t-title a{text-decoration:none}
+.lidx .t-title a:hover{text-decoration:underline}

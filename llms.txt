@@ -44,6 +44,14 @@ My fee is flat, never a percentage of what you spend, and I don't run your ads. 
 - Diagnosis: [English](https://marketingmedido.com/diagnosis/), [Hebrew](https://marketingmedido.com/he/diagnosis/), [Spanish](https://marketingmedido.com/es/diagnosis/)
 - Privacy: [English](https://marketingmedido.com/privacy/), [Hebrew](https://marketingmedido.com/he/privacy/), [Spanish](https://marketingmedido.com/es/privacy/)
 
+<!-- learn:start -->
+
+## Findings
+
+- [Findings](https://marketingmedido.com/findings/): what Medido finds when it reads real websites, and what you can check yourself. English only.
+- [Google Ads Audit: What I Found on 200 Real Sites](https://marketingmedido.com/findings/google-ads-audit-what-i-found/): What a Google Ads audit misses: what I found when I read the tracking on 200 real websites, what it means for your ads, and five checks you can do today.
+<!-- learn:end -->
+
 ## Contact
 
 - Email: marketingmedido@gmail.com or the form at https://marketingmedido.com/contact/

@@ -1,0 +1,37 @@
+name: aprende
+# Publica un artículo de «Aprende» / «Learn» cada 3 días: elige la etapa guardada en la rama «cola» según la fecha. Sin costo, sin secretos.
+on:
+  schedule:
+    - cron: "7 0 * * *"
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: "Dejar una marca en el sitio para probar que el push dispara la publicación"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  pages: write
+jobs:
+  etapa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: |
+          git worktree add "$RUNNER_TEMP/cola" origin/cola
+          ETAPAS="$RUNNER_TEMP/cola" python3 .github/scripts/aprende.py
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PRUEBA: ${{ inputs.prueba }}
+        run: |
+          if [ "$PRUEBA" = "true" ]; then date -u > aprende-ultima-prueba.txt; fi
+          git config user.name "Medido"
+          git config user.email "marketingmedido@gmail.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Aprende: etapa del día"
+            git push
+            gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+          fi
