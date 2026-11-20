@@ -1,0 +1,6 @@
+Contact: mailto:marketingmedido@gmail.com
+Contact: https://marketingmedido.com/contact/
+Expires: 2027-10-31T00:00:00.000Z
+Preferred-Languages: en, es, he
+Canonical: https://marketingmedido.com/.well-known/security.txt
+Policy: https://marketingmedido.com/privacy/
