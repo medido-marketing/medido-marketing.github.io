@@ -621,7 +621,7 @@
     var cr = el("span", "rp-chips");
     [["yes", J.clear_yes], ["partly", J.clear_partly], ["no", J.clear_no]].forEach(function (p) {
       var cb = el("button", "m-chip", p[1]); cb.type = "button";
-      cb.addEventListener("click", function () { emit("reading_feedback", { value: p[0] }); cr.textContent = ""; cr.appendChild(el("span", "t-note", J.clear_thanks)); });
+      cb.addEventListener("click", function () { emit("reading_feedback", { answer: p[0] }); cr.textContent = ""; cr.appendChild(el("span", "t-note", J.clear_thanks)); });
       cr.appendChild(cb);
     });
     nx.firstChild.appendChild(cr);
