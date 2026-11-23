@@ -83,3 +83,5 @@
 .fx{scroll-padding-top:128px}
 html:has(.fx){scroll-padding-top:128px;scroll-behavior:smooth}
 .fx .f-band .sx{display:grid}
+.lang-note{background:var(--md-surface);border-bottom:1px solid var(--md-outline-var);padding:12px 0}
+.lang-note p{max-width:80ch}

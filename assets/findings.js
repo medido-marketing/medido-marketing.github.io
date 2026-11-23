@@ -1,5 +1,10 @@
 // «Findings»: progreso de lectura, índice lateral y filtros del índice. Sin dependencias.
 (function () {
+  // Aviso de idioma: solo a quien entra desde el menú en español (?from=es); se recuerda durante la sesión para el resto de la sección.
+  var from = null;
+  try { from = new URLSearchParams(location.search).get("from"); if (from) sessionStorage.setItem("fx_from", from); else from = sessionStorage.getItem("fx_from"); } catch (e) {}
+  var note = from ? document.getElementById("lang-note-" + from) : null;
+  if (note) note.hidden = false;
   var bar = document.getElementById("readbar");
   if (bar) {
     var onScroll = function () {
