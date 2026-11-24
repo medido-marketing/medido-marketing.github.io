@@ -34,4 +34,6 @@ jobs:
             git commit -m "Aprende: etapa del día"
             git push
             gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+            # IndexNow (Bing y otros): avisa de las páginas de Findings que cambiaron o salieron hoy
+            git diff --name-only HEAD~1 HEAD | grep -E '^findings/.*index\.html$' | sed -E 's#index\.html$##; s#^#https://marketingmedido.com/#' | python3 .github/scripts/indexnow.py || true
           fi
