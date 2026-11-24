@@ -928,3 +928,14 @@ html:not([data-m=steps]) .cpage [data-only=steps],html:not([data-m=diag]) .cpage
 .door1{display:grid;gap:var(--s-8);margin-bottom:var(--s-8)}
 .door2{display:grid;gap:var(--s-12);margin-top:var(--s-16);padding:var(--s-24)}
 .door1 h2,.door2 h2{text-wrap:balance}
+/* 25/11 (Débora): la barra para pegar el sitio quedaba bajo el pliegue en pantallas de notebook. En escritorio la barra va justo después del titular
+   y la definición de Medido pasa debajo (en el HTML sigue pegada al h1, así que buscadores y asistentes la leen primero); el titular se acota por la altura. */
+@media (min-width:901px){
+  .hero-grid{row-gap:var(--s-24)}
+  .hero-copy{display:contents}
+  .hero-copy>h1{order:1}
+  .hero .m-test{order:2}
+  .hero-copy>.define{order:3;margin:0;max-width:70ch}
+  .hero h1 .hl{font-size:clamp(40px,min(7.4vw,11vh),112px)}
+  :lang(he) .hero h1 .hl{font-size:clamp(40px,min(7.8vw,11vh),118px)}
+}
