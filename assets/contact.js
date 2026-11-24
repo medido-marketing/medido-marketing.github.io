@@ -24,6 +24,21 @@
     // al cambiar de idioma, el formulario sigue siendo el mismo motivo
     Array.prototype.forEach.call(d.querySelectorAll(".m-seg [data-go]"), function (x) { x.setAttribute("data-go", x.getAttribute("data-go").split("?")[0] + "?m=" + mk); });
   }
+  // Diagnóstico en inglés (cfg.dx): nombre, gasto TOTAL en marketing y las UTM ocultas; la pregunta de gasto en anuncios de siempre se reemplaza por la de gasto total.
+  var dx = mk === "diag" && cfg.dx, mktKey = "";
+  if (dx) {
+    ["c-name-f", "c-mktbox"].forEach(function (id) { var n = $(id); if (n) n.hidden = false; });
+    var oldSpend = $("c-spendbox"); if (oldSpend) oldSpend.hidden = true;
+    ["utm_source", "utm_campaign", "utm_content"].forEach(function (k) { var n = $("c-" + k); if (n) n.value = q(k, 100).replace(/[^\w .:+~%-]/g, ""); });
+    Array.prototype.forEach.call(form.querySelectorAll("[data-mkt]"), function (c) {
+      c.addEventListener("click", function () {
+        var on = c.getAttribute("aria-pressed") !== "true";
+        Array.prototype.forEach.call(form.querySelectorAll("[data-mkt]"), function (x) { x.setAttribute("aria-pressed", "false"); });
+        c.setAttribute("aria-pressed", on ? "true" : "false"); mktKey = on ? c.getAttribute("data-mkt") : "";
+        var h = $("c-mkt"); if (h) h.value = on ? c.textContent : "";
+      });
+    });
+  }
   // campos que solo tiene el modo «steps» (próximos pasos): nombre, apellido, rol, nota de qué se guarda, calendario al confirmar
   var steps = mk === "steps";
   Array.prototype.forEach.call(d.querySelectorAll("[data-only=steps]"), function (n) { if (n.id !== "c-cal") n.hidden = !steps; });
@@ -147,6 +162,8 @@
         try { tier = sessionStorage.getItem("medido_tier") || ""; } catch (x) {}
         if (tier) det.spend_tier = tier;              // t1…t5, de la calculadora de la portada
         if (spendKey) det.spend_chip = spendKey;      // low / mid / high, de los botones de este formulario
+        if (mktKey) det.mkt_tier = mktKey;            // m1…m5, gasto total en marketing (solo el formulario del Diagnóstico en inglés)
+        if (dx && $("c-book")) $("c-book").hidden = false;   // botón a la reserva de 45 minutos
         if (howKey) det.how_found = howKey;
         if (steps) { det.role = $("c-role").value; showCalendar(); }            // search, ai, ads, newsletter, team, referral, other
         d.dispatchEvent(new CustomEvent("medido:lead", { detail: det }));
