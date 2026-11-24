@@ -29,7 +29,10 @@
   if (dx) {
     ["c-name-f", "c-mktbox", "c-door1", "c-door2"].forEach(function (id) { var n = $(id); if (n) n.hidden = false; });
     ["c-msg-f", "c-how-f"].forEach(function (id) { var n = $(id); if (n) n.hidden = true; });   // el anuncio pide solo correo, sitio y gasto (y el nombre, opcional)
-    var d2 = $("c-door2-a"); if (d2) d2.addEventListener("click", function () { d.dispatchEvent(new CustomEvent("medido:meeting_requested", { detail: { page_lang: cfg.lang, form_mode: "diag", option: "talk", via: "contact" } })); });
+    var d2 = $("c-door2-a"), bu = new URLSearchParams();
+    ["utm_source", "utm_campaign", "utm_content"].forEach(function (k) { var v = q(k, 100).replace(/[^\w .:+~%-]/g, ""); if (v) bu.set(k, v); });
+    if (d2 && bu.toString()) d2.href = "/book/?" + bu.toString();   // las UTM viajan a la página de reserva
+    if (d2) d2.addEventListener("click", function () { d.dispatchEvent(new CustomEvent("medido:meeting_requested", { detail: { page_lang: cfg.lang, form_mode: "diag", option: "talk", via: "contact" } })); });
     var oldSpend = $("c-spendbox"); if (oldSpend) oldSpend.hidden = true;
     ["utm_source", "utm_campaign", "utm_content"].forEach(function (k) { var n = $("c-" + k); if (n) n.value = q(k, 100).replace(/[^\w .:+~%-]/g, ""); });
     Array.prototype.forEach.call(form.querySelectorAll("[data-mkt]"), function (c) {

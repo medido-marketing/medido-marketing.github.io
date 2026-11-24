@@ -26,7 +26,7 @@
   // Eventos propios del embudo (los disparan lupa.js, site.js y connect.js como "medido:<nombre>"); van iguales a GA4, Meta y Clarity.
   // Un evento que se dispara y no está en esta lista no llega a ningún lado.
   var EV = ["pql_reading_requested", "reading_completed", "reading_repeated", "questions_copied", "manual_requested", "analytics_connected", "reading_shared", "meeting_requested",
-    "steps_cta_clicked", "next_step_clicked", "steps_calendar", "email_code_sent", "email_code_verified", "email_code_failed", "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated", "diagnosis_cta_clicked", "pdf_downloaded"];
+    "steps_cta_clicked", "next_step_clicked", "steps_calendar", "email_code_sent", "email_code_verified", "email_code_failed", "reread_requested", "coupon_asked", "coupon_calendar", "coupon_payment_started", "coupon_paid", "reading_feedback", "example_played", "spend_calculated", "diagnosis_cta_clicked", "pdf_downloaded", "meeting_booked"];
   // Precio de la Segunda lectura: el mismo que cobra Lupa (tools/lupa-workers/src/paypal.js, por idioma de la página). coupon_paid = venta.
   var SALE = lang === "he" ? { value: 15, currency: "ILS" } : { value: 5, currency: "USD" };
   function get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
@@ -105,6 +105,7 @@
       document.addEventListener("medido:" + name, function (e) { window.fbq("trackCustom", name, (e && e.detail) || {}); });
     });
     document.addEventListener("medido:coupon_paid", function () { window.fbq("track", "Purchase", { value: SALE.value, currency: SALE.currency }); });
+    document.addEventListener("medido:meeting_booked", function () { window.fbq("track", "Schedule"); });   // reserva de la Sesión confirmada en /book/ (25/11)
   }
   // Microsoft Clarity (mapas de calor y grabaciones de sesión): carga estándar, solo con consentimiento, y se le avisa el consentimiento para sus cookies.
   function loadClarity() {
