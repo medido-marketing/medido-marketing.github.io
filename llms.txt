@@ -1,6 +1,6 @@
 # Medido
 
-> Independent second opinion on what small businesses pay for marketing: reads a site from outside, verifies measurement, and delivers a written diagnosis. Flat fee, accounts in the client's name.
+> Independent second opinion on what businesses pay for marketing: reads a site from outside, verifies measurement, and delivers a written diagnosis. Flat fee, accounts in the client's name.
 
 Website in English (https://marketingmedido.com/), Hebrew (https://marketingmedido.com/he/) and Spanish (https://marketingmedido.com/es/). The text below is taken from the English site, where Medido writes in the first person.
 
@@ -26,7 +26,7 @@ My fee is flat, never a percentage of what you spend, and I don't run your ads. 
 
 ## Questions
 
-- What is Medido? Medido (marketingmedido.com) is an independent second opinion for small businesses that pay for ads. It checks whether what Google Analytics, Tag Manager, Google Ads and Meta report is true. It starts with a free reading of your site, with no signup. Medido doesn't run ads, charges a flat fee, never a percentage of ad spend, and your accounts stay in your name.
+- What is Medido? Medido (marketingmedido.com) is an independent second opinion for businesses that pay for ads. It checks whether what Google Analytics, Tag Manager, Google Ads and Meta report is true. It starts with a free reading of your site, with no signup. Medido doesn't run ads, charges a flat fee, never a percentage of ad spend, and your accounts stay in your name.
 - How much does Medido cost? Medido publishes its prices in US dollars, flat, never a percentage of ad spend. The reading is free. A Second reading is US$5 with the coupon from your first one. A 45-minute Reading session is US$160, or US$190 with a written note. The Diagnosis is US$925, delivered in 10 business days, half to start and half on delivery. The Watch is US$150 a month and the Quarter US$1,920 a month.
 - What does Medido's free reading check? Medido's free reading looks at your home page from outside, with no signup. It shows which measurement tags load (Google Analytics, Tag Manager, the Meta pixel, ad tags), whether an event counts twice, what your WhatsApp, phone and email links send, and who holds your domain. Each finding says how sure it is and how to check it yourself, plus what it couldn't see.
 - At what ad spend does each Medido service make sense? Medido publishes a minimum monthly ad spend for each step. The free reading, the Second reading (US$5), the 45-minute Reading session and the Watch (US$150 a month) fit any spend. The Diagnosis (US$925) makes sense from about US$1k a month in ads, when something changes. The Quarter (US$1,920 a month) fits from about US$15k a month, or if you want to scale.
