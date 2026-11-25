@@ -7,7 +7,9 @@ ETAPAS = pathlib.Path(os.environ.get("ETAPAS", "../cola"))   # la rama «cola» 
 cal = json.loads((ETAPAS / "calendario.json").read_text(encoding="utf-8"))
 today = datetime.date.fromisoformat(os.environ["HOY"]) if os.environ.get("HOY") else datetime.datetime.now(datetime.timezone.utc).date()
 n = 0
-if cal.get("inicio"):
+if cal.get("fechas"):   # una fecha por artículo aprobado, en orden: la etapa es cuántos ya salieron
+    n = sum(1 for f in cal["fechas"] if f and datetime.date.fromisoformat(f) <= today)
+elif cal.get("inicio"):
     d = (today - datetime.date.fromisoformat(cal["inicio"])).days
     if d >= 0:
         n = min(int(cal["total"]), d // int(cal["cada_dias"]) + 1)
