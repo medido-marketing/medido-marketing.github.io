@@ -1,3 +1,5 @@
   <url><loc>https://marketingmedido.com/findings/</loc></url>
   <url><loc>https://marketingmedido.com/findings/google-ads-audit-what-i-found/</loc></url>
   <url><loc>https://marketingmedido.com/findings/ga4-audit-what-i-found/</loc></url>
+  <url><loc>https://marketingmedido.com/findings/is-a-marketing-agency-worth-it/</loc></url>
+  <url><loc>https://marketingmedido.com/findings/google-ads-audit-template/</loc></url>
