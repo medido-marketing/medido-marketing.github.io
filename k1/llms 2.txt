@@ -1,0 +1,5 @@
+
+## Findings
+
+- [Findings](https://marketingmedido.com/findings/): what Medido finds when it reads real websites, and what you can check yourself. English only.
+- [Google Ads Audit: What I Found on 200 Real Sites](https://marketingmedido.com/findings/google-ads-audit-what-i-found/): What a Google Ads audit misses: what I found when I read the tracking on 200 real websites, what it means for your ads, and five checks you can do today.
